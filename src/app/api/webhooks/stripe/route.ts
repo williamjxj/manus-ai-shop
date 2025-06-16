@@ -3,7 +3,7 @@ import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2025-02-24.acacia',
 })
 
 export async function POST(request: NextRequest) {
@@ -14,12 +14,12 @@ export async function POST(request: NextRequest) {
 
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
-  } catch (err: any) {
-    console.error('Webhook signature verification failed:', err.message)
+  } catch (err: unknown) {
+    console.error('Webhook signature verification failed:', err)
     return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 })
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   try {
     switch (event.type) {
@@ -58,7 +58,12 @@ export async function POST(request: NextRequest) {
           const userId = session.metadata.user_id
           const cartItems = JSON.parse(session.metadata.cart_items)
           
-          const totalCents = cartItems.reduce((total: number, item: any) => 
+          const totalCents = cartItems.reduce((total: number, item: {
+            product_id: string
+            quantity: number
+            price_cents: number
+            points_price: number
+          }) => 
             total + (item.price_cents * item.quantity), 0
           )
 
@@ -79,7 +84,12 @@ export async function POST(request: NextRequest) {
           if (orderError) throw orderError
 
           // Create order items
-          const orderItems = cartItems.map((item: any) => ({
+          const orderItems = cartItems.map((item: {
+            product_id: string
+            quantity: number
+            price_cents: number
+            points_price: number
+          }) => ({
             order_id: order.id,
             product_id: item.product_id,
             quantity: item.quantity,
@@ -102,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ received: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error processing webhook:', error)
     return NextResponse.json(
       { error: 'Webhook processing failed' },
