@@ -15,8 +15,16 @@ export async function GET(request: Request) {
       error_description,
       searchParams: Object.fromEntries(searchParams.entries()),
     });
+
+    const isLocalEnv = process.env.NODE_ENV === "development";
+    const baseUrl = isLocalEnv
+      ? origin
+      : process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
+        process.env.AUTH_URL ||
+        origin;
+
     return NextResponse.redirect(
-      `${origin}/auth/auth-code-error?error=${error}&description=${encodeURIComponent(
+      `${baseUrl}/auth/auth-code-error?error=${error}&description=${encodeURIComponent(
         error_description || ""
       )}`
     );
@@ -30,18 +38,28 @@ export async function GET(request: Request) {
     if (!exchangeError) {
       const forwardedHost = request.headers.get("x-forwarded-host"); // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === "development";
-      if (isLocalEnv) {
-        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      } else {
-        return NextResponse.redirect(`${origin}${next}`);
-      }
+
+      // Use environment variable for production base URL
+      const baseUrl = isLocalEnv
+        ? origin
+        : process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
+          process.env.AUTH_URL ||
+          `https://${forwardedHost}` ||
+          origin;
+
+      return NextResponse.redirect(`${baseUrl}${next}`);
     } else {
       console.error("Error exchanging code for session:", exchangeError);
+
+      const isLocalEnv = process.env.NODE_ENV === "development";
+      const baseUrl = isLocalEnv
+        ? origin
+        : process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
+          process.env.AUTH_URL ||
+          origin;
+
       return NextResponse.redirect(
-        `${origin}/auth/auth-code-error?error=exchange_error&description=${encodeURIComponent(
+        `${baseUrl}/auth/auth-code-error?error=exchange_error&description=${encodeURIComponent(
           exchangeError.message
         )}`
       );
@@ -49,5 +67,12 @@ export async function GET(request: Request) {
   }
 
   // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`);
+  const isLocalEnv = process.env.NODE_ENV === "development";
+  const baseUrl = isLocalEnv
+    ? origin
+    : process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
+      process.env.AUTH_URL ||
+      origin;
+
+  return NextResponse.redirect(`${baseUrl}/auth/auth-code-error`);
 }
