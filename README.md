@@ -148,3 +148,8 @@ The application is ready for deployment on platforms like Vercel or Netlify. Mak
 
 For issues and questions, please refer to the documentation or create an issue in the repository.
 
+```bash
+$ supabase
+$ stripe
+$ vercel
+```
