@@ -26,9 +26,7 @@ Auth Providers Enable:
 - Google
 - GitHub
 
-### Vercel （云部署）
-
-- https://manus-ai-shop.vercel.app/
+### Vercel （云部署）https://manus-ai-shop.vercel.app/
 
 ### Stripe 付费
 

@@ -1,6 +1,5 @@
 ## *.vercel.app
 
-- NEXT_PUBLIC_APP_URL=https://manus-ai-shop.vercel.app
 - Project Id: prj_vSRfyYXGBw023BtPMS6bgimTEjzI
 
 | Deployment Type | Domain Behavior |
@@ -31,18 +30,6 @@ $ vercel --prod
 
 ## BUGS & FIX
 
-### Fixing Google OAuth Callback Redirecting to localhost after Deploying to Vercel
-
-If you updated `NEXT_PUBLIC_APP_URL` to your production domain (e.g., `manus-ai-shop.vercel.app`) and redeployed your Next.js app on Vercel, but the Google OAuth callback still redirects to `http://localhost:3000/?code=...`, the likely cause is that **some OAuth-related environment variable or configuration is still pointing to localhost**.
-
-### Why This Happens
-
-- `NEXT_PUBLIC_APP_URL` controls your app’s public URLs but **OAuth redirect URLs depend on specific environment variables and Google OAuth client settings**.  
-- If your OAuth base URL environment variable (commonly `NEXTAUTH_URL`, `AUTH_URL`, or similar) is still set to `http://localhost:3000`, the OAuth flow will redirect back to localhost after login.  
-- Google OAuth also requires the correct redirect URIs to be configured in the Google Cloud Console.
-
-### How to Fix It
-
 1. #### Update OAuth Base URL Environment Variable
    - Check your Vercel project environment variables for keys like `NEXTAUTH_URL` or `AUTH_URL`.  
    - Set it to your **production domain with HTTPS**, for example:  
@@ -54,27 +41,17 @@ If you updated `NEXT_PUBLIC_APP_URL` to your production domain (e.g., `manus-ai-
 
 2. #### Update Google OAuth Redirect URIs
    - Go to [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → OAuth 2.0 Client IDs.  
-   - Add your production callback URL to **Authorized redirect URIs**, e.g.:  
-     ```
-     https://manus-ai-shop.vercel.app/api/auth/callback/google
-     ```  
-   - Also keep the localhost URI for local testing:  
-     ```
-     http://localhost:3000/api/auth/callback/google
-     ```  
+   - Add your production callback URL to **Authorized redirect URIs**, e.g. `https://manus-ai-shop.vercel.app/api/auth/callback/google`  
+   - Also keep the localhost URI for local testing:  `http://localhost:3000/api/auth/callback/google`  
 
 3. #### Redeploy Your Vercel App
-   - After updating environment variables in Vercel, trigger a redeploy by pushing a commit or clicking the **Redeploy** button in the Vercel Dashboard.  
 
 4. #### Verify Your OAuth Sign-In Code Uses Environment Variables
    - Ensure your app’s OAuth redirect URLs are dynamically set using environment variables, for example:  
      ```
      const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
      const redirectUri = `${baseUrl}/api/auth/callback/google`;
-     ```  
-
-5. #### Clear Browser Cache or Test in Incognito
-   - Old redirects can be cached, so clear cookies or test in a private/incognito window.
+     ```
 
 ### Summary Table
 

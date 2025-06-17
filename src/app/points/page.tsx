@@ -1,144 +1,150 @@
-'use client'
+"use client";
 
-import { createClient } from '@/lib/supabase/client'
-import { useEffect, useState } from 'react'
-import { Coins, CreditCard, Star, Zap, Crown } from 'lucide-react'
+import { createClient } from "@/lib/supabase/client";
+import { getOrCreateProfileClient } from "@/lib/profile-utils-client";
+import { useEffect, useState } from "react";
+import { Coins, CreditCard, Star, Zap, Crown } from "lucide-react";
 
 interface PointsTransaction {
-  id: string
-  amount: number
-  type: string
-  description: string
-  created_at: string
+  id: string;
+  amount: number;
+  type: string;
+  description: string;
+  created_at: string;
 }
 
 interface UserProfile {
-  points: number
+  points: number;
 }
 
 export default function PointsPage() {
-  const [profile, setProfile] = useState<UserProfile | null>(null)
-  const [transactions, setTransactions] = useState<PointsTransaction[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [purchasing, setPurchasing] = useState<string | null>(null)
-  const supabase = createClient()
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [purchasing, setPurchasing] = useState<string | null>(null);
+  const supabase = createClient();
 
   const pointsPackages = [
     {
-      id: 'basic',
-      name: 'Basic Pack',
+      id: "basic",
+      name: "Basic Pack",
       points: 100,
       price: 999, // $9.99
       icon: Star,
-      popular: false
+      popular: false,
     },
     {
-      id: 'premium',
-      name: 'Premium Pack',
+      id: "premium",
+      name: "Premium Pack",
       points: 500,
       price: 3999, // $39.99
       icon: Zap,
       popular: true,
-      bonus: 50 // bonus points
+      bonus: 50, // bonus points
     },
     {
-      id: 'pro',
-      name: 'Pro Pack',
+      id: "pro",
+      name: "Pro Pack",
       points: 1000,
       price: 6999, // $69.99
       icon: Crown,
       popular: false,
-      bonus: 200 // bonus points
-    }
-  ]
+      bonus: 200, // bonus points
+    },
+  ];
 
   useEffect(() => {
-    fetchUserData()
-  }, [])
+    fetchUserData();
+  }, []);
 
   const fetchUserData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
-        setLoading(false)
-        return
+        setLoading(false);
+        return;
       }
 
-      // Fetch user profile
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('points')
-        .eq('id', user.id)
-        .single()
+      // Get or create user profile
+      const profileData = await getOrCreateProfileClient(
+        user.id,
+        user.email || undefined
+      );
 
-      if (profileError) throw profileError
-      setProfile(profileData)
+      if (!profileData) {
+        throw new Error("Failed to fetch or create user profile");
+      }
+
+      setProfile({ points: profileData.points });
 
       // Fetch transactions
-      const { data: transactionsData, error: transactionsError } = await supabase
-        .from('points_transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10)
+      const { data: transactionsData, error: transactionsError } =
+        await supabase
+          .from("points_transactions")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(10);
 
-      if (transactionsError) throw transactionsError
-      setTransactions(transactionsData || [])
+      if (transactionsError) throw transactionsError;
+      setTransactions(transactionsData || []);
     } catch (err: any) {
-      setError(err.message)
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const purchasePoints = async (packageId: string) => {
-    setPurchasing(packageId)
+    setPurchasing(packageId);
     try {
-      const selectedPackage = pointsPackages.find(p => p.id === packageId)
-      if (!selectedPackage) return
+      const selectedPackage = pointsPackages.find((p) => p.id === packageId);
+      if (!selectedPackage) return;
 
       // Create Stripe checkout session
-      const response = await fetch('/api/checkout/points', {
-        method: 'POST',
+      const response = await fetch("/api/checkout/points", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           packageId,
           points: selectedPackage.points + (selectedPackage.bonus || 0),
-          price: selectedPackage.price
+          price: selectedPackage.price,
         }),
-      })
+      });
 
-      const { url } = await response.json()
-      
+      const { url } = await response.json();
+
       if (url) {
-        window.location.href = url
+        window.location.href = url;
       } else {
-        throw new Error('Failed to create checkout session')
+        throw new Error("Failed to create checkout session");
       }
     } catch (err: any) {
-      alert('Error purchasing points: ' + err.message)
+      alert("Error purchasing points: " + err.message);
     } finally {
-      setPurchasing(null)
+      setPurchasing(null);
     }
-  }
+  };
 
   const formatPrice = (cents: number) => {
-    return `$${(cents / 100).toFixed(2)}`
-  }
+    return `$${(cents / 100).toFixed(2)}`;
+  };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   if (loading) {
     return (
@@ -150,7 +156,7 @@ export default function PointsPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -162,7 +168,7 @@ export default function PointsPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -197,12 +203,12 @@ export default function PointsPage() {
           </h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {pointsPackages.map((pkg) => {
-              const IconComponent = pkg.icon
+              const IconComponent = pkg.icon;
               return (
                 <div
                   key={pkg.id}
                   className={`relative bg-white rounded-lg shadow-sm p-6 ${
-                    pkg.popular ? 'ring-2 ring-indigo-600' : ''
+                    pkg.popular ? "ring-2 ring-indigo-600" : ""
                   }`}
                 >
                   {pkg.popular && (
@@ -212,7 +218,7 @@ export default function PointsPage() {
                       </span>
                     </div>
                   )}
-                  
+
                   <div className="text-center">
                     <IconComponent className="h-12 w-12 text-indigo-600 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -239,8 +245,8 @@ export default function PointsPage() {
                       disabled={purchasing === pkg.id}
                       className={`w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${
                         pkg.popular
-                          ? 'bg-indigo-600 hover:bg-indigo-700'
-                          : 'bg-gray-600 hover:bg-gray-700'
+                          ? "bg-indigo-600 hover:bg-indigo-700"
+                          : "bg-gray-600 hover:bg-gray-700"
                       } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       {purchasing === pkg.id ? (
@@ -254,7 +260,7 @@ export default function PointsPage() {
                     </button>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </div>
@@ -273,7 +279,10 @@ export default function PointsPage() {
               </div>
             ) : (
               transactions.map((transaction) => (
-                <div key={transaction.id} className="px-6 py-4 flex items-center justify-between">
+                <div
+                  key={transaction.id}
+                  className="px-6 py-4 flex items-center justify-between"
+                >
                   <div>
                     <p className="text-sm font-medium text-gray-900">
                       {transaction.description}
@@ -285,10 +294,13 @@ export default function PointsPage() {
                   <div className="text-right">
                     <span
                       className={`text-sm font-medium ${
-                        transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
+                        transaction.amount > 0
+                          ? "text-green-600"
+                          : "text-red-600"
                       }`}
                     >
-                      {transaction.amount > 0 ? '+' : ''}{transaction.amount} points
+                      {transaction.amount > 0 ? "+" : ""}
+                      {transaction.amount} points
                     </span>
                     <p className="text-xs text-gray-500 capitalize">
                       {transaction.type}
@@ -301,6 +313,5 @@ export default function PointsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-

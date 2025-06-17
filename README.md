@@ -60,9 +60,8 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```bash
 npm install
 npm run dev
+open http://localhost:3000
 ```
-
-The application will be available at `http://localhost:3000`
 
 ## Database Schema
 
