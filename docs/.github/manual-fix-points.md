@@ -36,12 +36,14 @@ SELECT process_points_purchase(
 
 The issue is that Stripe webhooks are not reaching your application. Common causes:
 
-1. **Webhook URL Configuration**: 
+1. **Webhook URL Configuration**:
+
    - Check Stripe Dashboard → Webhooks
    - Ensure URL is correct: `https://your-domain.com/api/webhooks/stripe`
    - Ensure `checkout.session.completed` event is selected
 
 2. **Environment Variables**:
+
    - `STRIPE_WEBHOOK_SECRET` might be missing or incorrect
    - Check your deployment environment variables
 
@@ -52,12 +54,14 @@ The issue is that Stripe webhooks are not reaching your application. Common caus
 ## Permanent Fix Steps
 
 1. **Check Stripe Webhook Dashboard**:
+
    - Go to Stripe Dashboard → Webhooks
    - Click on your webhook
    - Check "Attempts" tab for failed requests
    - Look for error messages
 
 2. **Verify Environment Variables**:
+
    ```bash
    # Check these are set in your deployment
    STRIPE_SECRET_KEY=sk_test_...
@@ -66,6 +70,7 @@ The issue is that Stripe webhooks are not reaching your application. Common caus
    ```
 
 3. **Test Webhook Endpoint**:
+
    ```bash
    # Test if endpoint is accessible
    curl -X POST https://your-domain.com/api/webhooks/stripe \
@@ -84,6 +89,7 @@ For now, use the manual processing to add points to users who have made successf
 ## Prevention
 
 Once webhooks are working, you should see:
+
 1. Webhook events in the `webhook_events` table
 2. Points transactions in the `points_transactions` table
 3. Updated points balances in the `profiles` table

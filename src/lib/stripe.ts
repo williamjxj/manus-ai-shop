@@ -10,4 +10,3 @@ const getStripe = () => {
 }
 
 export default getStripe
-

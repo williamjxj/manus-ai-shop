@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint --fix"
+    "lint": "next lint --fix",
+    "lint:check": "next lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky install || true",
+    "check-all": "npm run type-check && npm run lint:check && npm run format:check"
   },
   "dependencies": {
     "@stripe/stripe-js": "^4.10.0",
@@ -17,17 +23,23 @@
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
     "stripe": "^17.5.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "^20.17.10",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.29.0",
     "eslint-config-next": "15.3.3",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.0",
     "postcss": "^8.4.49",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.12",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   }

@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from '@/lib/supabase/server'
 
 export interface UserProfile {
-  id: string;
-  email: string | null;
-  points: number;
-  created_at: string;
-  updated_at: string;
+  id: string
+  email: string | null
+  points: number
+  created_at: string
+  updated_at: string
 }
 
 /**
@@ -16,47 +16,51 @@ export async function getOrCreateProfile(
   userId: string,
   email?: string
 ): Promise<UserProfile | null> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   try {
     // Try to fetch existing profile
     const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle();
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle()
 
     if (profileError) {
-      console.error("Error fetching profile:", profileError);
-      return null;
+      console.error('Error fetching profile:', profileError)
+      return null
     }
 
     if (profile) {
-      return profile;
+      return profile
     }
 
-    // Profile doesn't exist, create it
-    const { data: newProfile, error: createError } = await supabase
-      .from("profiles")
-      .insert([
+    // Profile doesn't exist, use upsert to create it safely
+    const { data: newProfile, error: upsertError } = await supabase
+      .from('profiles')
+      .upsert(
         {
           id: userId,
           email: email || null,
           points: 0,
         },
-      ])
-      .select("*")
-      .single();
+        {
+          onConflict: 'id',
+          ignoreDuplicates: false,
+        }
+      )
+      .select('*')
+      .single()
 
-    if (createError) {
-      console.error("Error creating profile:", createError);
-      return null;
+    if (upsertError) {
+      console.error('Error upserting profile:', upsertError)
+      return null
     }
 
-    return newProfile;
+    return newProfile
   } catch (error) {
-    console.error("Unexpected error in getOrCreateProfile:", error);
-    return null;
+    console.error('Unexpected error in getOrCreateProfile:', error)
+    return null
   }
 }
 
@@ -69,40 +73,40 @@ export async function updateUserPoints(
   pointsDelta: number,
   description?: string
 ): Promise<{ success: boolean; newBalance?: number; error?: string }> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   try {
     // Input validation
-    if (!userId || typeof pointsDelta !== "number") {
-      return { success: false, error: "Invalid input parameters" };
+    if (!userId || typeof pointsDelta !== 'number') {
+      return { success: false, error: 'Invalid input parameters' }
     }
 
     // Use atomic update with RPC to prevent race conditions
-    const { data, error } = await supabase.rpc("update_user_points_atomic", {
+    const { data, error } = await supabase.rpc('update_user_points_atomic', {
       p_user_id: userId,
       p_points_delta: pointsDelta,
       p_description:
         description ||
-        `Points ${pointsDelta > 0 ? "added" : "deducted"}: ${Math.abs(
+        `Points ${pointsDelta > 0 ? 'added' : 'deducted'}: ${Math.abs(
           pointsDelta
         )}`,
-    });
+    })
 
     if (error) {
-      console.error("Error updating points:", error);
-      return { success: false, error: error.message };
+      console.error('Error updating points:', error)
+      return { success: false, error: error.message }
     }
 
     return {
       success: true,
       newBalance: data?.new_balance || 0,
-    };
+    }
   } catch (error) {
-    console.error("Unexpected error in updateUserPoints:", error);
+    console.error('Unexpected error in updateUserPoints:', error)
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
   }
 }
 
@@ -112,24 +116,24 @@ export async function updateUserPoints(
 export async function getUserPointsBalance(
   userId: string
 ): Promise<number | null> {
-  const supabase = await createClient();
+  const supabase = await createClient()
 
   try {
     const { data, error } = await supabase
-      .from("profiles")
-      .select("points")
-      .eq("id", userId)
-      .single();
+      .from('profiles')
+      .select('points')
+      .eq('id', userId)
+      .single()
 
     if (error) {
-      console.error("Error fetching points balance:", error);
-      return null;
+      console.error('Error fetching points balance:', error)
+      return null
     }
 
-    return data?.points || 0;
+    return data?.points || 0
   } catch (error) {
-    console.error("Unexpected error in getUserPointsBalance:", error);
-    return null;
+    console.error('Unexpected error in getUserPointsBalance:', error)
+    return null
   }
 }
 
@@ -140,19 +144,19 @@ export async function validateSufficientPoints(
   userId: string,
   requiredPoints: number
 ): Promise<{ valid: boolean; currentBalance: number; error?: string }> {
-  const currentBalance = await getUserPointsBalance(userId);
+  const currentBalance = await getUserPointsBalance(userId)
 
   if (currentBalance === null) {
     return {
       valid: false,
       currentBalance: 0,
-      error: "Unable to fetch points balance",
-    };
+      error: 'Unable to fetch points balance',
+    }
   }
 
   return {
     valid: currentBalance >= requiredPoints,
     currentBalance,
-    error: currentBalance < requiredPoints ? "Insufficient points" : undefined,
-  };
+    error: currentBalance < requiredPoints ? 'Insufficient points' : undefined,
+  }
 }

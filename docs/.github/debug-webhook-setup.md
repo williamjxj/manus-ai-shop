@@ -1,6 +1,7 @@
 # Webhook Debugging Guide
 
 ## Current Issue
+
 - Stripe checkout sessions are created successfully
 - Payments are processed by Stripe
 - But webhooks are not triggering the database updates
@@ -57,6 +58,7 @@ curl -X POST https://your-domain.com/api/test/points-purchase \
 ## Quick Fix Options
 
 ### Option 1: Temporary Manual Processing
+
 Use the test endpoint to manually process the points purchase:
 
 1. Copy the sessionId from your log
@@ -64,13 +66,16 @@ Use the test endpoint to manually process the points purchase:
 3. This will add the points immediately
 
 ### Option 2: Check Webhook Logs in Stripe
+
 1. Go to Stripe Dashboard → Webhooks
 2. Click on your webhook endpoint
 3. Check the "Attempts" tab for failed requests
 4. Look for error messages
 
 ### Option 3: Verify Webhook Secret
+
 The webhook might be failing due to signature verification. Check:
+
 1. The webhook secret in Stripe matches your environment variable
 2. The webhook URL is correct and accessible
 3. The endpoint is not behind authentication

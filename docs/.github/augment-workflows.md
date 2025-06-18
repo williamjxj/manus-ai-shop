@@ -5,6 +5,7 @@ This document outlines the complete workflows for purchasing points and purchasi
 ## Overview
 
 The AI Shop supports two main purchasing workflows:
+
 1. **Points Purchase** - Users buy points with real money via Stripe
 2. **Image Purchase** - Users buy AI-generated images using either points or Stripe payments
 
@@ -12,15 +13,15 @@ The AI Shop supports two main purchasing workflows:
 
 ### Core Tables
 
-| Table | Purpose | Key Fields |
-|-------|---------|------------|
-| `profiles` | User profiles with points balance | `id`, `email`, `points` |
-| `products` | AI-generated image products | `id`, `name`, `price_cents`, `points_price` |
-| `cart_items` | Shopping cart items | `user_id`, `product_id`, `quantity` |
-| `orders` | Purchase orders | `user_id`, `total_cents`, `total_points`, `payment_method`, `status` |
-| `order_items` | Individual items in orders | `order_id`, `product_id`, `quantity`, `price_cents`, `points_price` |
-| `points_transactions` | Points purchase/spend history | `user_id`, `amount`, `type`, `description` |
-| `webhook_events` | Webhook idempotency tracking | `stripe_event_id`, `event_type`, `status` |
+| Table                 | Purpose                           | Key Fields                                                           |
+| --------------------- | --------------------------------- | -------------------------------------------------------------------- |
+| `profiles`            | User profiles with points balance | `id`, `email`, `points`                                              |
+| `products`            | AI-generated image products       | `id`, `name`, `price_cents`, `points_price`                          |
+| `cart_items`          | Shopping cart items               | `user_id`, `product_id`, `quantity`                                  |
+| `orders`              | Purchase orders                   | `user_id`, `total_cents`, `total_points`, `payment_method`, `status` |
+| `order_items`         | Individual items in orders        | `order_id`, `product_id`, `quantity`, `price_cents`, `points_price`  |
+| `points_transactions` | Points purchase/spend history     | `user_id`, `amount`, `type`, `description`                           |
+| `webhook_events`      | Webhook idempotency tracking      | `stripe_event_id`, `event_type`, `status`                            |
 
 ## Workflow 1: Points Purchase
 
@@ -41,15 +42,16 @@ graph TD
 
 ### Points Packages
 
-| Package | Points | Bonus | Price | Value |
-|---------|--------|-------|-------|-------|
-| Basic | 100 | 0 | $9.99 | $0.10/point |
-| Premium | 500 | 50 | $39.99 | $0.073/point |
-| Pro | 1000 | 200 | $69.99 | $0.058/point |
+| Package | Points | Bonus | Price  | Value        |
+| ------- | ------ | ----- | ------ | ------------ |
+| Basic   | 100    | 0     | $9.99  | $0.10/point  |
+| Premium | 500    | 50    | $39.99 | $0.073/point |
+| Pro     | 1000   | 200   | $69.99 | $0.058/point |
 
 ### Technical Implementation
 
 #### 1. Frontend (Points Page)
+
 - **File**: `src/app/points/page.tsx`
 - **Key Functions**:
   - `purchasePoints()` - Initiates Stripe checkout
@@ -57,6 +59,7 @@ graph TD
   - Shows transaction history
 
 #### 2. API Endpoint
+
 - **File**: `src/app/api/checkout/points/route.ts`
 - **Process**:
   1. Validates user authentication
@@ -66,6 +69,7 @@ graph TD
   5. Returns checkout URL
 
 #### 3. Stripe Webhook
+
 - **File**: `src/app/api/webhooks/stripe/route.ts`
 - **Process**:
   1. Verifies webhook signature
@@ -76,14 +80,14 @@ graph TD
 
 ### Error Handling
 
-| Error Type | Handling |
-|------------|----------|
-| Authentication failure | Return 401 Unauthorized |
-| Rate limit exceeded | Return 429 Too Many Requests |
-| Invalid package data | Return 400 Bad Request with validation errors |
-| Stripe API errors | Return 503 Service Unavailable |
-| Database errors | Rollback transaction, return 500 |
-| Webhook verification failure | Return 400 Bad Request |
+| Error Type                   | Handling                                      |
+| ---------------------------- | --------------------------------------------- |
+| Authentication failure       | Return 401 Unauthorized                       |
+| Rate limit exceeded          | Return 429 Too Many Requests                  |
+| Invalid package data         | Return 400 Bad Request with validation errors |
+| Stripe API errors            | Return 503 Service Unavailable                |
+| Database errors              | Rollback transaction, return 500              |
+| Webhook verification failure | Return 400 Bad Request                        |
 
 ## Workflow 2: Image Purchase
 
@@ -112,12 +116,14 @@ graph TD
 ### Payment Methods
 
 #### Points Payment
+
 - **Immediate processing** - No external payment gateway
 - **Validation**: Check user's points balance with atomic operations
 - **Process**: Use `process_points_checkout()` database function
 - **Transaction record**: Negative amount in `points_transactions`
 
 #### Stripe Payment
+
 - **Deferred processing** - Handled via webhook
 - **Process**: Create checkout session, redirect to Stripe
 - **Completion**: Webhook uses `process_product_purchase()` function
@@ -126,6 +132,7 @@ graph TD
 ### Technical Implementation
 
 #### 1. Cart Management
+
 - **File**: `src/app/cart/page.tsx`
 - **Features**:
   - Add/remove items
@@ -133,6 +140,7 @@ graph TD
   - Calculate totals (both $ and points)
 
 #### 2. Checkout Page
+
 - **File**: `src/app/checkout/page.tsx`
 - **Features**:
   - Payment method selection
@@ -140,6 +148,7 @@ graph TD
   - Order summary display
 
 #### 3. Checkout API
+
 - **File**: `src/app/api/checkout/route.ts`
 - **Enhanced Features**:
   - Rate limiting (5 attempts per minute)
@@ -148,6 +157,7 @@ graph TD
   - Enhanced error handling
 
 #### 4. Order Completion
+
 - **Success Page**: `src/app/checkout/success/page.tsx`
 - **Webhook Processing**: Uses atomic database functions
 
@@ -156,6 +166,7 @@ graph TD
 ### Code Improvements Implemented
 
 1. **Enhanced Webhook Processing**
+
    - Added idempotency checks to prevent duplicate processing
    - Implemented structured logging with timestamps
    - Added database transaction functions for atomic operations
@@ -163,18 +174,21 @@ graph TD
    - Added payment failure handling
 
 2. **Improved Checkout Validation**
+
    - Comprehensive input validation for cart items
    - Rate limiting to prevent abuse
    - Enhanced Stripe session creation with better metadata
    - Atomic database operations using stored procedures
 
 3. **Points System Enhancements**
+
    - Race condition protection for points updates
    - Atomic points transactions with proper locking
    - Enhanced points package validation
    - Rate limiting for points purchases
 
 4. **Database Functions Added**
+
    - `update_user_points_atomic()` - Atomic points updates
    - `process_points_purchase()` - Complete points purchase workflow
    - `process_product_purchase()` - Complete product purchase workflow
@@ -189,11 +203,13 @@ graph TD
 ### Security Improvements
 
 1. **Input Validation**
+
    - Comprehensive validation for all API inputs
    - Sanitization of sensitive data in logs
    - Protection against malformed requests
 
 2. **Rate Limiting**
+
    - Checkout operations: 5 attempts per minute
    - Points purchases: 3 attempts per 5 minutes
    - User-specific rate limiting
@@ -206,11 +222,13 @@ graph TD
 ### Performance Optimizations
 
 1. **Database Indexes**
+
    - Added indexes on frequently queried columns
    - Optimized webhook event lookups
    - Improved cart and order queries
 
 2. **Caching Strategy**
+
    - Points balance caching with validation
    - Reduced database calls for profile operations
 
@@ -222,13 +240,13 @@ graph TD
 
 ### Common Issues
 
-| Issue | Symptoms | Solution |
-|-------|----------|----------|
-| Webhook failures | Orders not completing | Check webhook endpoint, verify signature |
+| Issue               | Symptoms                         | Solution                                                     |
+| ------------------- | -------------------------------- | ------------------------------------------------------------ |
+| Webhook failures    | Orders not completing            | Check webhook endpoint, verify signature                     |
 | Points not updating | Balance doesn't reflect purchase | Check `points_transactions` table, verify webhook processing |
-| Cart not clearing | Items remain after purchase | Verify order completion logic |
-| Rate limit errors | Too many requests error | Check rate limiting configuration |
-| Database deadlocks | Transaction timeout errors | Review atomic function implementations |
+| Cart not clearing   | Items remain after purchase      | Verify order completion logic                                |
+| Rate limit errors   | Too many requests error          | Check rate limiting configuration                            |
+| Database deadlocks  | Transaction timeout errors       | Review atomic function implementations                       |
 
 ### Debugging Steps
 
@@ -241,11 +259,13 @@ graph TD
 ## Future Enhancements
 
 1. **Advanced Analytics**
+
    - Real-time purchase analytics dashboard
    - User behavior tracking and insights
    - Revenue forecasting and reporting
 
 2. **Mobile Optimization**
+
    - Progressive Web App features
    - Push notifications for order updates
    - Offline cart functionality

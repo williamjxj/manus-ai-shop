@@ -3,6 +3,7 @@
 This document outlines the complete workflows for purchasing points and images in the AI Shop application, including database operations, webhook handling, and optimization recommendations.
 
 ## Table of Contents
+
 - [Points Purchase Workflow](#points-purchase-workflow)
 - [Image Purchase Workflow](#image-purchase-workflow)
 - [Relationship Between Points and Image Purchases](#relationship-between-points-and-image-purchases)
@@ -16,6 +17,7 @@ This document outlines the complete workflows for purchasing points and images i
 ## Points Purchase Workflow
 
 ### User Journey
+
 1. User visits `/points` page
 2. User selects a points package (Basic, Premium, Pro)
 3. User clicks "Purchase" button
@@ -43,9 +45,11 @@ graph TD
 ```
 
 #### Step 1: Checkout Session Creation
+
 **Endpoint**: `POST /api/checkout/points`
 
 **Request Body**:
+
 ```json
 {
   "packageId": "premium",
@@ -57,21 +61,24 @@ graph TD
 **Database Operations**: None (session creation only)
 
 #### Step 2: Stripe Payment Processing
+
 - Handled entirely by Stripe
 - No direct database operations
 
 #### Step 3: Webhook Processing
+
 **Endpoint**: `POST /api/webhooks/stripe`
 **Event Type**: `checkout.session.completed`
 
 **Database Operations**:
 
-| Table | Operation | Purpose |
-|-------|-----------|---------|
-| `profiles` | INSERT/UPDATE | Create/update user profile with new points balance |
-| `points_transactions` | INSERT | Record the points purchase transaction |
+| Table                 | Operation     | Purpose                                            |
+| --------------------- | ------------- | -------------------------------------------------- |
+| `profiles`            | INSERT/UPDATE | Create/update user profile with new points balance |
+| `points_transactions` | INSERT        | Record the points purchase transaction             |
 
 **Webhook Payload Processing**:
+
 ```javascript
 const session = event.data.object
 const userId = session.metadata.user_id
@@ -84,6 +91,7 @@ const paymentIntentId = session.payment_intent
 ## Image Purchase Workflow
 
 ### User Journey
+
 1. User browses products on `/products` page
 2. User adds items to cart
 3. User visits `/cart` page to review items
@@ -132,46 +140,51 @@ graph TD
 ```
 
 #### Step 1: Add to Cart
+
 **Endpoint**: Frontend cart management (local state + database sync)
 
 **Database Operations**:
 
-| Table | Operation | Purpose |
-|-------|-----------|---------|
+| Table        | Operation     | Purpose                 |
+| ------------ | ------------- | ----------------------- |
 | `cart_items` | INSERT/UPDATE | Store user's cart items |
 
 #### Step 2: Checkout Process
+
 **Endpoint**: `POST /api/checkout`
 
 **For Stripe Payment**:
+
 - Creates Stripe checkout session
 - Stores cart items in session metadata
 
 **For Points Payment**:
+
 - Validates user has sufficient points
 - Creates order immediately
 - Processes transaction atomically
 
 **Database Operations** (Points Payment):
 
-| Table | Operation | Purpose |
-|-------|-----------|---------|
-| `orders` | INSERT | Create new order record |
-| `order_items` | INSERT | Store ordered items details |
-| `profiles` | UPDATE | Deduct points from user balance |
-| `points_transactions` | INSERT | Record points spending |
-| `cart_items` | DELETE | Clear user's cart |
+| Table                 | Operation | Purpose                         |
+| --------------------- | --------- | ------------------------------- |
+| `orders`              | INSERT    | Create new order record         |
+| `order_items`         | INSERT    | Store ordered items details     |
+| `profiles`            | UPDATE    | Deduct points from user balance |
+| `points_transactions` | INSERT    | Record points spending          |
+| `cart_items`          | DELETE    | Clear user's cart               |
 
 #### Step 3: Webhook Processing (Stripe Payment)
+
 **Event Type**: `checkout.session.completed`
 
 **Database Operations**:
 
-| Table | Operation | Purpose |
-|-------|-----------|---------|
-| `orders` | INSERT | Create order from cart metadata |
-| `order_items` | INSERT | Store ordered items |
-| `cart_items` | DELETE | Clear user's cart |
+| Table         | Operation | Purpose                         |
+| ------------- | --------- | ------------------------------- |
+| `orders`      | INSERT    | Create order from cart metadata |
+| `order_items` | INSERT    | Store ordered items             |
+| `cart_items`  | DELETE    | Clear user's cart               |
 
 ---
 
@@ -180,40 +193,43 @@ graph TD
 This section clarifies the distinct yet interconnected nature of purchasing points versus purchasing images directly.
 
 **1. Purchasing Points:**
-   - **Purpose**: Users buy a virtual currency (points) that can *later* be used to acquire digital goods (images) within the application.
-   - **Transaction Type**: This is a direct monetary transaction (e.g., USD to Points) facilitated by Stripe.
-   - **Outcome**: User's `points` balance in the `profiles` table increases. A record is created in `points_transactions` with `type: 'purchase'`.
-   - **Analogy**: Buying a gift card or topping up an in-app wallet.
+
+- **Purpose**: Users buy a virtual currency (points) that can _later_ be used to acquire digital goods (images) within the application.
+- **Transaction Type**: This is a direct monetary transaction (e.g., USD to Points) facilitated by Stripe.
+- **Outcome**: User's `points` balance in the `profiles` table increases. A record is created in `points_transactions` with `type: 'purchase'`.
+- **Analogy**: Buying a gift card or topping up an in-app wallet.
 
 **2. Purchasing Images:**
-   - **Purpose**: Users acquire specific digital images.
-   - **Payment Methods**:
-      - **Using Stripe (Direct Monetary Purchase)**: Users can buy images directly with real money. This creates an `orders` record with `payment_method: 'stripe'`.
-      - **Using Points (Virtual Currency Purchase)**: Users can spend their previously acquired points to get images. This creates an `orders` record with `payment_method: 'points'`.
-   - **Outcome (if paying with points)**: User's `points` balance in the `profiles` table decreases. A record is created in `points_transactions` with `type: 'spend'`. An `orders` record is created, and `order_items` are populated.
-   - **Outcome (if paying with Stripe)**: An `orders` record is created, and `order_items` are populated. No direct change to the user's points balance unless the purchase *also* included a points package (which is not a standard flow for image purchase).
+
+- **Purpose**: Users acquire specific digital images.
+- **Payment Methods**:
+  - **Using Stripe (Direct Monetary Purchase)**: Users can buy images directly with real money. This creates an `orders` record with `payment_method: 'stripe'`.
+  - **Using Points (Virtual Currency Purchase)**: Users can spend their previously acquired points to get images. This creates an `orders` record with `payment_method: 'points'`.
+- **Outcome (if paying with points)**: User's `points` balance in the `profiles` table decreases. A record is created in `points_transactions` with `type: 'spend'`. An `orders` record is created, and `order_items` are populated.
+- **Outcome (if paying with Stripe)**: An `orders` record is created, and `order_items` are populated. No direct change to the user's points balance unless the purchase _also_ included a points package (which is not a standard flow for image purchase).
 
 **Key Distinctions & Interactions:**
 
 - **Two-Step vs. One-Step**: Purchasing points is often the first step in a two-step process to get an image (Money -> Points -> Image). Purchasing an image directly with Stripe is a one-step process (Money -> Image).
 - **Flexibility**: Points offer flexibility. Users can buy points in bulk (potentially at a discount or as part of a promotion) and spend them over time on various images.
 - **Database Impact**:
-    - **Points Purchase (Stripe)**:
-        - `profiles`: `points` increases.
-        - `points_transactions`: New record (`type: 'purchase'`).
-    - **Image Purchase (Stripe)**:
-        - `orders`: New record (`payment_method: 'stripe'`).
-        - `order_items`: New records.
-    - **Image Purchase (Points)**:
-        - `profiles`: `points` decreases.
-        - `points_transactions`: New record (`type: 'spend'`, linked to `order_id`).
-        - `orders`: New record (`payment_method: 'points'`).
-        - `order_items`: New records.
 
-- **No Double Dipping**: When a user buys an image using points, they are *spending* points they already acquired. They are not buying points and an image simultaneously in that single transaction.
+  - **Points Purchase (Stripe)**:
+    - `profiles`: `points` increases.
+    - `points_transactions`: New record (`type: 'purchase'`).
+  - **Image Purchase (Stripe)**:
+    - `orders`: New record (`payment_method: 'stripe'`).
+    - `order_items`: New records.
+  - **Image Purchase (Points)**:
+    - `profiles`: `points` decreases.
+    - `points_transactions`: New record (`type: 'spend'`, linked to `order_id`).
+    - `orders`: New record (`payment_method: 'points'`).
+    - `order_items`: New records.
+
+- **No Double Dipping**: When a user buys an image using points, they are _spending_ points they already acquired. They are not buying points and an image simultaneously in that single transaction.
 - **Separate Checkout Flows**: While both might use Stripe for the initial monetary transaction, the internal logic and metadata passed to Stripe differ:
-    - Points purchase metadata: `user_id`, `points_amount`, `package_id`.
-    - Image purchase (Stripe) metadata: `user_id`, `cart_items` (or `order_id`).
+  - Points purchase metadata: `user_id`, `points_amount`, `package_id`.
+  - Image purchase (Stripe) metadata: `user_id`, `cart_items` (or `order_id`).
 
 Understanding this distinction is crucial for accurate financial tracking, user balance management, and designing promotions or loyalty programs.
 
@@ -224,6 +240,7 @@ Understanding this distinction is crucial for accurate financial tracking, user 
 ### Core Tables
 
 #### `profiles`
+
 ```sql
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id),
@@ -235,6 +252,7 @@ CREATE TABLE profiles (
 ```
 
 #### `orders`
+
 ```sql
 CREATE TABLE orders (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -249,6 +267,7 @@ CREATE TABLE orders (
 ```
 
 #### `points_transactions`
+
 ```sql
 CREATE TABLE points_transactions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -263,6 +282,7 @@ CREATE TABLE points_transactions (
 ```
 
 ### Relationship Diagram
+
 ```
 auth.users (Supabase Auth)
     ↓
@@ -278,6 +298,7 @@ points_transactions (1:many)
 ## Current Implementation Analysis
 
 ### Strengths ✅
+
 1. **Webhook-based Processing**: Reliable payment confirmation
 2. **Atomic Transactions**: Points payments are processed atomically
 3. **Comprehensive Audit Trail**: All transactions are logged
@@ -285,6 +306,7 @@ points_transactions (1:many)
 5. **Error Handling**: Graceful handling of missing profiles
 
 ### Weaknesses ⚠️
+
 1. **Missing Order Status Updates**: Stripe payments don't update order status properly
 2. **Incomplete Webhook Event Handling**: Only handles `checkout.session.completed`
 3. **No Idempotency**: Webhook processing may create duplicates
@@ -296,6 +318,7 @@ points_transactions (1:many)
 ## Optimization Recommendations
 
 ### 1. Enhanced Webhook Handling
+
 ```javascript
 // Add idempotency key handling
 const idempotencyKey = event.id
@@ -306,19 +329,22 @@ if (existingTransaction) {
 ```
 
 ### 2. Additional Webhook Events
+
 Handle more Stripe events for better order management:
+
 - `payment_intent.succeeded`
 - `payment_intent.payment_failed`
 - `invoice.payment_succeeded` (for subscriptions)
 - `customer.subscription.created`
 
 ### 3. Enhanced Order Management
+
 ```sql
 -- Add more order statuses
-ALTER TABLE orders 
-  ALTER COLUMN status 
+ALTER TABLE orders
+  ALTER COLUMN status
   DROP CONSTRAINT orders_status_check,
-  ADD CONSTRAINT orders_status_check 
+  ADD CONSTRAINT orders_status_check
   CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'cancelled', 'refunded'));
 
 -- Add order fulfillment tracking
@@ -327,6 +353,7 @@ ALTER TABLE orders ADD COLUMN tracking_info JSONB;
 ```
 
 ### 4. Improved Transaction Logging
+
 ```sql
 -- Enhanced points_transactions table
 ALTER TABLE points_transactions ADD COLUMN idempotency_key TEXT UNIQUE;
@@ -335,6 +362,7 @@ ALTER TABLE points_transactions ADD COLUMN processed_at TIMESTAMP WITH TIME ZONE
 ```
 
 ### 5. Inventory Management
+
 ```sql
 -- Add inventory tracking
 CREATE TABLE product_inventory (
@@ -346,7 +374,9 @@ CREATE TABLE product_inventory (
 ```
 
 ### 6. Performance Optimization
+
 - **Database Indexes**:
+
   ```sql
   CREATE INDEX idx_orders_user_created ON orders(user_id, created_at DESC);
   CREATE INDEX idx_points_transactions_user_created ON points_transactions(user_id, created_at DESC);
@@ -354,11 +384,12 @@ CREATE TABLE product_inventory (
   ```
 
 - **Caching Strategy**:
-    - Cache user profiles in Redis
-    - Cache product data
-    - Implement cart session caching
+  - Cache user profiles in Redis
+  - Cache product data
+  - Implement cart session caching
 
 ### 7. Enhanced Error Handling
+
 ```javascript
 // Webhook error handling with retry logic
 try {
@@ -366,28 +397,26 @@ try {
 } catch (error) {
   // Log error for monitoring
   console.error('Webhook processing failed:', error)
-  
+
   // Return 500 to trigger Stripe retry
-  return NextResponse.json(
-    { error: 'Processing failed' }, 
-    { status: 500 }
-  )
+  return NextResponse.json({ error: 'Processing failed' }, { status: 500 })
 }
 ```
 
 ### 8. Order Fulfillment Workflow
+
 ```javascript
 // Automated fulfillment for digital products
 async function fulfillOrder(orderId) {
   const order = await getOrder(orderId)
-  
+
   for (const item of order.items) {
     if (item.product.type === 'digital') {
       await generateDownloadLink(item.product_id, order.user_id)
       await sendFulfillmentEmail(order.user_id, item)
     }
   }
-  
+
   await updateOrderStatus(orderId, 'fulfilled')
 }
 ```
@@ -397,6 +426,7 @@ async function fulfillOrder(orderId) {
 ## Security Considerations
 
 ### 1. Webhook Verification
+
 ```javascript
 // Verify webhook signature
 const signature = request.headers.get('stripe-signature')
@@ -414,16 +444,19 @@ try {
 ```
 
 ### 2. Input Validation
+
 - Validate all webhook payloads
 - Sanitize metadata fields
 - Verify user permissions before processing
 
 ### 3. Rate Limiting
+
 - Implement rate limiting on webhook endpoints
 - Add authentication for sensitive operations
 - Monitor for suspicious activity
 
 ### 4. Data Protection
+
 - Encrypt sensitive transaction data
 - Implement audit logging
 - Regular security audits
@@ -433,6 +466,7 @@ try {
 ## Monitoring and Analytics
 
 ### Key Metrics to Track
+
 1. **Purchase Conversion Rate**: Cart abandonment vs. completion
 2. **Payment Method Usage**: Stripe vs. Points usage
 3. **Transaction Failure Rates**: Failed payments and reasons
@@ -440,6 +474,7 @@ try {
 5. **User Spending Patterns**: Analytics for business insights
 
 ### Alerting Setup
+
 - Failed webhook notifications
 - High transaction failure rates
 - Unusual spending patterns
@@ -450,16 +485,19 @@ try {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Webhook processing logic
 - Points calculation and deduction
 - Order creation and validation
 
 ### Integration Tests
+
 - End-to-end purchase flows
 - Stripe webhook simulation
 - Database transaction integrity
 
 ### Load Testing
+
 - High-volume webhook processing
 - Concurrent purchase scenarios
 - Database performance under load

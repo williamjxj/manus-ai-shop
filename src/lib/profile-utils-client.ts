@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from '@/lib/supabase/client'
 
 export interface UserProfile {
-  id: string;
-  email: string | null;
-  points: number;
-  created_at: string;
-  updated_at: string;
+  id: string
+  email: string | null
+  points: number
+  created_at: string
+  updated_at: string
 }
 
 /**
@@ -16,46 +16,50 @@ export async function getOrCreateProfileClient(
   userId: string,
   email?: string
 ): Promise<UserProfile | null> {
-  const supabase = createClient();
+  const supabase = createClient()
 
   try {
     // Try to fetch existing profile
     const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .maybeSingle();
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle()
 
     if (profileError) {
-      console.error("Error fetching profile:", profileError);
-      return null;
+      console.error('Error fetching profile:', profileError)
+      return null
     }
 
     if (profile) {
-      return profile;
+      return profile
     }
 
-    // Profile doesn't exist, create it
-    const { data: newProfile, error: createError } = await supabase
-      .from("profiles")
-      .insert([
+    // Profile doesn't exist, use upsert to create it safely
+    const { data: newProfile, error: upsertError } = await supabase
+      .from('profiles')
+      .upsert(
         {
           id: userId,
           email: email || null,
           points: 0,
         },
-      ])
-      .select("*")
-      .single();
+        {
+          onConflict: 'id',
+          ignoreDuplicates: false,
+        }
+      )
+      .select('*')
+      .single()
 
-    if (createError) {
-      console.error("Error creating profile:", createError);
-      return null;
+    if (upsertError) {
+      console.error('Error upserting profile:', upsertError)
+      return null
     }
 
-    return newProfile;
+    return newProfile
   } catch (error) {
-    console.error("Unexpected error in getOrCreateProfileClient:", error);
-    return null;
+    console.error('Unexpected error in getOrCreateProfileClient:', error)
+    return null
   }
 }

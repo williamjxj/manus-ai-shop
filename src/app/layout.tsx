@@ -1,23 +1,30 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Navbar from "@/components/Navbar";
+import type { Metadata } from 'next'
+import { Toaster } from 'react-hot-toast'
+
+import Navbar from '@/components/Navbar'
+import { CartProvider } from '@/contexts/CartContext'
+
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "AI Shop - Purchase AI Generated Images",
-  description: "Shop for AI generated images with points and Stripe payments",
-};
+  title: 'AI Shop - Purchase AI Generated Images',
+  description: 'Shop for AI generated images with points and Stripe payments',
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased" suppressHydrationWarning={true}>
-        <Navbar />
-        {children}
+    <html lang='en'>
+      <body className='antialiased' suppressHydrationWarning={true}>
+        <CartProvider>
+          <Navbar />
+          {children}
+          <Toaster />
+        </CartProvider>
       </body>
     </html>
-  );
+  )
 }

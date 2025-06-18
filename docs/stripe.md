@@ -1,4 +1,4 @@
-## Stripe CLI 
+## Stripe CLI
 
 ### (1) Local STRIPE_WEBHOOK_SECRET
 
@@ -34,4 +34,10 @@ https://memorable-excellence.ngrok.io/api/webhooks/stripe
 - invoice.paid
 - payment_intent.succeeded
 - charge.failed
+```
+
+### Debug
+
+```bash
+$ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 ```

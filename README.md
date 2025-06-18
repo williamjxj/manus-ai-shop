@@ -20,7 +20,48 @@ A comprehensive e-commerce application built with Next.js, Supabase, and Stripe 
 
 ## Setup Instructions
 
-### 1. Environment Variables
+### 🚀 Quick Start with Local Development (Recommended)
+
+For faster development and testing, use local Supabase:
+
+```bash
+# 1. Install Supabase CLI
+brew install supabase/tap/supabase
+
+# 2. Start local Supabase
+supabase start
+
+# 3. Install dependencies and start development
+npm install
+npm run dev
+```
+
+The project is pre-configured for local development! 🎉
+
+**Local Services:**
+
+- App: http://localhost:3000
+- Supabase Studio: http://127.0.0.1:54323
+- Test endpoint: http://localhost:3000/api/test-local-db
+
+For detailed local development setup, see [Local Development Guide](docs/local-development-setup.md).
+
+### 🔄 Environment Switching
+
+Use the environment switcher script:
+
+```bash
+# Check current environment
+./scripts/switch-env.sh status
+
+# Switch to local development
+./scripts/switch-env.sh local
+
+# Switch to cloud/production
+./scripts/switch-env.sh cloud
+```
+
+### 1. Environment Variables (Manual Setup)
 
 Create a `.env.local` file in the root directory:
 
@@ -95,24 +136,28 @@ The application uses the following main tables:
 ## Features in Detail
 
 ### Authentication
+
 - Email/password authentication
 - Social login with Google and GitHub
 - Protected routes with middleware
 - User session management
 
 ### Shopping Experience
+
 - Product browsing with categories
 - Add to cart functionality
 - Cart management (update quantities, remove items)
 - Dual payment options (Stripe or Points)
 
 ### Payment Processing
+
 - Stripe Checkout integration
 - Points-based transactions
 - Webhook handling for payment confirmation
 - Order tracking and history
 
 ### Points System
+
 - Purchase points packages
 - Use points for product purchases
 - Transaction history
