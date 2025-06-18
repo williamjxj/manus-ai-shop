@@ -100,6 +100,10 @@ export default function Navbar() {
                   </div>
                   <span>Cart</span>
                 </Link>
+                <Link href='/orders' className={getNavLinkClass('/orders')}>
+                  <Package className='h-4 w-4' />
+                  <span>Orders</span>
+                </Link>
                 <Link href='/points' className={getNavLinkClass('/points')}>
                   <Star className='h-4 w-4' />
                   <span>Points</span>
