@@ -4,15 +4,7 @@
 
 ```bash
 ❯ stripe login
-```
 
-```text
-# Your pairing code is: lavish-thrive-laud-ideal
-# This pairing code verifies your authentication with Stripe.
-# Press Enter to open the browser or visit https://dashboard.stripe.com/stripecli/confirm_auth?t=0zSTpdDUKUYczvmA6GPGRDwu9EL146FJ (^C to quit)
-```
-
-```bash
 # get webhook signing secret: STRIPE_WEBHOOK_SECRET
 stripe listen --forward-to localhost:3000/api/webhooks
 ```

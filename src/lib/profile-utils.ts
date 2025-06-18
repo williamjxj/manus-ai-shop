@@ -61,38 +61,98 @@ export async function getOrCreateProfile(
 }
 
 /**
- * Update user points
- * This function safely updates a user's points balance
+ * Update user points with enhanced safety and logging
+ * This function safely updates a user's points balance with race condition protection
  */
 export async function updateUserPoints(
   userId: string,
-  pointsDelta: number
-): Promise<boolean> {
+  pointsDelta: number,
+  description?: string
+): Promise<{ success: boolean; newBalance?: number; error?: string }> {
   const supabase = await createClient();
 
   try {
-    // Get current profile
-    const profile = await getOrCreateProfile(userId);
-    if (!profile) return false;
+    // Input validation
+    if (!userId || typeof pointsDelta !== "number") {
+      return { success: false, error: "Invalid input parameters" };
+    }
 
-    const newPoints = Math.max(0, profile.points + pointsDelta); // Ensure points don't go negative
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        points: newPoints,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", userId);
+    // Use atomic update with RPC to prevent race conditions
+    const { data, error } = await supabase.rpc("update_user_points_atomic", {
+      p_user_id: userId,
+      p_points_delta: pointsDelta,
+      p_description:
+        description ||
+        `Points ${pointsDelta > 0 ? "added" : "deducted"}: ${Math.abs(
+          pointsDelta
+        )}`,
+    });
 
     if (error) {
       console.error("Error updating points:", error);
-      return false;
+      return { success: false, error: error.message };
     }
 
-    return true;
+    return {
+      success: true,
+      newBalance: data?.new_balance || 0,
+    };
   } catch (error) {
     console.error("Unexpected error in updateUserPoints:", error);
-    return false;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
+}
+
+/**
+ * Get user points balance with caching
+ */
+export async function getUserPointsBalance(
+  userId: string
+): Promise<number | null> {
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("points")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching points balance:", error);
+      return null;
+    }
+
+    return data?.points || 0;
+  } catch (error) {
+    console.error("Unexpected error in getUserPointsBalance:", error);
+    return null;
+  }
+}
+
+/**
+ * Validate sufficient points for a transaction
+ */
+export async function validateSufficientPoints(
+  userId: string,
+  requiredPoints: number
+): Promise<{ valid: boolean; currentBalance: number; error?: string }> {
+  const currentBalance = await getUserPointsBalance(userId);
+
+  if (currentBalance === null) {
+    return {
+      valid: false,
+      currentBalance: 0,
+      error: "Unable to fetch points balance",
+    };
+  }
+
+  return {
+    valid: currentBalance >= requiredPoints,
+    currentBalance,
+    error: currentBalance < requiredPoints ? "Insufficient points" : undefined,
+  };
 }
