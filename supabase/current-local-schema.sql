@@ -432,6 +432,76 @@ END;
 $$;
 
 
+--
+-- Name: verify_database_setup(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.verify_database_setup() RETURNS TABLE(component text, status text, details text)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  -- Check tables
+  RETURN QUERY
+  SELECT 
+    'Tables' as component,
+    CASE 
+      WHEN COUNT(*) >= 6 THEN '✅ All required tables exist'
+      ELSE '❌ Missing tables'
+    END as status,
+    format('Found %s tables: %s', 
+      COUNT(*), 
+      string_agg(table_name, ', ' ORDER BY table_name)
+    ) as details
+  FROM information_schema.tables 
+  WHERE table_schema = 'public' 
+    AND table_type = 'BASE TABLE'
+    AND table_name IN ('profiles', 'products', 'cart_items', 'orders', 'order_items', 'points_transactions', 'webhook_events');
+
+  -- Check RLS policies
+  RETURN QUERY
+  SELECT 
+    'RLS Policies' as component,
+    CASE 
+      WHEN COUNT(*) >= 6 THEN '✅ RLS policies configured'
+      ELSE '❌ Missing RLS policies'
+    END as status,
+    format('Found %s RLS policies', COUNT(*)) as details
+  FROM pg_policies 
+  WHERE schemaname = 'public';
+
+  -- Check functions
+  RETURN QUERY
+  SELECT 
+    'Functions' as component,
+    CASE 
+      WHEN COUNT(*) >= 4 THEN '✅ Database functions available'
+      ELSE '❌ Missing functions'
+    END as status,
+    format('Found %s functions: %s', 
+      COUNT(*), 
+      string_agg(routine_name, ', ' ORDER BY routine_name)
+    ) as details
+  FROM information_schema.routines 
+  WHERE routine_schema = 'public' 
+    AND routine_type = 'FUNCTION'
+    AND routine_name IN ('handle_new_user', 'update_user_points_atomic', 'process_points_purchase', 'process_product_purchase', 'process_points_checkout');
+
+  -- Check triggers
+  RETURN QUERY
+  SELECT 
+    'Triggers' as component,
+    CASE 
+      WHEN COUNT(*) >= 1 THEN '✅ Triggers configured'
+      ELSE '❌ Missing triggers'
+    END as status,
+    format('Found %s triggers', COUNT(*)) as details
+  FROM information_schema.triggers 
+  WHERE trigger_schema = 'public';
+
+END;
+$$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -577,25 +647,6 @@ CREATE TABLE public.profiles (
 
 
 --
--- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.subscriptions (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid,
-    stripe_subscription_id text,
-    plan text,
-    status text,
-    current_period_start timestamp with time zone,
-    current_period_end timestamp with time zone,
-    created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now(),
-    CONSTRAINT subscriptions_plan_check CHECK ((plan = ANY (ARRAY['basic'::text, 'premium'::text, 'pro'::text]))),
-    CONSTRAINT subscriptions_status_check CHECK ((status = ANY (ARRAY['active'::text, 'cancelled'::text, 'past_due'::text, 'incomplete'::text])))
-);
-
-
---
 -- Name: webhook_events; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -696,22 +747,6 @@ ALTER TABLE ONLY public.products
 
 ALTER TABLE ONLY public.profiles
     ADD CONSTRAINT profiles_pkey PRIMARY KEY (id);
-
-
---
--- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.subscriptions
-    ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
-
-
---
--- Name: subscriptions subscriptions_stripe_subscription_id_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.subscriptions
-    ADD CONSTRAINT subscriptions_stripe_subscription_id_key UNIQUE (stripe_subscription_id);
 
 
 --
@@ -873,14 +908,6 @@ ALTER TABLE ONLY public.profiles
 
 
 --
--- Name: subscriptions subscriptions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.subscriptions
-    ADD CONSTRAINT subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-
-
---
 -- Name: webhook_events Service role can manage webhook events; Type: POLICY; Schema: public; Owner: -
 --
 
@@ -946,13 +973,6 @@ CREATE POLICY "Users can view own profile" ON public.profiles FOR SELECT USING (
 
 
 --
--- Name: subscriptions Users can view own subscriptions; Type: POLICY; Schema: public; Owner: -
---
-
-CREATE POLICY "Users can view own subscriptions" ON public.subscriptions FOR SELECT USING ((auth.uid() = user_id));
-
-
---
 -- Name: cart_items; Type: ROW SECURITY; Schema: public; Owner: -
 --
 
@@ -981,12 +1001,6 @@ ALTER TABLE public.points_transactions ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-
---
--- Name: subscriptions; Type: ROW SECURITY; Schema: public; Owner: -
---
-
-ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: webhook_events; Type: ROW SECURITY; Schema: public; Owner: -
