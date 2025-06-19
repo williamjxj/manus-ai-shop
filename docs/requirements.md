@@ -36,3 +36,31 @@ Auth Providers Enable:
 ### Digital Wallets
 
 ### Crypto Wallets
+
+
+### Subscriptions Table
+
+Intended Purpose:
+- Recurring subscription plans (basic, premium, pro)
+- Monthly/yearly billing through Stripe subscriptions
+- Automatic points allocation (e.g., 1000 points/month)
+- Subscription management (active, cancelled, past_due, incomplete)
+
+What's Missing:
+❌ No subscription plans UI
+❌ No Stripe subscription webhook handlers
+❌ No subscription management pages
+❌ No automatic points allocation
+❌ No subscription status checking
+
+❌ Subscription plans (basic, premium, pro)
+❌ Recurring billing
+❌ Automatic points allocation
+❌ Subscription management UI
+❌ Subscription webhook handlers
+
+
+What's Currently Working:
+✅ One-time points purchases
+✅ One-time product purchases
+✅ Cart-based shopping

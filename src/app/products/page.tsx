@@ -1,7 +1,8 @@
 'use client'
 
-import { ShoppingCart } from 'lucide-react'
+import { Plus, ShoppingCart } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
@@ -91,13 +92,26 @@ export default function ProductsPage() {
   return (
     <div className='min-h-screen bg-gray-50 py-12'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-        <div className='mb-12 text-center'>
-          <h1 className='text-4xl font-bold text-gray-900 sm:text-5xl'>
-            AI Generated Art Collection
-          </h1>
-          <p className='mt-4 text-xl text-gray-600'>
-            Discover unique AI-generated images for your projects
-          </p>
+        <div className='mb-12'>
+          <div className='text-center'>
+            <h1 className='text-4xl font-bold text-gray-900 sm:text-5xl'>
+              AI Generated Art Collection
+            </h1>
+            <p className='mt-4 text-xl text-gray-600'>
+              Discover unique AI-generated images for your projects
+            </p>
+          </div>
+
+          {/* Upload Button */}
+          <div className='mt-8 flex justify-center'>
+            <Link
+              href='/upload'
+              className='inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+            >
+              <Plus className='mr-2 h-4 w-4' />
+              Upload Your Art
+            </Link>
+          </div>
         </div>
 
         <div className='grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3'>

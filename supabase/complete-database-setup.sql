@@ -639,7 +639,7 @@ TABLES CREATED:
 - orders: Purchase order records
 - order_items: Individual items within orders
 - points_transactions: Points purchase/spend history
-- subscriptions: User subscription management
+- subscriptions: User subscription management (UNUSED - can be removed)
 - webhook_events: Stripe webhook event tracking
 
 FUNCTIONS CREATED:
