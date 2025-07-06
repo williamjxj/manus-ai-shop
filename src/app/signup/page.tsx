@@ -27,7 +27,13 @@ export default function SignupPage() {
       return
     }
 
-    const { error } = await supabase.auth.signUp({
+    console.log('Attempting signup with:', {
+      email,
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      redirectTo: `${window.location.origin}/auth/callback`,
+    })
+
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -35,8 +41,11 @@ export default function SignupPage() {
       },
     })
 
+    console.log('Signup response:', { data, error })
+
     if (error) {
-      setError(error.message)
+      console.error('Signup error details:', error)
+      setError(`${error.message} (Code: ${error.status})`)
     } else {
       setMessage('Check your email for the confirmation link!')
     }

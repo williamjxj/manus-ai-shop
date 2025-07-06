@@ -4,7 +4,6 @@ import { Coins, CreditCard, Crown, Star, Zap } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
-import { getOrCreateProfileClient } from '@/lib/profile-utils-client'
 import { createClient } from '@/lib/supabase/client'
 
 interface PointsTransaction {
@@ -73,7 +72,7 @@ export default function PointsPage() {
       }
 
       // Get or create user profile
-      const profileData = await getOrCreateProfileClient(
+      const profileData = await getOrCreateProfile(
         user.id,
         user.email || undefined
       )

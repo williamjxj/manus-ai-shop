@@ -6,19 +6,40 @@ export default function Home() {
       <div className='mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8'>
         <div className='text-center'>
           <h1 className='text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl'>
-            Welcome to <span className='text-indigo-600'>AI Shop</span>
+            Welcome to{' '}
+            <span className='bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent'>
+              Adult AI Gallery
+            </span>
           </h1>
           <p className='mx-auto mt-3 max-w-md text-base text-gray-500 sm:text-lg md:mt-5 md:max-w-3xl md:text-xl'>
-            Discover and purchase amazing AI-generated images. Use points or pay
-            with Stripe for instant access to high-quality digital art.
+            Premium marketplace for AI-generated adult content. Discover and
+            purchase high-quality adult images and videos for mature audiences.
           </p>
+          <div className='mt-4 flex items-center justify-center gap-2 text-sm font-medium text-red-600'>
+            <svg
+              className='h-4 w-4'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z'
+              />
+            </svg>
+            <span>
+              18+ ADULT CONTENT - You must be 18 or older to access this site
+            </span>
+          </div>
           <div className='mx-auto mt-5 max-w-md sm:flex sm:justify-center md:mt-8'>
             <div className='rounded-md shadow'>
               <Link
                 href='/products'
-                className='flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 md:px-10 md:py-4 md:text-lg'
+                className='flex w-full items-center justify-center rounded-md border border-transparent bg-gradient-to-r from-rose-600 to-pink-600 px-8 py-3 text-base font-medium text-white transition-all duration-200 hover:from-rose-700 hover:to-pink-700 md:px-10 md:py-4 md:text-lg'
               >
-                Browse Products
+                Browse Adult Gallery
               </Link>
             </div>
             <div className='mt-3 rounded-md shadow sm:ml-3 sm:mt-0'>

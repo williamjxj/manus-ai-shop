@@ -1,14 +1,16 @@
 import type { Metadata } from 'next'
 import { Toaster } from 'react-hot-toast'
 
+import AgeVerification from '@/components/AgeVerification'
 import Navbar from '@/components/Navbar'
 import { CartProvider } from '@/contexts/CartContext'
 
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'AI Shop - Purchase AI Generated Images',
-  description: 'Shop for AI generated images with points and Stripe payments',
+  title: 'Adult AI Gallery - Premium AI Generated Adult Content',
+  description:
+    'Premium marketplace for AI-generated adult content. 18+ only. High-quality images and videos for mature audiences.',
 }
 
 export default function RootLayout({
@@ -20,9 +22,11 @@ export default function RootLayout({
     <html lang='en'>
       <body className='antialiased' suppressHydrationWarning={true}>
         <CartProvider>
-          <Navbar />
-          {children}
-          <Toaster />
+          <AgeVerification>
+            <Navbar />
+            {children}
+            <Toaster />
+          </AgeVerification>
         </CartProvider>
       </body>
     </html>

@@ -78,8 +78,11 @@ export default function Navbar() {
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
         <div className='flex h-16 justify-between'>
           <div className='flex items-center'>
-            <Link href='/' className='text-xl font-bold text-gray-900'>
-              🛒 AI Shop
+            <Link
+              href='/'
+              className='bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-xl font-bold text-transparent'
+            >
+              🔞 Adult AI Gallery
             </Link>
           </div>
           <div className='flex items-center space-x-4'>
@@ -88,6 +91,22 @@ export default function Navbar() {
                 <Link href='/products' className={getNavLinkClass('/products')}>
                   <Package className='h-4 w-4' />
                   <span>Products</span>
+                </Link>
+                <Link href='/upload' className={getNavLinkClass('/upload')}>
+                  <svg
+                    className='h-4 w-4'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'
+                    />
+                  </svg>
+                  <span>Upload</span>
                 </Link>
                 <Link href='/cart' className={getNavLinkClass('/cart')}>
                   <div className='relative'>
