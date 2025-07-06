@@ -1,36 +1,88 @@
-```text
-Supabase Dashboard
-├── Authentication (left sidebar)
-    ├── Users
-    ├── Policies
-    ├── Providers
-    └── URL Configuration ← Click here
-        ├── Site URL: [https://manus-ai-shop.vercel.app]
-        └── Redirect URLs:
-            [https://manus-ai-shop.vercel.app/auth/callback]
-            [https://manus-ai-shop.vercel.app/**]
-            [http://localhost:3000/auth/callback]
-            [http://localhost:3000/**]
+# 🗄 Supabase Configuration
+
+## 🏠 Local Development
+
+### Start Local Supabase
+
+```bash
+# Install CLI
+brew install supabase/tap/supabase
+
+# Start services
+supabase start
+
+# Stop services
+supabase stop
 ```
 
-## Local Testing accounts
+### Local Services
 
-- Test Account 1: Email: test@example.com, Password: password123
+- **Studio**: http://127.0.0.1:54323
+- **API**: http://127.0.0.1:54321
+- **Database**: localhost:54322
 
-- Test Account 2: Email: dev@example.com, Password: devpassword
+### Test Accounts
 
-## Local Docker Supabase OAuth
+- **Email**: test@example.com, **Password**: password123
+- **Email**: dev@example.com, **Password**: devpassword
 
-When using local Supabase with Docker, OAuth providers (Google/GitHub) need to redirect to your local Supabase instance (127.0.0.1:54321), not directly to your Next.js app. Then Supabase handles the redirect back to your app.
+## ☁️ Production Setup
 
-### Key Points for Local Supabase OAuth:
+### Authentication Configuration
 
-1. `OAuth providers redirect to Supabase` (localhost:54321/auth/v1/callback), not your app
-2. `Supabase then redirects to your app` (localhost:3000/auth/callback)
-3. `Use localhost consistently` instead of mixing 127.0.0.1 and localhost
-4. `Both Google and GitHub need the same redirect URI`: http://localhost:54321/auth/v1/callback
+Navigate to: **Supabase Dashboard → Authentication → URL Configuration**
 
-### Cleaned Up Environment Variables
+```bash
+# Site URL
+https://your-domain.com
 
-- Removed redundant environment variables: AUTH_URL, NEXTAUTH_URL, NEXT_PUBLIC_SITE_URL
-- Kept only the essential `NEXT_PUBLIC_APP_URL`
+# Redirect URLs
+https://your-domain.com/auth/callback
+https://your-domain.com/**
+http://localhost:3000/auth/callback  # For local testing
+http://localhost:3000/**
+```
+
+### OAuth Providers
+
+**Google & GitHub Setup:**
+
+- Redirect URI: `https://your-project.supabase.co/auth/v1/callback`
+- Configure in respective provider dashboards
+- Add Client ID/Secret to Supabase
+
+## 🔧 Database Management
+
+### Schema Migration
+
+```sql
+-- Run in Supabase SQL Editor
+-- File: supabase/migrations/20241201000001_initial_schema.sql
+```
+
+### Backup & Restore
+
+```bash
+# Dump schema
+docker exec -t supabase-db pg_dump -U postgres -s > schema_dump.sql
+
+# Clean restart
+supabase stop
+docker volume prune
+supabase start
+```
+
+## 🧪 Testing
+
+### Debug Endpoints
+
+- `GET /api/test-local-db` - Test database connection
+- `GET /api/debug/webhook-status` - Check configuration
+
+### Environment Variables
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321  # Local
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```

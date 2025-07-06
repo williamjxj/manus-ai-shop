@@ -1,64 +1,59 @@
-# AI Shop - Next.js E-commerce Application
+# AI Shop - Next.js E-commerce Platform
 
-A comprehensive e-commerce application built with Next.js, Supabase, and Stripe for purchasing AI-generated images.
+A modern e-commerce application for purchasing AI-generated images with dual payment options (Stripe & Points system).
 
-## Features
+## ✨ Key Features
 
-- 🔐 **Authentication**: Email/password and social logins (Google, GitHub)
-- 🛒 **Shopping Cart**: Add, remove, and manage cart items
-- 💳 **Payment Processing**: Stripe integration for card payments
-- 🪙 **Points System**: Purchase and use points for transactions
+- 🔐 **Authentication**: Email/password + social logins (Google, GitHub)
+- 🛒 **Shopping Cart**: Real-time cart management with persistent storage
+- 💳 **Dual Payments**: Stripe checkout + Points-based transactions
+- 🪙 **Points System**: Buy points packages, spend on products
 - 🎨 **AI Art Gallery**: Browse and purchase AI-generated images
-- 📱 **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- 📤 **Upload Feature**: Authenticated users can upload and sell images
+- 📱 **Responsive Design**: Mobile-first with Tailwind CSS
+- 🔒 **Secure**: Row-level security (RLS) with Supabase
 
-## Tech Stack
+## 🛠 Tech Stack
 
-- **Frontend**: Next.js 15, React, TypeScript, Tailwind CSS
-- **Backend**: Supabase (PostgreSQL, Auth, Real-time)
-- **Payments**: Stripe
-- **Deployment**: Ready for Vercel/Netlify
+- **Framework**: Next.js 15 (App Router)
+- **Database**: Supabase (PostgreSQL + Auth + Storage)
+- **Payments**: Stripe (webhooks + checkout)
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Deployment**: Vercel-ready
 
-## Setup Instructions
+## 🚀 Quick Start
 
-### 🚀 Quick Start with Local Development (Recommended)
-
-For faster development and testing, use local Supabase:
+### Local Development (Recommended)
 
 ```bash
 # 1. Install Supabase CLI
 brew install supabase/tap/supabase
 
-# 2. Start local Supabase
+# 2. Clone and setup
+git clone <repository-url>
+cd manus-ai-shop
+npm install
+
+# 3. Start local Supabase
 supabase start
 
-# 3. Install dependencies and start development
-npm install
+# 4. Run development server
 npm run dev
 ```
-
-The project is pre-configured for local development! 🎉
 
 **Local Services:**
 
 - App: http://localhost:3000
 - Supabase Studio: http://127.0.0.1:54323
-- Test endpoint: http://localhost:3000/api/test-local-db
 
-For detailed local development setup, see [Local Development Guide](docs/local-development-setup.md).
-
-### 🔄 Environment Switching
-
-Use the environment switcher script:
+### Environment Switching
 
 ```bash
-# Check current environment
-./scripts/switch-env.sh status
-
-# Switch to local development
-./scripts/switch-env.sh local
-
-# Switch to cloud/production
-./scripts/switch-env.sh cloud
+# Switch between local/cloud environments
+./scripts/switch-env.sh local   # Local development
+./scripts/switch-env.sh cloud   # Production/cloud
+./scripts/switch-env.sh status  # Check current
 ```
 
 ### 1. Environment Variables (Manual Setup)
@@ -104,96 +99,58 @@ npm run dev
 open http://localhost:3000
 ```
 
-## Database Schema
+## 📁 Project Structure
 
-The application uses the following main tables:
-
-- `profiles` - User profiles with points balance
-- `products` - AI-generated image products
-- `cart_items` - Shopping cart items
-- `orders` - Purchase orders
-- `order_items` - Individual items in orders
-- `points_transactions` - Points purchase/spend history
-- `subscriptions` - Subscription plans (future feature)
-
-## API Routes
-
-- `/api/checkout` - Main checkout processing
-- `/api/checkout/points` - Points package purchases
-- `/api/webhooks/stripe` - Stripe webhook handler
-
-## Pages
-
-- `/` - Homepage
-- `/login` - User login
-- `/signup` - User registration
-- `/products` - Product gallery
-- `/cart` - Shopping cart
-- `/checkout` - Checkout process
-- `/points` - Points management
-- `/checkout/success` - Payment success
-
-## Features in Detail
-
-### Authentication
-
-- Email/password authentication
-- Social login with Google and GitHub
-- Protected routes with middleware
-- User session management
-
-### Shopping Experience
-
-- Product browsing with categories
-- Add to cart functionality
-- Cart management (update quantities, remove items)
-- Dual payment options (Stripe or Points)
-
-### Payment Processing
-
-- Stripe Checkout integration
-- Points-based transactions
-- Webhook handling for payment confirmation
-- Order tracking and history
-
-### Points System
-
-- Purchase points packages
-- Use points for product purchases
-- Transaction history
-- Balance management
-
-## Deployment
-
-The application is ready for deployment on platforms like Vercel or Netlify. Make sure to:
-
-1. Set up environment variables in your deployment platform
-2. Configure Supabase for production
-3. Update Stripe webhook URLs for production
-4. Set the correct `NEXT_PUBLIC_APP_URL`
-
-## Security Features
-
-- Row Level Security (RLS) in Supabase
-- Protected API routes
-- Secure payment processing
-- Environment variable protection
-
-## Future Enhancements
-
-- Subscription plans
-- Order history page
-- Product reviews and ratings
-- Admin dashboard
-- Email notifications
-- Download functionality for purchased images
-
-## Support
-
-For issues and questions, please refer to the documentation or create an issue in the repository.
-
-```bash
-$ supabase
-$ stripe
-$ vercel
 ```
+src/
+├── app/                 # Next.js App Router pages
+│   ├── api/            # API routes (checkout, webhooks)
+│   ├── auth/           # Authentication pages
+│   ├── products/       # Product gallery
+│   ├── cart/           # Shopping cart
+│   ├── points/         # Points management
+│   └── upload/         # Image upload feature
+├── components/         # Reusable UI components
+├── contexts/          # React contexts (CartContext)
+└── lib/               # Utilities (Supabase, Stripe)
+```
+
+## 🗄 Database Schema
+
+**Core Tables:**
+
+- `profiles` - User accounts & points balance
+- `products` - AI-generated images for sale
+- `cart_items` - Shopping cart contents
+- `orders` - Purchase records
+- `points_transactions` - Points purchase/spend history
+
+## 🚀 Deployment
+
+**Vercel (Recommended):**
+
+1. Connect GitHub repository
+2. Set environment variables
+3. Deploy automatically
+
+**Environment Variables:**
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+
+## 📚 Documentation
+
+- [Setup Guide](docs/.github/local-development-setup.md)
+- [Architecture Analysis](docs/.github/ARCHITECTURE_ANALYSIS.md)
+- [Purchase Workflows](docs/.github/augment-workflows.md)
+
+## 🔒 Security
+
+- Row Level Security (RLS) policies
+- Protected API routes
+- Secure webhook verification
+- Environment variable protection

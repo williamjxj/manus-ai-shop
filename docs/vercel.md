@@ -1,34 +1,41 @@
-## \*.vercel.app
+# 🚀 Vercel Deployment
 
-- Project Id: prj_vSRfyYXGBw023BtPMS6bgimTEjzI
+## 🔧 Setup
 
-| Deployment Type | Domain Behavior                                  |
-| --------------- | ------------------------------------------------ |
-| Production      | Same domain every deploy (custom or default)     |
-| Preview         | Unique domain per deployment (changes each time) |
-| Localhost       | Localhost URL, no Vercel domain                  |
-|                 |                                                  |
-
-| Env Vars            | Notes                                                                                        |
-| ------------------- | -------------------------------------------------------------------------------------------- |
-| APP_URL             | Typically used as the base URL of your app; may be used internally for API calls or config.  |
-| NEXT_PUBLIC_APP_URL | Publicly exposed app URL available on both server and client; used in frontend code.         |
-| AUTH_URL            | Alias or alternative to `NEXTAUTH_URL`; base URL for authentication flows in some setups.    |
-| NEXTAUTH_URL        | Base URL for NextAuth.js authentication; used to construct OAuth callback and redirect URLs. |
-|                     |                                                                                              |
+### Link Project
 
 ```bash
-$ vercel link
-# created .vercel/
+# Link to existing Vercel project
+vercel link
 
-$ vercel env ls preview
-
-# Deploy with Environment Variables
-$ vercel -e NODE_ENV=production
-$ vercel --prod
+# Deploy to production
+vercel --prod
 ```
 
-## BUGS & FIX
+### Environment Variables
+
+Set in **Vercel Dashboard → Settings → Environment Variables**:
+
+```bash
+# Required for all environments
+NEXT_PUBLIC_APP_URL=https://your-domain.vercel.app
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+## 🌐 Domain Configuration
+
+### Deployment Types
+
+- **Production**: Stable domain (custom or .vercel.app)
+- **Preview**: Unique domain per deployment
+- **Development**: localhost:3000
+
+## 🐛 Troubleshooting
 
 1. #### Update OAuth Base URL Environment Variable
 
