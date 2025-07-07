@@ -8,6 +8,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-02-24.acacia',
 })
 
+// GET endpoint to test webhook URL accessibility
+export async function GET() {
+  console.warn('🔍 WEBHOOK GET REQUEST - Testing accessibility')
+  return NextResponse.json({
+    message: 'Stripe webhook endpoint is accessible',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    hasWebhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
+  })
+}
+
 // Enhanced logging utility using centralized error handling
 const logWebhookEvent = (
   level: 'info' | 'error' | 'warn',
@@ -59,6 +70,13 @@ const recordWebhookEvent = async (
 }
 
 export async function POST(request: NextRequest) {
+  console.warn('🚨 WEBHOOK RECEIVED - ENTRY POINT:', {
+    timestamp: new Date().toISOString(),
+    url: request.url,
+    method: request.method,
+    headers: Object.fromEntries(request.headers.entries()),
+  })
+
   const body = await request.text()
   const sig = request.headers.get('stripe-signature')!
 
@@ -71,6 +89,7 @@ export async function POST(request: NextRequest) {
     hasSignature: !!sig,
     signaturePrefix: sig?.substring(0, 20) || 'MISSING',
     bodyLength: body.length,
+    bodyStart: body.substring(0, 200),
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
     vercelUrl: process.env.VERCEL_URL,
@@ -87,12 +106,17 @@ export async function POST(request: NextRequest) {
     console.warn('✅ Webhook signature verified successfully:', {
       eventType: event.type,
       eventId: event.id,
+      created: event.created,
+      livemode: event.livemode,
     })
   } catch (err: unknown) {
     console.error('❌ Webhook signature verification failed:', {
       error: err,
+      errorMessage: err instanceof Error ? err.message : 'Unknown error',
       hasSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
       secretPrefix: process.env.STRIPE_WEBHOOK_SECRET?.substring(0, 10),
+      bodyPreview: body.substring(0, 100),
+      signaturePreview: sig?.substring(0, 30),
     })
     logWebhookEvent('error', 'Webhook signature verification failed', {
       error: err,
@@ -327,9 +351,19 @@ async function handleProductPurchase(
     functionResult,
     hasError: !!transactionError,
     error: transactionError,
+    errorCode: transactionError?.code,
+    errorMessage: transactionError?.message,
+    errorDetails: transactionError?.details,
   })
 
   if (transactionError) {
+    console.error('💥 TRANSACTION FAILED:', {
+      error: transactionError,
+      userId,
+      cartItemsCount: cartItems.length,
+      totalCents,
+      sessionId: session.id,
+    })
     logWebhookEvent('error', 'Product purchase transaction failed', {
       error: transactionError,
       userId,
@@ -338,10 +372,19 @@ async function handleProductPurchase(
     throw transactionError
   }
 
+  console.warn('🎉 PRODUCT PURCHASE SUCCESS:', {
+    userId,
+    totalCents,
+    sessionId: session.id,
+    orderId: functionResult?.order_id,
+    success: functionResult?.success,
+  })
+
   logWebhookEvent('info', 'Product purchase completed successfully', {
     userId,
     totalCents,
     sessionId: session.id,
+    orderId: functionResult?.order_id,
   })
 }
 
