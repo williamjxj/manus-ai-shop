@@ -1,16 +1,26 @@
 import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
 
 import AgeVerification from '@/components/AgeVerification'
+import Footer from '@/components/Footer'
 import Navbar from '@/components/Navbar'
 import { CartProvider } from '@/contexts/CartContext'
 
 import './globals.css'
 
+// Configure Inter font for professional e-commerce appearance
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+
 export const metadata: Metadata = {
-  title: 'Adult AI Gallery - Premium AI Generated Adult Content',
+  title:
+    'Adult Products Gallery - Premium Adult Products & Content Marketplace',
   description:
-    'Premium marketplace for AI-generated adult content. 18+ only. High-quality images and videos for mature audiences.',
+    'Comprehensive adult products marketplace featuring toys, lingerie, wellness products, and premium digital content. 18+ only. Discrete shipping and billing available.',
 }
 
 export default function RootLayout({
@@ -19,12 +29,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en'>
-      <body className='antialiased' suppressHydrationWarning={true}>
+    <html lang='en' className={inter.variable}>
+      <body
+        className={`${inter.className} antialiased`}
+        suppressHydrationWarning={true}
+      >
         <CartProvider>
           <AgeVerification>
             <Navbar />
             {children}
+            <Footer />
             <Toaster />
           </AgeVerification>
         </CartProvider>

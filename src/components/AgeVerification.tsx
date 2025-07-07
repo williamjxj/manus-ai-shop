@@ -106,10 +106,38 @@ export default function AgeVerification({ children }: AgeVerificationProps) {
 
           {/* Legal Notice */}
           <div className='mt-6 border-t pt-4 text-xs text-gray-500'>
-            <p>
+            <p className='mb-3'>
               This site uses cookies to remember your age verification. By
-              entering, you agree to our terms of service and privacy policy.
+              entering, you agree to our legal policies.
             </p>
+            <div className='flex justify-center space-x-4'>
+              <a
+                href='/terms'
+                className='text-indigo-600 underline hover:text-indigo-800'
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                Terms of Service
+              </a>
+              <span className='text-gray-300'>|</span>
+              <a
+                href='/privacy'
+                className='text-indigo-600 underline hover:text-indigo-800'
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                Privacy Policy
+              </a>
+              <span className='text-gray-300'>|</span>
+              <a
+                href='/cookies'
+                className='text-indigo-600 underline hover:text-indigo-800'
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                Cookie Policy
+              </a>
+            </div>
           </div>
         </div>
       </div>

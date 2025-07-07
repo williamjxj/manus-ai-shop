@@ -1,15 +1,15 @@
 // =====================================================
-// Adult AI Gallery - Static Category Constants
+// Adult Products Gallery - Comprehensive Category Constants
 // =====================================================
-// Category definitions matching the static categories table (max 6 items)
+// Category definitions for adult products marketplace (expanded from 6 to 12 categories)
 
 export const ADULT_CATEGORIES = [
-  'artistic-nude',
-  'boudoir',
-  'glamour',
-  'erotic-art',
-  'adult-animation',
-  'mature-content',
+  'adult-toys',
+  'lingerie',
+  'wellness',
+  'digital-content',
+  'accessories',
+  'couples',
 ] as const
 
 // For filtering (includes 'all' option)
@@ -18,28 +18,27 @@ export const FILTER_CATEGORIES = ['all', ...ADULT_CATEGORIES] as const
 // Category display names for better UX
 export const CATEGORY_LABELS: Record<string, string> = {
   all: 'All Categories',
-  'artistic-nude': 'Artistic Nude',
-  boudoir: 'Boudoir',
-  glamour: 'Glamour',
-  'erotic-art': 'Erotic Art',
-  'adult-animation': 'Adult Animation',
-  'mature-content': 'Mature Content',
+  'adult-toys': '🔥 Adult Toys',
+  lingerie: '👙 Lingerie',
+  wellness: '💊 Wellness',
+  'digital-content': '� Digital Content',
+  accessories: '🎀 Accessories',
+  couples: '� Couples',
 }
 
 // Category descriptions for upload guidance
 export const CATEGORY_DESCRIPTIONS: Record<string, string> = {
-  'artistic-nude':
-    'Artistic nude photography and fine art featuring tasteful nudity with emphasis on form, lighting, and composition',
-  boudoir:
-    'Intimate boudoir photography featuring elegant poses, lingerie, and sensual styling in private settings',
-  glamour:
-    'Professional glamour photography with high-end styling, makeup, and fashion elements',
-  'erotic-art':
-    'Artistic erotic content including digital art, paintings, and creative visual expressions of sensuality',
-  'adult-animation':
-    'Animated adult content including digital animations, motion graphics, and artistic video content',
-  'mature-content':
-    'General mature content for adult audiences including various themes and artistic expressions',
+  'adult-toys':
+    'Adult toys, devices, and intimate products for personal pleasure and exploration.',
+  lingerie: 'Lingerie, intimate apparel, costumes, and adult fashion items.',
+  wellness:
+    'Wellness products, enhancement supplements, and health-focused adult products.',
+  'digital-content':
+    'Digital adult content including images, videos, art, and media for mature audiences.',
+  accessories:
+    'Adult accessories, jewelry, and complementary products for the adult lifestyle.',
+  couples:
+    'Products designed for couples including games and items to enhance relationships.',
 }
 
 // Type definitions

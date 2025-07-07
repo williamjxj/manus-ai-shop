@@ -3,10 +3,11 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-  // Bypass auth/session middleware for Stripe webhooks and debug endpoints
+  // Bypass middleware for specific endpoints and pages
   if (
     request.nextUrl.pathname.startsWith('/api/webhooks/stripe') ||
-    request.nextUrl.pathname.startsWith('/api/debug/')
+    request.nextUrl.pathname.startsWith('/api/debug/') ||
+    request.nextUrl.pathname === '/geo-blocked'
   ) {
     return NextResponse.next()
   }

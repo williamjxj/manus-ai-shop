@@ -56,3 +56,22 @@ stripe trigger checkout.session.completed
 
 - `GET /api/debug/webhook-status` - Check configuration
 - `POST /api/test/webhook` - Test webhook processing
+
+### For Local Development
+
+If testing locally with npm run dev, your webhook URL would be something like:
+
+- https://your-ngrok-url.ngrok.io/api/webhooks/stripe (if using ngrok)
+- Or use Stripe CLI: stripe listen --forward-to localhost:3000/api/webhooks/stripe
+
+### For Production (Vercel)
+
+- Your webhook URL should be: https://your-app.vercel.app/api/webhooks/stripe
+- Make sure to add the STRIPE_WEBHOOK_SECRET to your Vercel environment variables too
+
+### Stripe CLI
+
+- `stripe logs tail`
+- `checkout.session.completed`,
+  `payment_intent.succeeded`
+- admin@adultaigallery.com / 123456

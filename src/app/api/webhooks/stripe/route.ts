@@ -62,6 +62,15 @@ export async function POST(request: NextRequest) {
   const body = await request.text()
   const sig = request.headers.get('stripe-signature')!
 
+  // Debug webhook configuration
+  console.warn('🔍 Webhook Debug Info:', {
+    hasWebhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
+    webhookSecretLength: process.env.STRIPE_WEBHOOK_SECRET?.length || 0,
+    hasSignature: !!sig,
+    bodyLength: body.length,
+    timestamp: new Date().toISOString(),
+  })
+
   let event: Stripe.Event
 
   try {
@@ -70,7 +79,16 @@ export async function POST(request: NextRequest) {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     )
+    console.warn('✅ Webhook signature verified successfully:', {
+      eventType: event.type,
+      eventId: event.id,
+    })
   } catch (err: unknown) {
+    console.error('❌ Webhook signature verification failed:', {
+      error: err,
+      hasSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
+      secretPrefix: process.env.STRIPE_WEBHOOK_SECRET?.substring(0, 10),
+    })
     logWebhookEvent('error', 'Webhook signature verification failed', {
       error: err,
     })
@@ -97,17 +115,35 @@ export async function POST(request: NextRequest) {
       eventType: event.type,
     })
 
+    console.warn('🎯 PROCESSING EVENT:', {
+      eventType: event.type,
+      eventId: event.id,
+    })
+
     switch (event.type) {
       case 'checkout.session.completed':
         const session = event.data.object as Stripe.Checkout.Session
 
+        console.warn('💳 CHECKOUT SESSION COMPLETED:', {
+          sessionId: session.id,
+          paymentStatus: session.payment_status,
+          customerId: session.customer,
+          metadata: session.metadata,
+          hasPointsMetadata: !!session.metadata?.points,
+          hasCartItemsMetadata: !!session.metadata?.cart_items,
+          cartItemsValue: session.metadata?.cart_items,
+        })
+
         if (session.metadata?.points) {
+          console.warn('🎯 HANDLING POINTS PURCHASE')
           // Handle points purchase with enhanced error handling and validation
           await handlePointsPurchase(supabase, session, event.id)
         } else if (session.metadata?.cart_items) {
+          console.warn('🛒 HANDLING PRODUCT PURCHASE')
           // Handle product purchase with enhanced error handling and validation
           await handleProductPurchase(supabase, session, event.id)
         } else {
+          console.warn('⚠️ UNKNOWN SESSION TYPE - NO METADATA')
           logWebhookEvent('warn', 'Unknown session type', {
             sessionId: session.id,
           })
@@ -212,19 +248,37 @@ async function handleProductPurchase(
   session: Stripe.Checkout.Session,
   eventId: string
 ) {
+  console.warn('🛒 STARTING PRODUCT PURCHASE HANDLER')
+
   const userId = session.metadata!.user_id
   let cartItems = session.metadata!.cart_items
+
+  console.warn('📋 PRODUCT PURCHASE DATA:', {
+    userId,
+    cartItemsRaw: cartItems,
+    cartItemsType: typeof cartItems,
+    paymentIntent: session.payment_intent,
+    sessionId: session.id,
+    eventId,
+  })
 
   // Defensive: parse if string, else use as is
   if (typeof cartItems === 'string') {
     try {
       cartItems = JSON.parse(cartItems)
-    } catch {
+      console.warn('✅ PARSED CART ITEMS:', cartItems)
+    } catch (parseError) {
+      console.error('❌ FAILED TO PARSE CART ITEMS:', parseError)
       throw new Error('Invalid cart_items JSON in metadata')
     }
   }
 
   if (!Array.isArray(cartItems) || cartItems.length === 0) {
+    console.error('❌ INVALID CART ITEMS:', {
+      cartItems,
+      isArray: Array.isArray(cartItems),
+      length: cartItems?.length,
+    })
     throw new Error('Invalid cart items data')
   }
 
@@ -241,7 +295,18 @@ async function handleProductPurchase(
     0
   )
 
-  const { error: transactionError } = await supabase.rpc(
+  console.warn('💰 CALCULATED TOTAL:', {
+    totalCents,
+    cartItems: cartItems.map((item: any) => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      price_cents: item.price_cents,
+    })),
+  })
+
+  console.warn('🔄 CALLING PROCESS_PRODUCT_PURCHASE FUNCTION')
+
+  const { data: functionResult, error: transactionError } = await supabase.rpc(
     'process_product_purchase',
     {
       p_user_id: userId,
@@ -252,6 +317,12 @@ async function handleProductPurchase(
       p_webhook_event_id: eventId,
     }
   )
+
+  console.warn('📊 FUNCTION RESULT:', {
+    functionResult,
+    hasError: !!transactionError,
+    error: transactionError,
+  })
 
   if (transactionError) {
     logWebhookEvent('error', 'Product purchase transaction failed', {

@@ -16,7 +16,9 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import { ContentWarningBadges } from '@/components/ContentWarnings'
 import { ADULT_CATEGORIES, getCategoryLabel } from '@/constants/categories'
+import { ContentWarning, getAllContentWarnings } from '@/lib/content-moderation'
 import {
   createImagePreview,
   createVideoPreview,
@@ -39,6 +41,9 @@ interface ProductFormData {
   category: string
   media_type: MediaType
   media_file: File | null
+  content_warnings: ContentWarning[]
+  tags: string[]
+  is_explicit: boolean
 }
 
 interface BulkUploadFile {
@@ -49,6 +54,9 @@ interface BulkUploadFile {
   price_cents: number
   points_price: number
   mediaType: MediaType
+  content_warnings: ContentWarning[]
+  tags: string[]
+  is_explicit: boolean
 }
 
 const categories = ADULT_CATEGORIES
@@ -68,9 +76,12 @@ export default function UploadPage() {
     description: '',
     price_cents: 999,
     points_price: 50,
-    category: 'ai-art',
+    category: 'adult-toys',
     media_type: 'image',
     media_file: null,
+    content_warnings: ['sexual-content'],
+    tags: [],
+    is_explicit: true,
   })
   const [mediaPreview, setMediaPreview] = useState<string | null>(null)
   const [videoDuration, setVideoDuration] = useState<number | null>(null)
@@ -78,6 +89,10 @@ export default function UploadPage() {
   // Bulk upload state
   const [bulkFiles, setBulkFiles] = useState<BulkUploadFile[]>([])
   const [bulkUploading, setBulkUploading] = useState(false)
+
+  // Multiple files for single product (future feature)
+  // const [additionalFiles, setAdditionalFiles] = useState<File[]>([])
+  // const [additionalPreviews, setAdditionalPreviews] = useState<string[]>([])
 
   const formatPrice = (cents: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -156,9 +171,18 @@ export default function UploadPage() {
   }, [])
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      handleMediaSelect(file)
+    const files = Array.from(e.target.files || [])
+    if (files.length > 0) {
+      // Set the first file as the main media file
+      handleMediaSelect(files[0])
+
+      // For now, we only handle single file uploads
+      // Additional files functionality can be implemented later
+      if (files.length > 1) {
+        console.warn(
+          'Multiple files selected, only the first file will be processed'
+        )
+      }
     }
   }
 
@@ -178,7 +202,6 @@ export default function UploadPage() {
 
     for (const file of files) {
       const isImage = file.type.startsWith('image/')
-      const isVideo = file.type.startsWith('video/')
       const mediaType: MediaType = isImage ? 'image' : 'video'
 
       let preview: string | undefined
@@ -198,10 +221,13 @@ export default function UploadPage() {
         file,
         preview,
         name: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
-        category: 'ai-art',
+        category: 'adult-toys',
         price_cents: 999,
         points_price: 50,
         mediaType,
+        content_warnings: ['sexual-content'],
+        tags: [],
+        is_explicit: true,
       })
     }
 
@@ -258,6 +284,7 @@ export default function UploadPage() {
       const mediaUrl = uploadResult.url!
 
       // Save product to database
+      // Only include columns that exist in the current schema
       const productData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
@@ -266,7 +293,6 @@ export default function UploadPage() {
         price_cents: formData.price_cents,
         points_price: formData.points_price,
         category: formData.category,
-        user_id: user.id, // Add user_id for ownership tracking
         // Keep image_url for backward compatibility
         image_url: formData.media_type === 'image' ? mediaUrl : null,
         thumbnail_url: formData.media_type === 'video' ? mediaPreview : null,
@@ -274,9 +300,10 @@ export default function UploadPage() {
         file_size: uploadResult.fileSize,
       }
 
-      const { error: dbError } = await supabase
+      const { data: _insertedProduct, error: dbError } = await supabase
         .from('products')
         .insert(productData)
+        .select()
 
       if (dbError) {
         console.error('Database error:', dbError)
@@ -331,6 +358,7 @@ export default function UploadPage() {
           const mediaUrl = uploadResult.url!
 
           // Save product to database
+          // Only include columns that exist in the current schema
           const productData = {
             name: bulkFile.name.trim() || `Untitled ${index + 1}`,
             description: `Uploaded ${bulkFile.mediaType}`,
@@ -339,7 +367,6 @@ export default function UploadPage() {
             price_cents: bulkFile.price_cents,
             points_price: bulkFile.points_price,
             category: bulkFile.category,
-            user_id: user.id, // Add user_id for ownership tracking
             // Keep image_url for backward compatibility
             image_url: bulkFile.mediaType === 'image' ? mediaUrl : null,
             thumbnail_url:
@@ -389,10 +416,10 @@ export default function UploadPage() {
         {/* Header */}
         <div className='mb-8 text-center'>
           <h1 className='bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 bg-clip-text text-3xl font-bold text-transparent'>
-            Upload Adult Content
+            Upload Adult Products
           </h1>
           <p className='mt-2 text-gray-600'>
-            Add premium adult images and videos to the marketplace
+            Add premium adult products, content, and media to the marketplace
           </p>
           <div className='mt-3 flex items-center justify-center gap-2 text-sm font-medium text-red-600'>
             <svg
@@ -477,6 +504,7 @@ export default function UploadPage() {
                             type='file'
                             className='sr-only'
                             accept='image/*,video/*'
+                            multiple
                             onChange={handleFileInput}
                           />
                         </label>
@@ -492,14 +520,15 @@ export default function UploadPage() {
                 ) : (
                   <div className='relative'>
                     {mediaPreview && (
-                      <div className='relative overflow-hidden rounded-lg'>
+                      <div className='relative overflow-hidden rounded-lg bg-gray-100'>
                         {formData.media_type === 'image' ? (
                           <Image
                             src={mediaPreview}
                             alt='Preview'
                             width={400}
                             height={300}
-                            className='h-64 w-full object-cover'
+                            className='max-h-64 w-full object-contain'
+                            style={{ aspectRatio: 'auto' }}
                           />
                         ) : (
                           <div className='relative'>
@@ -508,7 +537,8 @@ export default function UploadPage() {
                               alt='Video thumbnail'
                               width={400}
                               height={300}
-                              className='h-64 w-full object-cover'
+                              className='max-h-64 w-full object-contain'
+                              style={{ aspectRatio: 'auto' }}
                             />
                             <div className='absolute inset-0 flex items-center justify-center'>
                               <div className='rounded-full bg-black bg-opacity-50 p-3'>
@@ -668,6 +698,108 @@ export default function UploadPage() {
                 />
               </div>
 
+              {/* Content Warnings */}
+              <div>
+                <label className='mb-3 block text-sm font-medium text-gray-700'>
+                  Content Warnings (Required for Adult Content)
+                </label>
+                <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
+                  {getAllContentWarnings().map((warning) => (
+                    <label
+                      key={warning.warning_code}
+                      className='flex items-center space-x-2'
+                    >
+                      <input
+                        type='checkbox'
+                        checked={formData.content_warnings.includes(
+                          warning.warning_code
+                        )}
+                        onChange={(e) => {
+                          const warnings = e.target.checked
+                            ? [
+                                ...formData.content_warnings,
+                                warning.warning_code,
+                              ]
+                            : formData.content_warnings.filter(
+                                (w) => w !== warning.warning_code
+                              )
+                          setFormData((prev) => ({
+                            ...prev,
+                            content_warnings: warnings,
+                          }))
+                        }}
+                        className='rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
+                      />
+                      <span
+                        className='text-sm text-gray-700'
+                        title={warning.warning_description}
+                      >
+                        {warning.warning_label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {formData.content_warnings.length > 0 && (
+                  <div className='mt-3'>
+                    <ContentWarningBadges
+                      warnings={formData.content_warnings}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Tags */}
+              <div>
+                <label className='block text-sm font-medium text-gray-700'>
+                  Tags (Optional)
+                </label>
+                <input
+                  type='text'
+                  value={formData.tags.join(', ')}
+                  onChange={(e) => {
+                    const tags = e.target.value
+                      .split(',')
+                      .map((tag) => tag.trim())
+                      .filter((tag) => tag)
+                    setFormData((prev) => ({ ...prev, tags }))
+                  }}
+                  className='mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500'
+                  placeholder='Enter tags separated by commas (e.g., fantasy, artistic, premium)'
+                />
+                <p className='mt-1 text-sm text-gray-500'>
+                  Add relevant tags to help users discover your content
+                </p>
+              </div>
+
+              {/* Explicit Content Toggle */}
+              <div className='rounded-lg border border-red-200 bg-red-50 p-4'>
+                <div className='flex items-center space-x-3'>
+                  <input
+                    type='checkbox'
+                    id='is_explicit'
+                    checked={formData.is_explicit}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        is_explicit: e.target.checked,
+                      }))
+                    }
+                    className='rounded border-gray-300 text-red-600 focus:ring-red-500'
+                  />
+                  <label
+                    htmlFor='is_explicit'
+                    className='text-sm font-medium text-red-800'
+                  >
+                    This content contains explicit adult material (18+)
+                  </label>
+                </div>
+                <p className='mt-2 text-xs text-red-700'>
+                  By checking this box, you confirm that this content is
+                  intended for mature audiences only and complies with
+                  applicable laws regarding adult content.
+                </p>
+              </div>
+
               {/* Submit Button */}
               <div className='flex justify-end space-x-4'>
                 <button
@@ -752,13 +884,14 @@ export default function UploadPage() {
                     >
                       {/* File Preview */}
                       {file.preview && (
-                        <div className='relative mb-3 h-32 overflow-hidden rounded'>
+                        <div className='relative mb-3 overflow-hidden rounded bg-gray-100'>
                           <Image
                             src={file.preview}
                             alt={file.name}
                             width={200}
                             height={128}
-                            className='h-full w-full object-cover'
+                            className='max-h-32 w-full object-contain'
+                            style={{ aspectRatio: 'auto' }}
                           />
                           {file.mediaType === 'video' && (
                             <div className='absolute inset-0 flex items-center justify-center'>

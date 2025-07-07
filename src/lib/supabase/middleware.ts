@@ -1,7 +1,42 @@
 import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 
+import {
+  getLocationFromRequest,
+  getLocationString,
+  isDevelopmentEnvironment,
+  logGeoBlockingEvent,
+} from '@/lib/geo-blocking'
+
 export async function updateSession(request: NextRequest) {
+  // Check geo-blocking first (skip in development)
+  if (!isDevelopmentEnvironment(request)) {
+    const location = getLocationFromRequest(request)
+
+    if (location.isBlocked) {
+      logGeoBlockingEvent(
+        location,
+        'blocked',
+        request.headers.get('user-agent') || undefined
+      )
+
+      const url = request.nextUrl.clone()
+      url.pathname = '/geo-blocked'
+      url.searchParams.set(
+        'reason',
+        location.blockReason || 'Geographic restrictions apply'
+      )
+      url.searchParams.set('location', getLocationString(location))
+
+      return NextResponse.redirect(url)
+    } else {
+      logGeoBlockingEvent(
+        location,
+        'allowed',
+        request.headers.get('user-agent') || undefined
+      )
+    }
+  }
   let supabaseResponse = NextResponse.next({
     request,
   })

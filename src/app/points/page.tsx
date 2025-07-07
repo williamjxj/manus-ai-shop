@@ -71,17 +71,19 @@ export default function PointsPage() {
         return
       }
 
-      // Get or create user profile
-      const profileData = await getOrCreateProfile(
-        user.id,
-        user.email || undefined
-      )
+      // Fetch user profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('points')
+        .eq('id', user.id)
+        .maybeSingle()
 
-      if (!profileData) {
-        throw new Error('Failed to fetch or create user profile')
+      if (profileError) {
+        throw profileError
       }
 
-      setProfile({ points: profileData.points })
+      // If profile doesn't exist, it will be created by the trigger
+      setProfile({ points: profileData?.points || 0 })
 
       // Fetch transactions
       const { data: transactionsData, error: transactionsError } =
@@ -177,7 +179,7 @@ export default function PointsPage() {
     <div className='min-h-screen bg-gray-50 py-12'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
         <div className='mb-12 text-center'>
-          <h1 className='text-4xl font-bold text-gray-900 sm:text-5xl'>
+          <h1 className='bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent sm:text-5xl'>
             Points & Subscriptions
           </h1>
           <p className='mt-4 text-xl text-gray-600'>

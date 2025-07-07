@@ -59,7 +59,7 @@ export default function CartPage() {
       <div className='min-h-screen bg-gray-50 py-12'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
           <div className='text-center'>
-            <div className='mx-auto h-32 w-32 animate-spin rounded-full border-b-2 border-indigo-600'></div>
+            <div className='mx-auto h-32 w-32 animate-spin rounded-full border-b-2 border-rose-600'></div>
             <p className='mt-4 text-gray-600'>Loading cart...</p>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function CartPage() {
     <div className='min-h-screen bg-gray-50 py-12'>
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
         <div className='mb-12 text-center'>
-          <h1 className='text-4xl font-bold text-gray-900 sm:text-5xl'>
+          <h1 className='bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent sm:text-5xl'>
             Shopping Cart
           </h1>
           <p className='mt-4 text-xl text-gray-600'>
@@ -82,7 +82,7 @@ export default function CartPage() {
         {cartItems.length === 0 ? (
           <div className='py-12 text-center'>
             <ShoppingBag className='mx-auto mb-4 h-24 w-24 text-gray-400' />
-            <h3 className='mb-2 text-lg font-medium text-gray-900'>
+            <h3 className='mb-2 text-lg font-medium text-gray-700'>
               Your cart is empty
             </h3>
             <p className='mb-6 text-gray-500'>
@@ -90,7 +90,7 @@ export default function CartPage() {
             </p>
             <Link
               href='/products'
-              className='inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white hover:bg-indigo-700'
+              className='inline-flex items-center rounded-md border border-transparent bg-gradient-to-r from-rose-600 to-pink-600 px-6 py-3 text-base font-medium text-white hover:from-rose-700 hover:to-pink-700'
             >
               Browse Products
             </Link>
@@ -115,17 +115,17 @@ export default function CartPage() {
                       </div>
 
                       <div className='min-w-0 flex-1'>
-                        <h3 className='text-lg font-medium text-gray-900'>
+                        <h3 className='text-lg font-medium text-gray-800'>
                           {item.product.name}
                         </h3>
                         <p className='mt-1 text-sm text-gray-500'>
                           {item.product.description}
                         </p>
                         <div className='mt-2'>
-                          <span className='text-lg font-semibold text-gray-900'>
+                          <span className='text-lg font-semibold text-gray-800'>
                             {formatPrice(item.product.price_cents)}
                           </span>
-                          <span className='ml-2 text-sm text-indigo-600'>
+                          <span className='ml-2 text-sm text-rose-600'>
                             or {item.product.points_price} points
                           </span>
                         </div>
@@ -172,7 +172,7 @@ export default function CartPage() {
 
             <div className='mt-16 lg:col-span-5 lg:mt-0'>
               <div className='sticky top-6 rounded-lg bg-white p-6 shadow-sm'>
-                <h2 className='mb-4 text-lg font-medium text-gray-900'>
+                <h2 className='mb-4 text-lg font-medium text-gray-800'>
                   Order Summary
                 </h2>
 
@@ -187,7 +187,7 @@ export default function CartPage() {
                   </div>
                   <div className='flex justify-between'>
                     <span className='text-gray-600'>Points equivalent</span>
-                    <span className='font-medium text-indigo-600'>
+                    <span className='font-medium text-rose-600'>
                       {getTotalPoints()} points
                     </span>
                   </div>
@@ -202,7 +202,7 @@ export default function CartPage() {
                 <div className='mt-6 space-y-3'>
                   <Link
                     href='/checkout'
-                    className='flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white hover:bg-indigo-700'
+                    className='flex w-full items-center justify-center rounded-md border border-transparent bg-gradient-to-r from-rose-600 to-pink-600 px-6 py-3 text-base font-medium text-white hover:from-rose-700 hover:to-pink-700'
                   >
                     Proceed to Checkout
                   </Link>

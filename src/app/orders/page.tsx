@@ -188,7 +188,9 @@ export default function OrdersPage() {
       <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
         {/* Header */}
         <div className='mb-8'>
-          <h1 className='text-3xl font-bold text-gray-900'>Your Orders</h1>
+          <h1 className='bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 bg-clip-text text-3xl font-bold text-transparent'>
+            Your Orders
+          </h1>
           <p className='mt-2 text-gray-600'>
             Track and manage your purchase history
           </p>

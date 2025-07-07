@@ -9,6 +9,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [ageConfirmed, setAgeConfirmed] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
@@ -27,11 +29,26 @@ export default function SignupPage() {
       return
     }
 
-    console.log('Attempting signup with:', {
-      email,
-      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-      redirectTo: `${window.location.origin}/auth/callback`,
-    })
+    if (!ageConfirmed) {
+      setError('You must confirm that you are 18 years or older')
+      setLoading(false)
+      return
+    }
+
+    if (!termsAccepted) {
+      setError('You must accept the Terms of Service and Privacy Policy')
+      setLoading(false)
+      return
+    }
+
+    // Debug info for development
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Attempting signup with:', {
+        email,
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+        redirectTo: `${window.location.origin}/auth/callback`,
+      })
+    }
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -41,7 +58,10 @@ export default function SignupPage() {
       },
     })
 
-    console.log('Signup response:', { data, error })
+    // Debug signup response in development
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Signup response:', { data, error })
+    }
 
     if (error) {
       console.error('Signup error details:', error)
@@ -189,6 +209,55 @@ export default function SignupPage() {
                 className='relative mt-1 block w-full appearance-none rounded-lg border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm'
                 placeholder='Confirm your password'
               />
+            </div>
+
+            {/* Age Verification */}
+            <div className='rounded-lg border border-red-200 bg-red-50 p-4'>
+              <div className='flex items-center gap-3'>
+                <input
+                  id='ageConfirmed'
+                  type='checkbox'
+                  checked={ageConfirmed}
+                  onChange={(e) => setAgeConfirmed(e.target.checked)}
+                  className='h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
+                />
+                <label htmlFor='ageConfirmed' className='text-sm text-red-800'>
+                  <span className='font-semibold'>
+                    I confirm that I am 18 years of age or older
+                  </span>{' '}
+                  and legally permitted to view adult content in my
+                  jurisdiction.
+                </label>
+              </div>
+            </div>
+
+            {/* Terms and Privacy */}
+            <div className='flex items-start gap-3'>
+              <input
+                id='termsAccepted'
+                type='checkbox'
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className='mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
+              />
+              <label htmlFor='termsAccepted' className='text-sm text-gray-700'>
+                I agree to the{' '}
+                <a
+                  href='/terms'
+                  target='_blank'
+                  className='text-indigo-600 underline hover:text-indigo-800'
+                >
+                  Terms of Service
+                </a>{' '}
+                and{' '}
+                <a
+                  href='/privacy'
+                  target='_blank'
+                  className='text-indigo-600 underline hover:text-indigo-800'
+                >
+                  Privacy Policy
+                </a>
+              </label>
             </div>
 
             {error && (

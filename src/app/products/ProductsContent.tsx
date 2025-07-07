@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 
 import { FILTER_CATEGORIES, getCategoryLabel } from '@/constants/categories'
 import { useCart } from '@/contexts/CartContext'
+import { ContentWarning } from '@/lib/content-moderation'
 import { createClient } from '@/lib/supabase/client'
 
 type ViewMode = 'grid' | 'masonry' | 'list'
@@ -33,6 +34,10 @@ interface Product {
   category: string
   created_at?: string
   user_id?: string
+  content_warnings?: ContentWarning[]
+  view_count?: number
+  purchase_count?: number
+  moderation_status?: string
 }
 
 interface FilterState {
@@ -899,7 +904,7 @@ interface ProductCardProps {
   onAddToCart: () => void
   onDelete: () => void
   onToggleFavorite: () => void
-  formatPrice: (cents: number) => string
+  formatPrice: (_cents: number) => string
 }
 
 function ProductCard({

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import { useCart } from '@/contexts/CartContext'
 import { createClient } from '@/lib/supabase/client'
 
 interface CartItem {
@@ -34,6 +35,7 @@ export default function CheckoutPage() {
     'stripe'
   )
   const [error, setError] = useState('')
+  const { refreshCart } = useCart()
   const supabase = createClient()
 
   useEffect(() => {
@@ -86,17 +88,19 @@ export default function CheckoutPage() {
 
       setCartItems(transformedCartData)
 
-      // Get or create user profile
-      const profileData = await getOrCreateProfile(
-        user.id,
-        user.email || undefined
-      )
+      // Fetch user profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('points')
+        .eq('id', user.id)
+        .maybeSingle()
 
-      if (!profileData) {
-        throw new Error('Failed to fetch or create user profile')
+      if (profileError) {
+        throw profileError
       }
 
-      setProfile({ points: profileData.points })
+      // If profile doesn't exist, it will be created by the trigger
+      setProfile({ points: profileData?.points || 0 })
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -144,7 +148,9 @@ export default function CheckoutPage() {
         window.location.href = data.url
       } else if (paymentMethod === 'points' && data.success) {
         toast.success('Purchase completed successfully!')
-        window.location.href = '/products'
+        // Refresh cart to clear items
+        await refreshCart()
+        window.location.href = '/orders'
       }
     } catch (err: any) {
       setError(err.message)
