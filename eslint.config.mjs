@@ -10,6 +10,26 @@ const compat = new FlatCompat({
 })
 
 const eslintConfig = [
+  // Ignore patterns
+  {
+    ignores: [
+      '.next/**',
+      'out/**',
+      'build/**',
+      'dist/**',
+      'node_modules/**',
+      '.env*',
+      'scripts/**', // Allow console.log in scripts
+      'supabase/migrations/**',
+      '**/*.sql',
+      '*.config.js',
+      '*.config.mjs',
+      'docs/**',
+      'README.md',
+      '.git/**',
+      'coverage/**',
+    ],
+  },
   ...compat.extends('next/core-web-vitals'),
   ...compat.extends('prettier'), // Disables ESLint rules that conflict with Prettier
   {
