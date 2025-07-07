@@ -66,9 +66,14 @@ export async function POST(request: NextRequest) {
   console.warn('🔍 Webhook Debug Info:', {
     hasWebhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
     webhookSecretLength: process.env.STRIPE_WEBHOOK_SECRET?.length || 0,
+    webhookSecretPrefix:
+      process.env.STRIPE_WEBHOOK_SECRET?.substring(0, 15) || 'MISSING',
     hasSignature: !!sig,
+    signaturePrefix: sig?.substring(0, 20) || 'MISSING',
     bodyLength: body.length,
     timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    vercelUrl: process.env.VERCEL_URL,
   })
 
   let event: Stripe.Event
