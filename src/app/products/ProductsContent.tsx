@@ -909,6 +909,21 @@ export default function ProductsContent() {
           </div>
         )}
       </div>
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={closeProductModal}
+        currentUser={currentUser}
+        onAddToCart={addToCart}
+        onDelete={deleteProduct}
+        onToggleFavorite={toggleFavorite}
+        isFavorite={selectedProduct ? favorites.has(selectedProduct.id) : false}
+        isAddingToCart={addingToCart === selectedProduct?.id}
+        isDeletingProduct={deletingProduct === selectedProduct?.id}
+        formatPrice={formatPrice}
+      />
     </div>
   )
 }
@@ -926,7 +941,7 @@ interface ProductCardProps {
   onToggleFavorite: () => void
   formatPrice: (_cents: number) => string
   router: any
-  onMediaClick: (product: Product) => void
+  onMediaClick: (_product: Product) => void
 }
 
 function ProductCard({
@@ -1359,21 +1374,6 @@ function ProductCard({
           </button>
         </div>
       </div>
-
-      {/* Product Detail Modal */}
-      <ProductDetailModal
-        product={selectedProduct}
-        isOpen={isModalOpen}
-        onClose={closeProductModal}
-        currentUser={currentUser}
-        onAddToCart={addToCart}
-        onDelete={deleteProduct}
-        onToggleFavorite={toggleFavorite}
-        isFavorite={selectedProduct ? favorites.has(selectedProduct.id) : false}
-        isAddingToCart={addingToCart === selectedProduct?.id}
-        isDeletingProduct={deletingProduct === selectedProduct?.id}
-        formatPrice={formatPrice}
-      />
     </div>
   )
 }

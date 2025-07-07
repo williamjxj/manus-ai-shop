@@ -43,13 +43,16 @@ interface EditFormData {
 export default function EditProductPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [checkingName, setCheckingName] = useState(false)
   const [nameExists, setNameExists] = useState(false)
+  const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(
+    null
+  )
   const router = useRouter()
   const supabase = createClient()
 
@@ -68,8 +71,18 @@ export default function EditProductPage({
   const categories = ADULT_CATEGORIES
   const contentWarnings = getAllContentWarnings()
 
+  // Resolve params
+  useEffect(() => {
+    const resolveParams = async () => {
+      const resolved = await params
+      setResolvedParams(resolved)
+    }
+    resolveParams()
+  }, [params])
+
   // Load product data
   useEffect(() => {
+    if (!resolvedParams) return
     const loadProduct = async () => {
       try {
         const {
@@ -85,7 +98,7 @@ export default function EditProductPage({
         const { data: productData, error } = await supabase
           .from('products')
           .select('*')
-          .eq('id', params.id)
+          .eq('id', resolvedParams.id)
           .single()
 
         if (error) throw error
@@ -118,7 +131,7 @@ export default function EditProductPage({
     }
 
     loadProduct()
-  }, [params.id, router, supabase])
+  }, [resolvedParams, router, supabase])
 
   // Check if name exists (excluding current product)
   const checkNameExists = async (name: string) => {
@@ -133,7 +146,7 @@ export default function EditProductPage({
         .from('products')
         .select('id')
         .eq('name', name.trim())
-        .neq('id', params.id)
+        .neq('id', resolvedParams?.id)
         .limit(1)
 
       if (error) throw error
@@ -186,12 +199,12 @@ export default function EditProductPage({
       const { error } = await supabase
         .from('products')
         .update(updateData)
-        .eq('id', params.id)
+        .eq('id', resolvedParams?.id)
 
       if (error) throw error
 
       toast.success('Product updated successfully!')
-      router.push(`/products/${params.id}`)
+      router.push(`/products/${resolvedParams?.id}`)
     } catch (error: any) {
       console.error('Save error:', error)
       toast.error('Failed to update product: ' + error.message)
@@ -406,8 +419,8 @@ export default function EditProductPage({
                 className='w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none'
               >
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {getCategoryLabel(cat.id)}
+                  <option key={cat} value={cat}>
+                    {getCategoryLabel(cat)}
                   </option>
                 ))}
               </select>
@@ -418,14 +431,21 @@ export default function EditProductPage({
               <h3 className='mb-4 text-lg font-semibold'>Content Warnings</h3>
               <div className='grid grid-cols-2 gap-2'>
                 {contentWarnings.map((warning) => (
-                  <label key={warning.code} className='flex items-center gap-2'>
+                  <label
+                    key={warning.warning_code}
+                    className='flex items-center gap-2'
+                  >
                     <input
                       type='checkbox'
-                      checked={formData.content_warnings.includes(warning.code)}
-                      onChange={() => toggleContentWarning(warning.code)}
+                      checked={formData.content_warnings.includes(
+                        warning.warning_code
+                      )}
+                      onChange={() =>
+                        toggleContentWarning(warning.warning_code)
+                      }
                       className='rounded border-gray-300'
                     />
-                    <span className='text-sm'>{warning.label}</span>
+                    <span className='text-sm'>{warning.warning_label}</span>
                   </label>
                 ))}
               </div>
@@ -445,7 +465,7 @@ export default function EditProductPage({
                   type='text'
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                  onKeyDown={(e) => e.key === 'Enter' && addTag()}
                   className='flex-1 rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none'
                   placeholder='Add a tag...'
                 />

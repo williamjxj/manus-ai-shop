@@ -144,10 +144,10 @@ export default function MediaManagementPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="mx-auto max-w-6xl">
-          <h1 className="mb-8 text-3xl font-bold">Media Management</h1>
-          <div className="text-center">Loading media files...</div>
+      <div className='min-h-screen bg-gray-50 p-8'>
+        <div className='mx-auto max-w-6xl'>
+          <h1 className='mb-8 text-3xl font-bold'>Media Management</h1>
+          <div className='text-center'>Loading media files...</div>
         </div>
       </div>
     )
@@ -155,46 +155,48 @@ export default function MediaManagementPage() {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="mx-auto max-w-6xl">
-          <h1 className="mb-8 text-3xl font-bold">Media Management</h1>
-          <div className="text-center text-red-600">Please login to view your media files</div>
+      <div className='min-h-screen bg-gray-50 p-8'>
+        <div className='mx-auto max-w-6xl'>
+          <h1 className='mb-8 text-3xl font-bold'>Media Management</h1>
+          <div className='text-center text-red-600'>
+            Please login to view your media files
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Media Management</h1>
-          <div className="text-sm text-gray-600">
+    <div className='min-h-screen bg-gray-50 p-8'>
+      <div className='mx-auto max-w-6xl'>
+        <div className='mb-8 flex items-center justify-between'>
+          <h1 className='text-3xl font-bold'>Media Management</h1>
+          <div className='text-sm text-gray-600'>
             {mediaFiles.length} file{mediaFiles.length !== 1 ? 's' : ''}
           </div>
         </div>
 
         {mediaFiles.length === 0 ? (
-          <div className="py-16 text-center">
-            <div className="text-gray-500">No media files found</div>
-            <p className="mt-2 text-sm text-gray-400">
+          <div className='py-16 text-center'>
+            <div className='text-gray-500'>No media files found</div>
+            <p className='mt-2 text-sm text-gray-400'>
               Upload some images or videos to see them here
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
             {mediaFiles.map((file) => (
               <div
                 key={file.id}
-                className="overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:shadow-lg"
+                className='overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:shadow-lg'
               >
                 {/* Media Preview */}
-                <div className="relative aspect-square bg-gray-100">
+                <div className='relative aspect-square bg-gray-100'>
                   {file.media_type === 'video' ? (
                     <video
                       src={file.public_url}
                       poster={file.thumbnail_url}
-                      className="h-full w-full object-cover"
+                      className='h-full w-full object-cover'
                       muted
                     />
                   ) : (
@@ -202,7 +204,7 @@ export default function MediaManagementPage() {
                       src={file.public_url}
                       alt={file.file_name}
                       fill
-                      className="object-cover"
+                      className='object-cover'
                     />
                   )}
 
@@ -210,28 +212,30 @@ export default function MediaManagementPage() {
                   <button
                     onClick={() => deleteMediaFile(file)}
                     disabled={deleting === file.id}
-                    className="absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    title="Delete media file"
+                    className='absolute right-2 top-2 rounded-full bg-red-500 p-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                    title='Delete media file'
                   >
                     {deleting === file.id ? (
-                      <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                      <div className='h-4 w-4 animate-spin rounded-full border-b-2 border-white'></div>
                     ) : (
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className='h-4 w-4' />
                     )}
                   </button>
 
                   {/* Video Duration */}
                   {file.media_type === 'video' && file.duration_seconds && (
-                    <div className="absolute bottom-2 right-2 rounded bg-black bg-opacity-75 px-2 py-1 text-xs text-white">
+                    <div className='absolute bottom-2 right-2 rounded bg-black bg-opacity-75 px-2 py-1 text-xs text-white'>
                       {formatDuration(file.duration_seconds)}
                     </div>
                   )}
                 </div>
 
                 {/* File Info */}
-                <div className="p-4">
-                  <h3 className="truncate font-medium text-gray-900">{file.file_name}</h3>
-                  <div className="mt-2 space-y-1 text-sm text-gray-600">
+                <div className='p-4'>
+                  <h3 className='truncate font-medium text-gray-900'>
+                    {file.file_name}
+                  </h3>
+                  <div className='mt-2 space-y-1 text-sm text-gray-600'>
                     <div>Type: {file.media_type}</div>
                     <div>Size: {formatFileSize(file.file_size)}</div>
                     {file.width && file.height && (
@@ -239,7 +243,9 @@ export default function MediaManagementPage() {
                         Dimensions: {file.width} × {file.height}
                       </div>
                     )}
-                    <div>Uploaded: {new Date(file.created_at).toLocaleDateString()}</div>
+                    <div>
+                      Uploaded: {new Date(file.created_at).toLocaleDateString()}
+                    </div>
                   </div>
                 </div>
               </div>

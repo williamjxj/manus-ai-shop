@@ -14,7 +14,6 @@ import {
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
 
 import { ContentWarningBadges } from '@/components/ContentWarnings'
 import { getCategoryLabel } from '@/constants/categories'
@@ -45,13 +44,13 @@ interface ProductDetailModalProps {
   isOpen: boolean
   onClose: () => void
   currentUser: any
-  onAddToCart: (productId: string) => void
-  onDelete: (productId: string, productName: string) => void
-  onToggleFavorite: (productId: string) => void
+  onAddToCart: (_productId: string) => void
+  onDelete: (_productId: string, _productName: string) => void
+  onToggleFavorite: (_productId: string) => void
   isFavorite: boolean
   isAddingToCart: boolean
   isDeletingProduct: boolean
-  formatPrice: (cents: number) => string
+  formatPrice: (_cents: number) => string
 }
 
 export default function ProductDetailModal({
@@ -152,43 +151,46 @@ export default function ProductDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4">
+    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4'>
       <div
         ref={modalRef}
-        className="relative max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-lg bg-white shadow-2xl"
+        className='relative max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-lg bg-white shadow-2xl'
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-full bg-black bg-opacity-50 p-2 text-white hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-white"
+          className='absolute right-4 top-4 z-10 rounded-full bg-black bg-opacity-50 p-2 text-white hover:bg-opacity-75 focus:outline-none focus:ring-2 focus:ring-white'
         >
-          <X className="h-5 w-5" />
+          <X className='h-5 w-5' />
         </button>
 
-        <div className="flex h-full flex-col lg:flex-row">
+        <div className='flex h-full flex-col lg:flex-row'>
           {/* Media Section - 60% */}
-          <div className="relative flex-1 bg-gray-900 lg:flex-[3]">
+          <div className='relative flex-1 bg-gray-900 lg:flex-[3]'>
             {product.media_type === 'video' ? (
-              <div className="relative h-full min-h-[300px] lg:min-h-[500px]">
+              <div className='relative h-full min-h-[300px] lg:min-h-[500px]'>
                 {!isVideoPlaying ? (
                   // Video Thumbnail with Play Button
-                  <div className="relative h-full w-full">
+                  <div className='relative h-full w-full'>
                     <Image
                       src={getThumbnailSrc()}
                       alt={product.name}
                       fill
-                      className="object-contain"
+                      className='object-contain'
                     />
                     <button
                       onClick={handleVideoPlay}
-                      className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 transition-all hover:bg-opacity-50"
+                      className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 transition-all hover:bg-opacity-50'
                     >
-                      <div className="rounded-full bg-white bg-opacity-90 p-4 shadow-lg transition-transform hover:scale-110">
-                        <Play className="h-8 w-8 text-gray-900" fill="currentColor" />
+                      <div className='rounded-full bg-white bg-opacity-90 p-4 shadow-lg transition-transform hover:scale-110'>
+                        <Play
+                          className='h-8 w-8 text-gray-900'
+                          fill='currentColor'
+                        />
                       </div>
                     </button>
                     {product.duration_seconds && (
-                      <div className="absolute bottom-4 right-4 rounded bg-black bg-opacity-75 px-2 py-1 text-sm text-white">
+                      <div className='absolute bottom-4 right-4 rounded bg-black bg-opacity-75 px-2 py-1 text-sm text-white'>
                         {formatDuration(product.duration_seconds)}
                       </div>
                     )}
@@ -200,7 +202,7 @@ export default function ProductDetailModal({
                     src={getMediaSrc()}
                     controls
                     autoPlay
-                    className="h-full w-full object-contain"
+                    className='h-full w-full object-contain'
                     onPause={handleVideoPause}
                     onEnded={handleVideoPause}
                   />
@@ -208,67 +210,68 @@ export default function ProductDetailModal({
               </div>
             ) : (
               // Image Display
-              <div className="relative h-full min-h-[300px] lg:min-h-[500px]">
+              <div className='relative h-full min-h-[300px] lg:min-h-[500px]'>
                 <Image
                   src={getMediaSrc()}
                   alt={product.name}
                   fill
-                  className="object-contain"
+                  className='object-contain'
                 />
               </div>
             )}
           </div>
 
           {/* Product Details Section - 40% */}
-          <div className="flex flex-col lg:flex-[2]">
-            <div className="flex-1 overflow-y-auto p-6">
+          <div className='flex flex-col lg:flex-[2]'>
+            <div className='flex-1 overflow-y-auto p-6'>
               {/* Product Title */}
-              <h1 className="mb-4 text-2xl font-bold text-gray-900 lg:text-3xl">
+              <h1 className='mb-4 text-2xl font-bold text-gray-900 lg:text-3xl'>
                 {product.name}
               </h1>
 
               {/* Pricing */}
-              <div className="mb-6 flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                  <span className="text-2xl font-bold text-green-600">
+              <div className='mb-6 flex flex-wrap items-center gap-4'>
+                <div className='flex items-center gap-2'>
+                  <DollarSign className='h-5 w-5 text-green-600' />
+                  <span className='text-2xl font-bold text-green-600'>
                     {formatPrice(product.price_cents)}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 text-yellow-500" />
-                  <span className="text-lg font-semibold text-yellow-600">
+                <div className='flex items-center gap-2'>
+                  <Star className='h-5 w-5 text-yellow-500' />
+                  <span className='text-lg font-semibold text-yellow-600'>
                     {product.points_price} points
                   </span>
                 </div>
               </div>
 
               {/* Category */}
-              <div className="mb-4">
-                <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800">
+              <div className='mb-4'>
+                <span className='inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-800'>
                   {getCategoryLabel(product.category)}
                 </span>
               </div>
 
               {/* Content Warnings */}
-              {product.content_warnings && product.content_warnings.length > 0 && (
-                <div className="mb-4">
-                  <ContentWarningBadges warnings={product.content_warnings} />
-                </div>
-              )}
+              {product.content_warnings &&
+                product.content_warnings.length > 0 && (
+                  <div className='mb-4'>
+                    <ContentWarningBadges warnings={product.content_warnings} />
+                  </div>
+                )}
 
               {/* Tags */}
               {product.tags && product.tags.length > 0 && (
-                <div className="mb-6">
-                  <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
-                    <Tag className="h-4 w-4" />
+                <div className='mb-6'>
+                  <div className='mb-2 flex items-center gap-2 text-sm font-medium text-gray-700'>
+                    <Tag className='h-4 w-4' />
                     Tags
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className='flex flex-wrap gap-2'>
                     {product.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+                        className='rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700'
                       >
                         {tag}
                       </span>
@@ -279,17 +282,23 @@ export default function ProductDetailModal({
 
               {/* Description */}
               {product.description && (
-                <div className="mb-6">
-                  <h3 className="mb-2 text-lg font-semibold text-gray-900">Description</h3>
-                  <p className="text-gray-700 leading-relaxed">{product.description}</p>
+                <div className='mb-6'>
+                  <h3 className='mb-2 text-lg font-semibold text-gray-900'>
+                    Description
+                  </h3>
+                  <p className='leading-relaxed text-gray-700'>
+                    {product.description}
+                  </p>
                 </div>
               )}
 
               {/* Media Info */}
-              <div className="mb-6 text-sm text-gray-500">
+              <div className='mb-6 text-sm text-gray-500'>
                 <div>Type: {product.media_type || 'image'}</div>
                 {product.duration_seconds && (
-                  <div>Duration: {formatDuration(product.duration_seconds)}</div>
+                  <div>
+                    Duration: {formatDuration(product.duration_seconds)}
+                  </div>
                 )}
                 {product.created_at && (
                   <div>
@@ -300,18 +309,18 @@ export default function ProductDetailModal({
             </div>
 
             {/* Action Buttons */}
-            <div className="border-t bg-gray-50 p-6">
-              <div className="flex flex-wrap gap-3">
+            <div className='border-t bg-gray-50 p-6'>
+              <div className='flex flex-wrap gap-3'>
                 {/* Add to Cart */}
                 <button
                   onClick={() => onAddToCart(product.id)}
                   disabled={isAddingToCart}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className='flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50'
                 >
                   {isAddingToCart ? (
-                    <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-white"></div>
+                    <div className='h-4 w-4 animate-spin rounded-full border-b-2 border-white'></div>
                   ) : (
-                    <ShoppingCart className="h-4 w-4" />
+                    <ShoppingCart className='h-4 w-4' />
                   )}
                   Add to Cart
                 </button>
@@ -325,7 +334,9 @@ export default function ProductDetailModal({
                       : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                   }`}
                 >
-                  <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
+                  <Heart
+                    className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`}
+                  />
                 </button>
 
                 {/* Owner Actions */}
@@ -336,19 +347,19 @@ export default function ProductDetailModal({
                         onClose()
                         router.push(`/products/${product.id}/edit`)
                       }}
-                      className="rounded-lg bg-green-100 p-3 text-green-600 hover:bg-green-200"
+                      className='rounded-lg bg-green-100 p-3 text-green-600 hover:bg-green-200'
                     >
-                      <Edit className="h-5 w-5" />
+                      <Edit className='h-5 w-5' />
                     </button>
                     <button
                       onClick={() => onDelete(product.id, product.name)}
                       disabled={isDeletingProduct}
-                      className="rounded-lg bg-red-100 p-3 text-red-600 hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50"
+                      className='rounded-lg bg-red-100 p-3 text-red-600 hover:bg-red-200 disabled:cursor-not-allowed disabled:opacity-50'
                     >
                       {isDeletingProduct ? (
-                        <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-red-600"></div>
+                        <div className='h-5 w-5 animate-spin rounded-full border-b-2 border-red-600'></div>
                       ) : (
-                        <Trash2 className="h-5 w-5" />
+                        <Trash2 className='h-5 w-5' />
                       )}
                     </button>
                   </>
