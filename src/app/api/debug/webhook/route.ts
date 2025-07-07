@@ -12,18 +12,12 @@ export async function GET() {
       .select('count')
       .limit(1)
 
-    // Check if functions exist by trying to call them with test data
-    const { data: functions, error: funcError } = await supabase.rpc(
-      'process_product_purchase',
-      {
-        p_user_id: '00000000-0000-0000-0000-000000000000',
-        p_cart_items: [],
-        p_total_cents: 0,
-        p_payment_intent_id: 'test',
-        p_session_id: 'test',
-        p_webhook_event_id: 'test',
-      }
-    )
+    // Check if functions exist by querying system tables
+    const { data: functions, error: funcError } = await supabase
+      .from('pg_proc')
+      .select('proname')
+      .eq('proname', 'process_product_purchase')
+      .single()
 
     return NextResponse.json({
       environment: process.env.NODE_ENV,
@@ -37,8 +31,8 @@ export async function GET() {
         error: dbError?.message,
       },
       functions: {
-        processProductPurchaseExists: !funcError,
-        functionTestResult: functions,
+        processProductPurchaseExists: !funcError && !!functions,
+        functionName: functions?.proname,
         error: funcError?.message,
       },
       timestamp: new Date().toISOString(),
