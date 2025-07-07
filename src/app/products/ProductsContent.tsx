@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import ProductDetailModal from '@/components/ProductDetailModal'
 import { FILTER_CATEGORIES, getCategoryLabel } from '@/constants/categories'
 import { useCart } from '@/contexts/CartContext'
 import { ContentWarning } from '@/lib/content-moderation'
@@ -81,6 +82,10 @@ export default function ProductsContent() {
     sortBy: 'newest',
   })
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
+
+  // Modal state
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const supabase = createClient()
   const { addToCart: addToCartContext } = useCart()
@@ -290,6 +295,17 @@ export default function ProductsContent() {
 
   const formatPrice = (cents: number) => {
     return `$${(cents / 100).toFixed(2)}`
+  }
+
+  // Modal handlers
+  const openProductModal = (product: Product) => {
+    setSelectedProduct(product)
+    setIsModalOpen(true)
+  }
+
+  const closeProductModal = () => {
+    setIsModalOpen(false)
+    setSelectedProduct(null)
   }
 
   const toggleFavorite = useCallback((productId: string) => {
@@ -852,6 +868,7 @@ export default function ProductsContent() {
               onToggleFavorite={() => toggleFavorite(product.id)}
               formatPrice={formatPrice}
               router={router}
+              onMediaClick={openProductModal}
             />
           ))}
         </div>
@@ -909,6 +926,7 @@ interface ProductCardProps {
   onToggleFavorite: () => void
   formatPrice: (_cents: number) => string
   router: any
+  onMediaClick: (product: Product) => void
 }
 
 function ProductCard({
@@ -923,13 +941,17 @@ function ProductCard({
   onToggleFavorite,
   formatPrice,
   router,
+  onMediaClick,
 }: ProductCardProps) {
   if (viewMode === 'list') {
     return (
       <div className='overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:shadow-lg'>
         <div className='flex flex-col sm:flex-row'>
           {/* Image Section */}
-          <div className='relative h-48 w-full flex-shrink-0 sm:h-32 sm:w-64'>
+          <button
+            onClick={() => onMediaClick(product)}
+            className='relative h-48 w-full flex-shrink-0 cursor-pointer transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:h-32 sm:w-64'
+          >
             {product.media_type === 'video' ? (
               <>
                 <Image
@@ -1044,7 +1066,7 @@ function ProductCard({
                 </span>
               )}
             </div>
-          </div>
+          </button>
 
           {/* Content Section */}
           <div className='flex flex-1 flex-col justify-between p-4'>
@@ -1120,8 +1142,9 @@ function ProductCard({
     >
       <div className='relative'>
         {/* Image */}
-        <div
-          className={`relative ${viewMode === 'masonry' ? 'aspect-auto' : 'h-64'} overflow-hidden`}
+        <button
+          onClick={() => onMediaClick(product)}
+          className={`relative ${viewMode === 'masonry' ? 'aspect-auto' : 'h-64'} w-full cursor-pointer overflow-hidden transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
         >
           {product.media_type === 'video' ? (
             <>
@@ -1267,7 +1290,7 @@ function ProductCard({
               )}
             </div>
           </div>
-        </div>
+        </button>
 
         {/* Content */}
         <div className='p-4'>
@@ -1336,6 +1359,21 @@ function ProductCard({
           </button>
         </div>
       </div>
+
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        product={selectedProduct}
+        isOpen={isModalOpen}
+        onClose={closeProductModal}
+        currentUser={currentUser}
+        onAddToCart={addToCart}
+        onDelete={deleteProduct}
+        onToggleFavorite={toggleFavorite}
+        isFavorite={selectedProduct ? favorites.has(selectedProduct.id) : false}
+        isAddingToCart={addingToCart === selectedProduct?.id}
+        isDeletingProduct={deletingProduct === selectedProduct?.id}
+        formatPrice={formatPrice}
+      />
     </div>
   )
 }
