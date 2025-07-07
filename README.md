@@ -113,6 +113,21 @@ src/
 ├── components/         # Reusable UI components
 ├── contexts/          # React contexts (CartContext)
 └── lib/               # Utilities (Supabase, Stripe)
+
+docs/                   # Documentation
+├── DEPLOYMENT.md       # Deployment guide
+├── FEATURES.md         # Feature documentation
+├── debug-checklist.md  # Troubleshooting guide
+└── *.md               # Other documentation
+
+supabase/              # Database & SQL files
+├── migrations/        # Database migrations
+├── *.sql             # SQL scripts and utilities
+└── config.toml       # Supabase configuration
+
+scripts/              # Utility scripts
+├── *.sh             # Shell scripts
+└── *.js             # Node.js scripts
 ```
 
 ## 🗄 Database Schema
@@ -144,9 +159,21 @@ src/
 
 ## 📚 Documentation
 
-- [Setup Guide](docs/.github/local-development-setup.md)
-- [Architecture Analysis](docs/.github/ARCHITECTURE_ANALYSIS.md)
-- [Purchase Workflows](docs/.github/augment-workflows.md)
+All documentation is organized in the `docs/` folder:
+
+- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Complete deployment guide
+- **[FEATURES.md](docs/FEATURES.md)** - Feature documentation
+- **[debug-checklist.md](docs/debug-checklist.md)** - Troubleshooting guide
+- **[stripe.md](docs/stripe.md)** - Stripe integration details
+- **[supabase.md](docs/supabase.md)** - Supabase setup and usage
+
+## 🗄️ Database & SQL Files
+
+All SQL files are organized in the `supabase/` folder:
+
+- **`migrations/`** - Database schema migrations
+- **`*.sql`** - Utility scripts and setup files
+- **`config.toml`** - Supabase configuration
 
 ## 🔒 Security
 
