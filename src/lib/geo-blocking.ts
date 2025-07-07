@@ -20,7 +20,8 @@ export const GEO_BLOCKING_CONFIG = {
   ],
 
   // Allowed countries (if using allowlist approach)
-  ALLOWED_COUNTRIES: ['US', 'CA'],
+  // During testing: empty array allows access from anywhere
+  ALLOWED_COUNTRIES: [], // ['US', 'CA'] - restore for production
 
   // Default behavior: 'block' or 'allow'
   DEFAULT_BEHAVIOR: 'allow' as 'block' | 'allow',
