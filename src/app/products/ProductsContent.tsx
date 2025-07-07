@@ -936,7 +936,8 @@ function ProductCard({
                   src={
                     product.thumbnail_url ||
                     product.media_url ||
-                    product.image_url
+                    product.image_url ||
+                    '/placeholder-video.svg'
                   }
                   alt={product.name}
                   fill
@@ -965,7 +966,11 @@ function ProductCard({
               </>
             ) : (
               <Image
-                src={product.media_url || product.image_url}
+                src={
+                  product.media_url ||
+                  product.image_url ||
+                  '/placeholder-image.svg'
+                }
                 alt={product.name}
                 fill
                 className='object-cover'
@@ -1121,7 +1126,12 @@ function ProductCard({
           {product.media_type === 'video' ? (
             <>
               <Image
-                src={product.image_url}
+                src={
+                  product.thumbnail_url ||
+                  product.media_url ||
+                  product.image_url ||
+                  '/placeholder-video.svg'
+                }
                 alt={product.name}
                 fill
                 className='object-cover transition-transform duration-300 group-hover:scale-105'
@@ -1149,7 +1159,11 @@ function ProductCard({
             </>
           ) : (
             <Image
-              src={product.media_url || product.image_url}
+              src={
+                product.media_url ||
+                product.image_url ||
+                '/placeholder-image.svg'
+              }
               alt={product.name}
               fill
               className='object-cover transition-transform duration-300 group-hover:scale-105'
