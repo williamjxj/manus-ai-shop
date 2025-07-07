@@ -77,7 +77,7 @@ export default function ProfilePage() {
       if (error) {
         // If profile doesn't exist, create it
         if (error.code === 'PGRST116') {
-          console.log('Profile not found, creating new profile...')
+          // Profile not found, creating new profile
           const newProfile = {
             id: user.id,
             email: user.email,
