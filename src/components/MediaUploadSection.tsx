@@ -1,6 +1,6 @@
 'use client'
 
-import { ImageIcon, Plus, Video, X } from 'lucide-react'
+import { ImageIcon, Plus, Star, Video, X } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -12,6 +12,9 @@ interface MediaFile {
   preview?: string
   mediaType: 'image' | 'video'
   id: string
+  isPrimary: boolean
+  sortOrder: number
+  altText?: string
 }
 
 interface MediaUploadSectionProps {
@@ -103,6 +106,9 @@ export default function MediaUploadSection({
           preview,
           mediaType: isImage ? 'image' : 'video',
           id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          isPrimary: files.length === 0 && newFiles.length === 0, // First file is primary
+          sortOrder: files.length + newFiles.length,
+          altText: '',
         })
       }
 
@@ -151,7 +157,26 @@ export default function MediaUploadSection({
 
   const removeFile = useCallback(
     (id: string) => {
-      onFilesChange(files.filter((file) => file.id !== id))
+      const updatedFiles = files.filter((file) => file.id !== id)
+      // If we removed the primary file, make the first remaining file primary
+      if (updatedFiles.length > 0) {
+        const removedFile = files.find((f) => f.id === id)
+        if (removedFile?.isPrimary) {
+          updatedFiles[0].isPrimary = true
+        }
+      }
+      onFilesChange(updatedFiles)
+    },
+    [files, onFilesChange]
+  )
+
+  const setPrimaryFile = useCallback(
+    (id: string) => {
+      const updatedFiles = files.map((file) => ({
+        ...file,
+        isPrimary: file.id === id,
+      }))
+      onFilesChange(updatedFiles)
     },
     [files, onFilesChange]
   )
@@ -243,6 +268,28 @@ export default function MediaUploadSection({
                   {mediaFile.mediaType.toUpperCase()}
                 </span>
               </div>
+
+              {/* Primary Badge */}
+              {mediaFile.isPrimary && (
+                <div className='absolute bottom-2 left-2'>
+                  <span className='inline-flex items-center gap-1 rounded bg-yellow-500 px-2 py-1 text-xs font-medium text-white'>
+                    <Star className='h-3 w-3' />
+                    PRIMARY
+                  </span>
+                </div>
+              )}
+
+              {/* Primary Button */}
+              {!mediaFile.isPrimary && (
+                <button
+                  type='button'
+                  onClick={() => setPrimaryFile(mediaFile.id)}
+                  className='absolute bottom-2 left-2 rounded bg-gray-500 bg-opacity-75 p-1 text-white opacity-0 transition-opacity hover:bg-yellow-500 group-hover:opacity-100'
+                  title='Set as primary image'
+                >
+                  <Star className='h-3 w-3' />
+                </button>
+              )}
 
               {/* Remove Button */}
               <button

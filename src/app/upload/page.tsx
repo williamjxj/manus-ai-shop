@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  AlertTriangle,
   ChevronDown,
   DollarSign,
   Plus,
@@ -29,6 +28,9 @@ interface MediaFile {
   preview?: string
   mediaType: 'image' | 'video'
   id: string
+  isPrimary: boolean
+  sortOrder: number
+  altText?: string
 }
 
 interface ProductFormData {
@@ -154,21 +156,11 @@ export default function CreateProductPage() {
         return
       }
 
-      // Determine if this is a single product or multiple products
-      const isMultipleProducts = mediaFiles.length > 1
-
-      if (isMultipleProducts) {
-        // Create multiple products (one per media file)
-        await createMultipleProducts(user.id)
-      } else {
-        // Create single product
-        await createSingleProduct(user.id)
-      }
+      // Create single product with media gallery
+      await createProductWithMediaGallery(user.id)
 
       toast.success(
-        isMultipleProducts
-          ? `Successfully created ${mediaFiles.length} products!`
-          : 'Product created successfully!'
+        `Product created successfully with ${mediaFiles.length} media file${mediaFiles.length > 1 ? 's' : ''}!`
       )
       router.push('/products')
     } catch (error: any) {
@@ -179,25 +171,13 @@ export default function CreateProductPage() {
     }
   }
 
-  const createSingleProduct = async (userId: string) => {
-    const mediaFile = mediaFiles[0]
+  const createProductWithMediaGallery = async (userId: string) => {
+    // First, create the product
+    const primaryMedia = mediaFiles.find((f) => f.isPrimary) || mediaFiles[0]
 
-    // Upload media file
-    const uploadResult =
-      mediaFile.mediaType === 'image'
-        ? await uploadImageToStorage(mediaFile.file)
-        : await uploadVideoToStorage(mediaFile.file)
-
-    if (!uploadResult.success) {
-      throw new Error(uploadResult.error || 'Failed to upload media')
-    }
-
-    // Save product to database
     const productData = {
       name: formData.name.trim(),
       description: formData.description.trim(),
-      media_url: uploadResult.url!,
-      media_type: mediaFile.mediaType,
       price_cents: formData.price_cents,
       points_price: formData.points_price,
       category: formData.category,
@@ -205,24 +185,23 @@ export default function CreateProductPage() {
       tags: formData.tags,
       is_explicit: formData.is_explicit,
       user_id: userId,
-      // Backward compatibility
-      image_url: mediaFile.mediaType === 'image' ? uploadResult.url! : null,
-      thumbnail_url: mediaFile.mediaType === 'video' ? mediaFile.preview : null,
-      duration_seconds: uploadResult.duration
-        ? Math.round(uploadResult.duration)
-        : null,
-      file_size: uploadResult.fileSize,
+      // Legacy fields for backward compatibility - use primary media
+      media_url: '', // Will be updated after upload
+      media_type: primaryMedia.mediaType,
+      image_url: null, // Will be updated if primary is image
+      thumbnail_url: null, // Will be updated if primary is video
     }
 
-    const { error: dbError } = await supabase
+    const { data: product, error: productError } = await supabase
       .from('products')
       .insert(productData)
+      .select()
+      .single()
 
-    if (dbError) throw dbError
-  }
+    if (productError) throw productError
 
-  const createMultipleProducts = async (userId: string) => {
-    const products = []
+    // Upload all media files and create product_media records
+    const mediaRecords = []
 
     for (let i = 0; i < mediaFiles.length; i++) {
       const mediaFile = mediaFiles[i]
@@ -239,38 +218,51 @@ export default function CreateProductPage() {
         )
       }
 
-      // Generate unique name for each product
-      const productName =
-        mediaFiles.length === 1
-          ? formData.name.trim()
-          : `${formData.name.trim()} ${i + 1}`
-
-      products.push({
-        name: productName,
-        description: formData.description.trim(),
+      // Create media record
+      mediaRecords.push({
+        product_id: product.id,
         media_url: uploadResult.url!,
         media_type: mediaFile.mediaType,
-        price_cents: formData.price_cents,
-        points_price: formData.points_price,
-        category: formData.category,
-        content_warnings: formData.content_warnings,
-        tags: formData.tags,
-        is_explicit: formData.is_explicit,
-        user_id: userId,
-        // Backward compatibility
-        image_url: mediaFile.mediaType === 'image' ? uploadResult.url! : null,
-        thumbnail_url:
-          mediaFile.mediaType === 'video' ? mediaFile.preview : null,
+        thumbnail_url: uploadResult.thumbnailUrl || mediaFile.preview || null,
+        is_primary: mediaFile.isPrimary,
+        sort_order: mediaFile.sortOrder,
+        alt_text: mediaFile.altText || '',
+        file_size: uploadResult.fileSize,
         duration_seconds: uploadResult.duration
           ? Math.round(uploadResult.duration)
           : null,
-        file_size: uploadResult.fileSize,
+        width: uploadResult.dimensions?.width || null,
+        height: uploadResult.dimensions?.height || null,
       })
     }
 
-    const { error: dbError } = await supabase.from('products').insert(products)
+    // Insert all media records
+    const { error: mediaError } = await supabase
+      .from('product_media')
+      .insert(mediaRecords)
 
-    if (dbError) throw dbError
+    if (mediaError) throw mediaError
+
+    // Update product with primary media info for backward compatibility
+    const primaryMediaRecord = mediaRecords.find((m) => m.is_primary)
+    if (primaryMediaRecord) {
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({
+          media_url: primaryMediaRecord.media_url,
+          image_url:
+            primaryMediaRecord.media_type === 'image'
+              ? primaryMediaRecord.media_url
+              : null,
+          thumbnail_url:
+            primaryMediaRecord.media_type === 'video'
+              ? primaryMediaRecord.thumbnail_url
+              : null,
+        })
+        .eq('id', product.id)
+
+      if (updateError) throw updateError
+    }
   }
 
   return (
@@ -280,7 +272,8 @@ export default function CreateProductPage() {
         <div className='mb-8 text-center'>
           <h1 className='text-3xl font-bold text-gray-900'>Create Product</h1>
           <p className='mt-2 text-gray-600'>
-            Upload media files and create your adult content products
+            Upload multiple images and videos to create a product with media
+            gallery
           </p>
         </div>
 
@@ -297,16 +290,22 @@ export default function CreateProductPage() {
             />
 
             {mediaFiles.length > 1 && (
-              <div className='mt-4 rounded-lg bg-blue-50 p-4'>
+              <div className='mt-4 rounded-lg bg-green-50 p-4'>
                 <div className='flex items-start'>
-                  <AlertTriangle className='mr-2 h-5 w-5 text-blue-600' />
+                  <Star className='mr-2 h-5 w-5 text-green-600' />
                   <div>
-                    <p className='text-sm font-medium text-blue-800'>
-                      Multiple Products Mode
+                    <p className='text-sm font-medium text-green-800'>
+                      Product Media Gallery
                     </p>
-                    <p className='text-sm text-blue-700'>
-                      {mediaFiles.length} separate products will be created,
-                      each with the same details but different media files.
+                    <p className='text-sm text-green-700'>
+                      One product will be created with {mediaFiles.length} media
+                      files in a gallery.
+                      {mediaFiles.find((f) => f.isPrimary) && (
+                        <span className='ml-1'>
+                          Primary image:{' '}
+                          {mediaFiles.find((f) => f.isPrimary)?.file.name}
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -586,19 +585,17 @@ export default function CreateProductPage() {
               {uploading ? (
                 <>
                   <div className='mr-2 h-4 w-4 animate-spin rounded-full border-b-2 border-white'></div>
-                  Creating{' '}
-                  {mediaFiles.length > 1
-                    ? `${mediaFiles.length} Products`
-                    : 'Product'}
+                  Creating Product
+                  {mediaFiles.length > 1 &&
+                    ` with ${mediaFiles.length} Media Files`}
                   ...
                 </>
               ) : (
                 <>
                   <Upload className='mr-2 h-4 w-4' />
-                  Create{' '}
-                  {mediaFiles.length > 1
-                    ? `${mediaFiles.length} Products`
-                    : 'Product'}
+                  Create Product
+                  {mediaFiles.length > 1 &&
+                    ` (${mediaFiles.length} Media Files)`}
                 </>
               )}
             </button>
