@@ -74,7 +74,45 @@ export default function ProfilePage() {
         .eq('id', user.id)
         .single()
 
-      if (error) throw error
+      if (error) {
+        // If profile doesn't exist, create it
+        if (error.code === 'PGRST116') {
+          console.log('Profile not found, creating new profile...')
+          const newProfile = {
+            id: user.id,
+            email: user.email,
+            points: 100, // Legacy points column
+            privacy_settings: {
+              show_email: false,
+              show_purchase_history: false,
+              allow_friend_requests: true,
+              discrete_billing: true,
+              anonymous_reviews: false,
+            },
+            content_preferences: {
+              blocked_categories: [],
+              content_warnings_enabled: true,
+              blur_explicit_content: true,
+            },
+          }
+
+          const { data: createdProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert([newProfile])
+            .select()
+            .single()
+
+          if (createError) {
+            console.error('Error creating profile:', createError)
+            throw createError
+          }
+
+          setProfile(createdProfile)
+          toast.success('Profile created successfully!')
+          return
+        }
+        throw error
+      }
 
       setProfile(profileData)
 
