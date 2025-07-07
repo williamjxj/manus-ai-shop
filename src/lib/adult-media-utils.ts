@@ -276,7 +276,7 @@ export async function uploadAdultContentToStorage(
       bucket_name: bucketName,
       public_url: publicUrl,
       thumbnail_url: thumbnailUrl,
-      duration_seconds: duration,
+      duration_seconds: duration ? Math.round(duration) : null,
       width: dimensions?.width,
       height: dimensions?.height,
     })

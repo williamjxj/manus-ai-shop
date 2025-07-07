@@ -296,7 +296,7 @@ export default function UploadPage() {
         // Keep image_url for backward compatibility
         image_url: formData.media_type === 'image' ? mediaUrl : null,
         thumbnail_url: formData.media_type === 'video' ? mediaPreview : null,
-        duration_seconds: videoDuration,
+        duration_seconds: videoDuration ? Math.round(videoDuration) : null,
         file_size: uploadResult.fileSize,
       }
 
@@ -372,7 +372,9 @@ export default function UploadPage() {
             thumbnail_url:
               bulkFile.mediaType === 'video' ? bulkFile.preview : null,
             file_size: uploadResult.fileSize,
-            duration_seconds: uploadResult.duration,
+            duration_seconds: uploadResult.duration
+              ? Math.round(uploadResult.duration)
+              : null,
           }
 
           const { error: dbError } = await supabase
