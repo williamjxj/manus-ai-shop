@@ -2,7 +2,7 @@
 
 /**
  * Fix Products Table - Add Missing updated_at Column (Simple Version)
- * 
+ *
  * This script checks if updated_at column exists and provides instructions to fix it.
  */
 
@@ -40,11 +40,11 @@ async function checkAndFixProducts() {
     if (products && products.length > 0) {
       const columns = Object.keys(products[0])
       console.log('📊 Current products table columns:')
-      columns.forEach(col => console.log(`   - ${col}`))
-      
+      columns.forEach((col) => console.log(`   - ${col}`))
+
       if (columns.includes('updated_at')) {
         console.log('✅ updated_at column already exists!')
-        
+
         // Test if we can update it
         console.log('🧪 Testing update functionality...')
         const { error: updateError } = await supabase
@@ -56,10 +56,14 @@ async function checkAndFixProducts() {
           console.error('❌ Update test failed:', updateError)
           console.log('\n📋 Manual fix required:')
           console.log('1. Go to your Supabase Dashboard → SQL Editor')
-          console.log('2. Run the SQL from: supabase/fix-products-updated-at.sql')
+          console.log(
+            '2. Run the SQL from: supabase/fix-products-updated-at.sql'
+          )
           return false
         } else {
-          console.log('✅ Update test successful! The issue should be resolved.')
+          console.log(
+            '✅ Update test successful! The issue should be resolved.'
+          )
           return true
         }
       } else {
@@ -100,13 +104,14 @@ CREATE TRIGGER update_products_updated_at
         return false
       }
     } else {
-      console.log('⚠️  No products found in table, but we can still check the schema')
+      console.log(
+        '⚠️  No products found in table, but we can still check the schema'
+      )
       console.log('\n📋 Manual fix recommended:')
       console.log('1. Go to your Supabase Dashboard → SQL Editor')
       console.log('2. Run the SQL from: supabase/fix-products-updated-at.sql')
       return false
     }
-
   } catch (error) {
     console.error('❌ Unexpected error:', error)
     console.log('\n📋 Manual fix required:')
@@ -126,7 +131,9 @@ async function main() {
     console.log('✨ You should now be able to save product changes.')
   } else {
     console.log('\n⚠️  Manual intervention required.')
-    console.log('📁 SQL fix file location: supabase/fix-products-updated-at.sql')
+    console.log(
+      '📁 SQL fix file location: supabase/fix-products-updated-at.sql'
+    )
   }
 }
 

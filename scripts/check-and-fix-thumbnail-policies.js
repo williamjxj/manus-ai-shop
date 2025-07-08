@@ -2,7 +2,7 @@
 
 /**
  * Check and Fix Thumbnail Storage Policies
- * 
+ *
  * This script checks existing storage policies and adds missing ones for thumbnails
  */
 
@@ -27,14 +27,17 @@ async function checkAndFixPolicies() {
     console.log('🔍 Checking existing storage policies...')
 
     // Check existing policies
-    const { data: policies, error: policiesError } = await supabase.rpc('exec_sql', {
-      sql: `
+    const { data: policies, error: policiesError } = await supabase.rpc(
+      'exec_sql',
+      {
+        sql: `
         SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual, with_check
         FROM pg_policies 
         WHERE tablename = 'objects' AND schemaname = 'storage'
         ORDER BY policyname;
-      `
-    })
+      `,
+      }
+    )
 
     if (policiesError) {
       console.error('❌ Error checking policies:', policiesError)
@@ -42,17 +45,19 @@ async function checkAndFixPolicies() {
     }
 
     console.log(`📋 Found ${policies.length} existing storage policies`)
-    
+
     // Check for thumbnail-specific policies
-    const thumbnailPolicies = policies.filter(p => 
+    const thumbnailPolicies = policies.filter((p) =>
       p.policyname.toLowerCase().includes('thumbnail')
     )
-    
-    console.log(`🖼️  Found ${thumbnailPolicies.length} thumbnail-specific policies`)
+
+    console.log(
+      `🖼️  Found ${thumbnailPolicies.length} thumbnail-specific policies`
+    )
 
     if (thumbnailPolicies.length === 0) {
       console.log('⚠️  No thumbnail policies found. Creating them...')
-      
+
       // Create thumbnail policies
       const thumbnailPolicySQL = `
         -- Policy: Allow public read access to thumbnails
@@ -83,15 +88,15 @@ async function checkAndFixPolicies() {
 
       const statements = thumbnailPolicySQL
         .split(';')
-        .map(stmt => stmt.trim())
-        .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'))
+        .map((stmt) => stmt.trim())
+        .filter((stmt) => stmt.length > 0 && !stmt.startsWith('--'))
 
       for (let i = 0; i < statements.length; i++) {
         const statement = statements[i]
         console.log(`   Creating policy ${i + 1}/${statements.length}...`)
-        
+
         const { error } = await supabase.rpc('exec_sql', {
-          sql: statement + ';'
+          sql: statement + ';',
         })
 
         if (error) {
@@ -103,14 +108,14 @@ async function checkAndFixPolicies() {
       }
     } else {
       console.log('✅ Thumbnail policies already exist')
-      thumbnailPolicies.forEach(policy => {
+      thumbnailPolicies.forEach((policy) => {
         console.log(`   - ${policy.policyname} (${policy.cmd})`)
       })
     }
 
     // Test thumbnail access
     console.log('\n🧪 Testing thumbnail bucket access...')
-    
+
     const { data: bucketFiles, error: listError } = await supabase.storage
       .from('thumbnails')
       .list('', { limit: 1 })
@@ -123,7 +128,6 @@ async function checkAndFixPolicies() {
     }
 
     return true
-
   } catch (error) {
     console.error('❌ Unexpected error:', error)
     return false

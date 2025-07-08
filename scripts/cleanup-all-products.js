@@ -2,7 +2,7 @@
 
 /**
  * Complete Products & Media Cleanup Script
- * 
+ *
  * This script will:
  * 1. Delete all products from the database
  * 2. Delete all related media files from storage buckets
@@ -32,14 +32,17 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 async function cleanupStorageBucket(bucketName) {
   try {
     console.log(`🗑️  Cleaning up ${bucketName} bucket...`)
-    
+
     // List all files in the bucket
     const { data: files, error: listError } = await supabase.storage
       .from(bucketName)
       .list('', { limit: 1000 })
 
     if (listError) {
-      console.log(`⚠️  Could not list files in ${bucketName}:`, listError.message)
+      console.log(
+        `⚠️  Could not list files in ${bucketName}:`,
+        listError.message
+      )
       return false
     }
 
@@ -51,7 +54,7 @@ async function cleanupStorageBucket(bucketName) {
     console.log(`📁 Found ${files.length} files in ${bucketName}`)
 
     // Delete all files
-    const filePaths = files.map(file => file.name)
+    const filePaths = files.map((file) => file.name)
     const { error: deleteError } = await supabase.storage
       .from(bucketName)
       .remove(filePaths)
@@ -63,7 +66,6 @@ async function cleanupStorageBucket(bucketName) {
 
     console.log(`✅ Deleted ${filePaths.length} files from ${bucketName}`)
     return true
-
   } catch (error) {
     console.error(`❌ Unexpected error cleaning ${bucketName}:`, error)
     return false
@@ -84,20 +86,20 @@ async function cleanupDatabase() {
     // Delete in order to respect foreign key constraints
     const tablesToClean = [
       'cart_items',
-      'order_items', 
+      'order_items',
       'product_reviews',
       'product_media',
       'product_variants',
       'product_collection_items',
       'product_tag_items',
       'media_files', // Clean up any orphaned media files
-      'products'
+      'products',
     ]
 
     for (const table of tablesToClean) {
       try {
         console.log(`🧹 Cleaning ${table} table...`)
-        
+
         const { count: beforeCount } = await supabase
           .from(table)
           .select('*', { count: 'exact', head: true })
@@ -117,12 +119,14 @@ async function cleanupDatabase() {
           console.log(`✅ ${table} table is already empty`)
         }
       } catch (error) {
-        console.log(`⚠️  Could not clean ${table} (table might not exist):`, error.message)
+        console.log(
+          `⚠️  Could not clean ${table} (table might not exist):`,
+          error.message
+        )
       }
     }
 
     return true
-
   } catch (error) {
     console.error('❌ Unexpected error cleaning database:', error)
     return false
@@ -132,12 +136,11 @@ async function cleanupDatabase() {
 async function resetSequences() {
   try {
     console.log('🔄 Resetting database sequences...')
-    
-    // Note: PostgreSQL doesn't use auto-increment for UUIDs, 
-    // but we can reset any sequences if they exist
-    console.log('✅ UUID-based tables don\'t need sequence reset')
-    return true
 
+    // Note: PostgreSQL doesn't use auto-increment for UUIDs,
+    // but we can reset any sequences if they exist
+    console.log("✅ UUID-based tables don't need sequence reset")
+    return true
   } catch (error) {
     console.error('❌ Error resetting sequences:', error)
     return false
@@ -149,7 +152,7 @@ async function verifyCleanup() {
     console.log('🔍 Verifying cleanup...')
 
     const tables = ['products', 'product_media', 'cart_items', 'media_files']
-    
+
     for (const table of tables) {
       try {
         const { count } = await supabase
@@ -164,7 +167,7 @@ async function verifyCleanup() {
 
     // Check storage buckets
     const buckets = ['products', 'thumbnails', 'media']
-    
+
     for (const bucket of buckets) {
       try {
         const { data: files } = await supabase.storage
@@ -179,7 +182,6 @@ async function verifyCleanup() {
     }
 
     return true
-
   } catch (error) {
     console.error('❌ Error verifying cleanup:', error)
     return false
@@ -188,7 +190,7 @@ async function verifyCleanup() {
 
 async function main() {
   console.log('🚀 Starting complete products & media cleanup...\n')
-  
+
   // Confirmation prompt
   console.log('⚠️  WARNING: This will permanently delete:')
   console.log('   - All products and their data')
@@ -196,16 +198,16 @@ async function main() {
   console.log('   - All cart items and orders')
   console.log('   - All product reviews and ratings')
   console.log('   - All related database records')
-  
+
   console.log('\n🔄 Starting cleanup in 3 seconds...')
-  await new Promise(resolve => setTimeout(resolve, 3000))
+  await new Promise((resolve) => setTimeout(resolve, 3000))
 
   let success = true
 
   // Step 1: Clean up storage buckets
   console.log('\n📁 Step 1: Cleaning up storage buckets...')
   const buckets = ['products', 'thumbnails', 'media']
-  
+
   for (const bucket of buckets) {
     const bucketSuccess = await cleanupStorageBucket(bucket)
     if (!bucketSuccess) success = false

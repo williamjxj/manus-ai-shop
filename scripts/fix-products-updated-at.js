@@ -2,8 +2,8 @@
 
 /**
  * Fix Products Table - Add Missing updated_at Column
- * 
- * This script adds the missing updated_at column to fix the 
+ *
+ * This script adds the missing updated_at column to fix the
  * "Could not find the 'updated_at' column" error when saving products.
  */
 
@@ -33,25 +33,32 @@ async function fixProductsUpdatedAt() {
 
     // First, check if the column already exists
     console.log('📋 Checking current products table schema...')
-    
-    const { data: columns, error: schemaError } = await supabase.rpc('exec_sql', {
-      sql: `
+
+    const { data: columns, error: schemaError } = await supabase.rpc(
+      'exec_sql',
+      {
+        sql: `
         SELECT column_name, data_type, is_nullable, column_default
         FROM information_schema.columns 
         WHERE table_name = 'products' 
         ORDER BY ordinal_position;
-      `
-    })
+      `,
+      }
+    )
 
     if (schemaError) {
-      console.log('⚠️  Could not check schema via RPC, proceeding with direct queries...')
+      console.log(
+        '⚠️  Could not check schema via RPC, proceeding with direct queries...'
+      )
     } else {
       console.log('📊 Current products table columns:')
-      columns.forEach(col => {
+      columns.forEach((col) => {
         console.log(`   - ${col.column_name} (${col.data_type})`)
       })
-      
-      const hasUpdatedAt = columns.some(col => col.column_name === 'updated_at')
+
+      const hasUpdatedAt = columns.some(
+        (col) => col.column_name === 'updated_at'
+      )
       if (hasUpdatedAt) {
         console.log('✅ updated_at column already exists!')
         return true
@@ -65,7 +72,7 @@ async function fixProductsUpdatedAt() {
       sql: `
         ALTER TABLE products 
         ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
-      `
+      `,
     })
 
     if (addColumnError) {
@@ -77,13 +84,13 @@ async function fixProductsUpdatedAt() {
 
     // Update existing records
     console.log('🔄 Updating existing records...')
-    
+
     const { error: updateError } = await supabase.rpc('exec_sql', {
       sql: `
         UPDATE products 
         SET updated_at = COALESCE(created_at, NOW()) 
         WHERE updated_at IS NULL;
-      `
+      `,
     })
 
     if (updateError) {
@@ -95,7 +102,7 @@ async function fixProductsUpdatedAt() {
 
     // Create trigger function
     console.log('⚙️  Creating trigger function...')
-    
+
     const { error: triggerFunctionError } = await supabase.rpc('exec_sql', {
       sql: `
         CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -105,7 +112,7 @@ async function fixProductsUpdatedAt() {
           RETURN NEW;
         END;
         $$ LANGUAGE plpgsql;
-      `
+      `,
     })
 
     if (triggerFunctionError) {
@@ -117,7 +124,7 @@ async function fixProductsUpdatedAt() {
 
     // Create trigger
     console.log('🎯 Creating trigger...')
-    
+
     const { error: triggerError } = await supabase.rpc('exec_sql', {
       sql: `
         DROP TRIGGER IF EXISTS update_products_updated_at ON products;
@@ -125,7 +132,7 @@ async function fixProductsUpdatedAt() {
           BEFORE UPDATE ON products
           FOR EACH ROW
           EXECUTE FUNCTION update_updated_at_column();
-      `
+      `,
     })
 
     if (triggerError) {
@@ -137,7 +144,7 @@ async function fixProductsUpdatedAt() {
 
     // Test the fix by trying to update a product
     console.log('🧪 Testing the fix...')
-    
+
     const { data: testProduct, error: testSelectError } = await supabase
       .from('products')
       .select('id, name, updated_at')
@@ -145,7 +152,9 @@ async function fixProductsUpdatedAt() {
       .single()
 
     if (testSelectError) {
-      console.log('⚠️  No products found to test with, but column should be working')
+      console.log(
+        '⚠️  No products found to test with, but column should be working'
+      )
       return true
     }
 
@@ -162,7 +171,6 @@ async function fixProductsUpdatedAt() {
     console.log('✅ Test update successful!')
 
     return true
-
   } catch (error) {
     console.error('❌ Unexpected error:', error)
     return false

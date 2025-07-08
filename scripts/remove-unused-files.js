@@ -10,8 +10,8 @@ const fs = require('fs')
 const path = require('path')
 
 const UNUSED_FILES = [
-  'src/lib/adult-media-utils.ts',  // Legacy file, not used in current app
-  'src/app/upload/page-old.tsx',  // Old upload page, replaced by current one
+  'src/lib/adult-media-utils.ts', // Legacy file, not used in current app
+  'src/app/upload/page-old.tsx', // Old upload page, replaced by current one
 ]
 
 function removeUnusedFiles() {
@@ -19,7 +19,7 @@ function removeUnusedFiles() {
 
   let removedCount = 0
 
-  UNUSED_FILES.forEach(filePath => {
+  UNUSED_FILES.forEach((filePath) => {
     const fullPath = path.join(__dirname, '..', filePath)
 
     if (fs.existsSync(fullPath)) {

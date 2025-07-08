@@ -2,7 +2,7 @@
 
 /**
  * Fix Thumbnails Storage Bucket
- * 
+ *
  * This script creates the missing thumbnails bucket and sets up proper RLS policies
  * to fix the "new row violates row-level security policy" error.
  */
@@ -32,18 +32,24 @@ async function fixThumbnailsBucket() {
     console.log('🔧 Fixing thumbnails storage bucket...')
 
     // Read the SQL fix file
-    const sqlPath = path.join(__dirname, '..', 'supabase', 'fix-thumbnails-bucket.sql')
+    const sqlPath = path.join(
+      __dirname,
+      '..',
+      'supabase',
+      'fix-thumbnails-bucket.sql'
+    )
     const sqlContent = fs.readFileSync(sqlPath, 'utf8')
 
     // Split into individual statements
     const statements = sqlContent
       .split(';')
-      .map(stmt => stmt.trim())
-      .filter(stmt => 
-        stmt.length > 0 && 
-        !stmt.startsWith('--') && 
-        !stmt.startsWith('/*') &&
-        !stmt.toLowerCase().includes('select ')
+      .map((stmt) => stmt.trim())
+      .filter(
+        (stmt) =>
+          stmt.length > 0 &&
+          !stmt.startsWith('--') &&
+          !stmt.startsWith('/*') &&
+          !stmt.toLowerCase().includes('select ')
       )
 
     console.log(`📋 Executing ${statements.length} SQL statements...`)
@@ -51,10 +57,12 @@ async function fixThumbnailsBucket() {
     // Execute each statement
     for (let i = 0; i < statements.length; i++) {
       const statement = statements[i]
-      console.log(`   ${i + 1}/${statements.length}: ${statement.substring(0, 50)}...`)
-      
+      console.log(
+        `   ${i + 1}/${statements.length}: ${statement.substring(0, 50)}...`
+      )
+
       const { error } = await supabase.rpc('exec_sql', {
-        sql: statement + ';'
+        sql: statement + ';',
       })
 
       if (error) {
@@ -66,26 +74,30 @@ async function fixThumbnailsBucket() {
     console.log('✅ All statements executed successfully!')
 
     // Verify the bucket was created
-    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets()
-    
+    const { data: buckets, error: bucketsError } =
+      await supabase.storage.listBuckets()
+
     if (bucketsError) {
       console.error('❌ Error checking buckets:', bucketsError)
       return false
     }
 
-    const thumbnailsBucket = buckets.find(bucket => bucket.id === 'thumbnails')
-    
+    const thumbnailsBucket = buckets.find(
+      (bucket) => bucket.id === 'thumbnails'
+    )
+
     if (thumbnailsBucket) {
       console.log('✅ Thumbnails bucket verified!')
       console.log(`   - ID: ${thumbnailsBucket.id}`)
       console.log(`   - Public: ${thumbnailsBucket.public}`)
-      console.log(`   - File size limit: ${thumbnailsBucket.file_size_limit} bytes`)
+      console.log(
+        `   - File size limit: ${thumbnailsBucket.file_size_limit} bytes`
+      )
     } else {
       console.log('⚠️  Thumbnails bucket not found in list')
     }
 
     return true
-
   } catch (error) {
     console.error('❌ Unexpected error:', error)
     return false

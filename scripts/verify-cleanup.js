@@ -2,7 +2,7 @@
 
 /**
  * Verify Products Cleanup Script
- * 
+ *
  * This script verifies that all products and related data have been cleaned up
  */
 
@@ -29,19 +29,19 @@ async function verifyCleanup() {
     // Check database tables
     const tables = [
       'products',
-      'product_media', 
+      'product_media',
       'cart_items',
       'order_items',
       'product_reviews',
       'product_variants',
       'product_collection_items',
       'product_tag_items',
-      'media_files'
+      'media_files',
     ]
-    
+
     console.log('📊 Database Tables:')
     let totalRecords = 0
-    
+
     for (const table of tables) {
       try {
         const { count } = await supabase
@@ -50,7 +50,7 @@ async function verifyCleanup() {
 
         const recordCount = count || 0
         totalRecords += recordCount
-        
+
         const status = recordCount === 0 ? '✅' : '⚠️ '
         console.log(`   ${status} ${table}: ${recordCount} records`)
       } catch (error) {
@@ -60,10 +60,10 @@ async function verifyCleanup() {
 
     // Check storage buckets
     const buckets = ['products', 'thumbnails', 'media']
-    
+
     console.log('\n📁 Storage Buckets:')
     let totalFiles = 0
-    
+
     for (const bucket of buckets) {
       try {
         const { data: files } = await supabase.storage
@@ -72,7 +72,7 @@ async function verifyCleanup() {
 
         const fileCount = files ? files.length : 0
         totalFiles += fileCount
-        
+
         const status = fileCount === 0 ? '✅' : '⚠️ '
         console.log(`   ${status} ${bucket}: ${fileCount} files`)
       } catch (error) {
@@ -84,7 +84,7 @@ async function verifyCleanup() {
     console.log('\n📋 Cleanup Summary:')
     console.log(`   📊 Total database records: ${totalRecords}`)
     console.log(`   📁 Total storage files: ${totalFiles}`)
-    
+
     if (totalRecords === 0 && totalFiles === 0) {
       console.log('\n🎉 Perfect! Complete cleanup verified!')
       console.log('✨ System is ready for fresh products!')
@@ -100,7 +100,6 @@ async function verifyCleanup() {
     }
 
     return totalRecords === 0 && totalFiles === 0
-
   } catch (error) {
     console.error('❌ Error verifying cleanup:', error)
     return false
@@ -109,9 +108,9 @@ async function verifyCleanup() {
 
 async function main() {
   console.log('🚀 Starting cleanup verification...\n')
-  
+
   const isClean = await verifyCleanup()
-  
+
   if (isClean) {
     console.log('\n✅ Verification complete - system is clean!')
   } else {

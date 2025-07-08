@@ -3,6 +3,7 @@
 ## 🔍 Analysis Results
 
 ### ✅ Tables Currently Used in Application (Keep These)
+
 - **profiles** - User profiles and authentication (6 records)
 - **products** - Main product catalog (0 records - cleaned)
 - **cart_items** - Shopping cart functionality (0 records - cleaned)
@@ -18,6 +19,7 @@
 - **product_variants** - Product variations (size, color, etc.) (0 records - cleaned)
 
 ### ❌ Tables Not Used in Application (Safe to Remove)
+
 - **subscriptions** - Subscription management (not implemented)
 - **product_collections** - Product collections/grouping (not implemented)
 - **product_collection_items** - Collection relationships (not implemented)
@@ -28,12 +30,14 @@
 - **media_files** - Legacy media system (replaced by product_media)
 
 ## 📁 Files Removed from Codebase
+
 - **src/lib/adult-media-utils.ts** - Legacy media utility (not imported anywhere)
 - **src/app/upload/page-old.tsx** - Old upload page (replaced by current one)
 
 ## 🎯 media_files Table Analysis
 
 ### When media_files Gets Data:
+
 The `media_files` table was designed to store metadata when using the `adult-media-utils.ts` utility, specifically:
 
 1. **When called**: Via `uploadAdultContentToStorage()` function
@@ -42,6 +46,7 @@ The `media_files` table was designed to store metadata when using the `adult-med
 4. **Current status**: **UNUSED** - the utility exists but is never imported or used
 
 ### Current Media System:
+
 - **Active system**: `product_media` table
 - **Used by**: Current upload system in `/upload` page
 - **Relationship**: One-to-many with products
@@ -50,10 +55,12 @@ The `media_files` table was designed to store metadata when using the `adult-med
 ## 🛠️ Cleanup Actions Completed
 
 ### ✅ Files Cleaned:
+
 - Removed unused `adult-media-utils.ts` (legacy)
 - Removed old upload page (replaced)
 
 ### 🗄️ Database Cleanup Available:
+
 - SQL script generated: `supabase/cleanup-unused-tables-final.sql`
 - **8 unused tables** identified for removal
 - **0 records** in unused tables (safe to remove)
@@ -61,6 +68,7 @@ The `media_files` table was designed to store metadata when using the `adult-med
 ## 🚀 Next Steps
 
 ### To Complete Database Cleanup:
+
 1. **Backup database** (recommended)
 2. **Run SQL script** in Supabase Dashboard:
    ```
@@ -69,6 +77,7 @@ The `media_files` table was designed to store metadata when using the `adult-med
 3. **Verify application** works after cleanup
 
 ### Benefits After Cleanup:
+
 - **Cleaner database schema** with only used tables
 - **Reduced complexity** in migrations and backups
 - **Better performance** with fewer unused indexes
