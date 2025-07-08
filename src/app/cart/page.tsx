@@ -7,6 +7,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { useCart } from '@/contexts/CartContext'
+import { getProductImageUrl, IMAGE_SIZES } from '@/lib/image-utils'
 
 export default function CartPage() {
   const [updating, setUpdating] = useState<string | null>(null)
@@ -107,10 +108,11 @@ export default function CartPage() {
                     <div className='flex items-center space-x-4'>
                       <div className='relative h-24 w-24 flex-shrink-0'>
                         <Image
-                          src={item.product.image_url}
+                          src={getProductImageUrl(item.product)}
                           alt={item.product.name}
                           fill
                           className='rounded-md object-cover'
+                          sizes={IMAGE_SIZES.THUMBNAIL}
                         />
                       </div>
 

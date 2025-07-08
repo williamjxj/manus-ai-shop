@@ -88,7 +88,7 @@ export default function MobileProductGrid({
             )}
 
             <Image
-              src={product.image_url}
+              src={getSafeImageUrl(product.image_url)}
               alt={product.name}
               fill
               className='object-cover transition-transform duration-300 group-hover:scale-105'

@@ -13,6 +13,8 @@ export interface UploadResult {
   duration?: number // For videos
   dimensions?: { width: number; height: number }
   thumbnailUrl?: string
+  originalSize?: number
+  compressionRatio?: number
 }
 
 export interface MediaFileMetadata {
@@ -26,6 +28,140 @@ export interface MediaFileMetadata {
   duration?: number
   width?: number
   height?: number
+}
+
+export interface CompressionOptions {
+  maxWidth?: number
+  maxHeight?: number
+  quality?: number
+  format?: 'jpeg' | 'webp' | 'png'
+}
+
+/**
+ * Compresses an image file while maintaining quality
+ */
+export async function compressImage(
+  file: File,
+  options: CompressionOptions = {}
+): Promise<{
+  file: File
+  dimensions: { width: number; height: number }
+  compressionRatio: number
+}> {
+  const {
+    maxWidth = 1920,
+    maxHeight = 1080,
+    quality = 0.85,
+    format = 'jpeg',
+  } = options
+
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+
+    img.onload = () => {
+      // Calculate new dimensions while maintaining aspect ratio
+      let { width, height } = img
+
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height)
+        width = Math.round(width * ratio)
+        height = Math.round(height * ratio)
+      }
+
+      canvas.width = width
+      canvas.height = height
+
+      // Apply image smoothing for better quality
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true
+        ctx.imageSmoothingQuality = 'high'
+        ctx.drawImage(img, 0, 0, width, height)
+      }
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Failed to compress image'))
+            return
+          }
+
+          const compressedFile = new File([blob], file.name, {
+            type: `image/${format}`,
+            lastModified: Date.now(),
+          })
+
+          const compressionRatio = file.size / compressedFile.size
+
+          resolve({
+            file: compressedFile,
+            dimensions: { width, height },
+            compressionRatio,
+          })
+        },
+        `image/${format}`,
+        quality
+      )
+    }
+
+    img.onerror = () =>
+      reject(new Error('Failed to load image for compression'))
+    img.src = URL.createObjectURL(file)
+  })
+}
+
+/**
+ * Generates an optimized thumbnail for any image
+ */
+export async function generateOptimizedThumbnail(
+  file: File,
+  size: number = 300
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    const img = new Image()
+
+    img.onload = () => {
+      // Calculate thumbnail dimensions (square crop from center)
+      const { width, height } = img
+      const cropSize = Math.min(width, height)
+      const startX = (width - cropSize) / 2
+      const startY = (height - cropSize) / 2
+
+      canvas.width = size
+      canvas.height = size
+
+      // Apply high-quality rendering
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true
+        ctx.imageSmoothingQuality = 'high'
+        ctx.drawImage(img, startX, startY, cropSize, cropSize, 0, 0, size, size)
+      }
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error('Failed to generate thumbnail'))
+            return
+          }
+
+          const thumbnailFile = new File([blob], `thumb_${file.name}`, {
+            type: 'image/jpeg',
+            lastModified: Date.now(),
+          })
+
+          resolve(thumbnailFile)
+        },
+        'image/jpeg',
+        0.85
+      )
+    }
+
+    img.onerror = () => reject(new Error('Failed to load image for thumbnail'))
+    img.src = URL.createObjectURL(file)
+  })
 }
 
 /**
@@ -238,7 +374,7 @@ export function createVideoPreview(file: File): Promise<{
 }
 
 /**
- * Uploads an image file to Supabase storage
+ * Uploads an image file to Supabase storage with compression and thumbnail
  */
 export async function uploadImageToStorage(file: File): Promise<UploadResult> {
   try {
@@ -252,17 +388,38 @@ export async function uploadImageToStorage(file: File): Promise<UploadResult> {
     }
 
     const supabase = createClient()
+    const originalSize = file.size
 
-    // Generate unique filename
-    const fileName = generateUniqueFilename(file)
+    // Compress image for better performance and storage efficiency
+    const {
+      file: compressedFile,
+      dimensions,
+      compressionRatio,
+    } = await compressImage(file, {
+      maxWidth: 1920,
+      maxHeight: 1080,
+      quality: 0.85,
+      format: 'jpeg',
+    })
+
+    // Generate optimized thumbnail
+    const thumbnailFile = await generateOptimizedThumbnail(compressedFile, 300)
+
+    // Generate unique filenames
+    const timestamp = Date.now()
+    const randomId = Math.random().toString(36).substring(2)
+    const fileName = `${timestamp}_${randomId}.jpg`
+    const thumbnailName = `thumb_${timestamp}_${randomId}.jpg`
     const filePath = `products/${fileName}`
+    const thumbnailPath = `thumbnails/${thumbnailName}`
 
-    // Upload to storage
+    // Upload compressed image to storage
     const { error: uploadError } = await supabase.storage
       .from('images')
-      .upload(filePath, file, {
+      .upload(filePath, compressedFile, {
         cacheControl: '3600',
         upsert: false,
+        contentType: 'image/jpeg',
       })
 
     if (uploadError) {
@@ -273,7 +430,30 @@ export async function uploadImageToStorage(file: File): Promise<UploadResult> {
       }
     }
 
-    // Get public URL
+    // Upload thumbnail
+    let thumbnailUrl: string | undefined
+    try {
+      const { error: thumbnailError } = await supabase.storage
+        .from('thumbnails')
+        .upload(thumbnailPath, thumbnailFile, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: 'image/jpeg',
+        })
+
+      if (!thumbnailError) {
+        const {
+          data: { publicUrl: thumbPublicUrl },
+        } = supabase.storage.from('thumbnails').getPublicUrl(thumbnailPath)
+        thumbnailUrl = thumbPublicUrl
+      } else {
+        console.warn('Failed to upload thumbnail:', thumbnailError)
+      }
+    } catch (thumbnailError) {
+      console.warn('Thumbnail upload failed:', thumbnailError)
+    }
+
+    // Get public URL for main image
     const {
       data: { publicUrl },
     } = supabase.storage.from('images').getPublicUrl(filePath)
@@ -281,7 +461,11 @@ export async function uploadImageToStorage(file: File): Promise<UploadResult> {
     return {
       success: true,
       url: publicUrl,
-      fileSize: file.size,
+      thumbnailUrl,
+      fileSize: compressedFile.size,
+      originalSize,
+      compressionRatio,
+      dimensions,
     }
   } catch (error: any) {
     console.error('Unexpected upload error:', error)
@@ -333,21 +517,52 @@ export async function uploadVideoToStorage(file: File): Promise<UploadResult> {
       data: { publicUrl },
     } = supabase.storage.from('videos').getPublicUrl(filePath)
 
-    // Get video metadata
+    // Get video metadata and generate thumbnail
     let duration: number | undefined
     let dimensions: { width: number; height: number } | undefined
+    let thumbnailUrl: string | undefined
 
     try {
       const videoMetadata = await createVideoPreview(file)
       duration = videoMetadata.duration
       dimensions = videoMetadata.dimensions
+
+      // Convert data URL to blob and upload thumbnail
+      const response = await fetch(videoMetadata.preview)
+      const thumbnailBlob = await response.blob()
+
+      // Generate thumbnail filename
+      const thumbnailFileName = fileName.replace(/\.[^/.]+$/, '_thumb.jpg')
+      const thumbnailPath = `thumbnails/${thumbnailFileName}`
+
+      // Upload thumbnail to storage
+      const { error: thumbnailError } = await supabase.storage
+        .from('thumbnails')
+        .upload(thumbnailPath, thumbnailBlob, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: 'image/jpeg',
+        })
+
+      if (!thumbnailError) {
+        const {
+          data: { publicUrl: thumbPublicUrl },
+        } = supabase.storage.from('thumbnails').getPublicUrl(thumbnailPath)
+        thumbnailUrl = thumbPublicUrl
+      } else {
+        console.warn('Failed to upload thumbnail:', thumbnailError)
+      }
     } catch (error) {
-      console.warn('Failed to extract video metadata:', error)
+      console.warn(
+        'Failed to extract video metadata or upload thumbnail:',
+        error
+      )
     }
 
     return {
       success: true,
       url: publicUrl,
+      thumbnailUrl,
       fileSize: file.size,
       duration,
       dimensions,
@@ -359,4 +574,94 @@ export async function uploadVideoToStorage(file: File): Promise<UploadResult> {
       error: error.message || 'An unexpected error occurred during upload',
     }
   }
+}
+
+/**
+ * Uploads multiple files with progress tracking and optimization
+ */
+export async function uploadMultipleFiles(
+  files: File[],
+  onProgress?: (
+    progress: number,
+    currentFile: string,
+    completed: number,
+    total: number
+  ) => void
+): Promise<UploadResult[]> {
+  const results: UploadResult[] = []
+  const total = files.length
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i]
+
+    if (onProgress) {
+      onProgress((i / total) * 100, file.name, i, total)
+    }
+
+    let result: UploadResult
+    try {
+      if (file.type.startsWith('image/')) {
+        result = await uploadImageToStorage(file)
+      } else if (file.type.startsWith('video/')) {
+        result = await uploadVideoToStorage(file)
+      } else {
+        result = {
+          success: false,
+          error: `Unsupported file type: ${file.type}`,
+        }
+      }
+    } catch (error: any) {
+      result = {
+        success: false,
+        error: `Upload failed for ${file.name}: ${error.message}`,
+      }
+    }
+
+    results.push(result)
+  }
+
+  if (onProgress) {
+    onProgress(100, 'Complete', total, total)
+  }
+
+  return results
+}
+
+/**
+ * Estimates upload time based on file sizes and connection speed
+ */
+export function estimateUploadTime(
+  files: File[],
+  connectionSpeedMbps: number = 10
+): number {
+  const totalSizeBytes = files.reduce((sum, file) => sum + file.size, 0)
+  const totalSizeMb = totalSizeBytes / (1024 * 1024)
+
+  // Add compression factor for images (typically 30-50% reduction)
+  const imageFiles = files.filter((f) => f.type.startsWith('image/'))
+  const videoFiles = files.filter((f) => f.type.startsWith('video/'))
+
+  const estimatedImageSize =
+    imageFiles.reduce((sum, file) => sum + file.size * 0.6, 0) / (1024 * 1024)
+  const estimatedVideoSize =
+    videoFiles.reduce((sum, file) => sum + file.size, 0) / (1024 * 1024)
+
+  const adjustedSizeMb = estimatedImageSize + estimatedVideoSize
+
+  // Estimate time in seconds (with 20% overhead for processing)
+  return Math.ceil((adjustedSizeMb / connectionSpeedMbps) * 8 * 1.2)
+}
+
+/**
+ * Optimizes file order for upload (smaller files first for faster initial feedback)
+ */
+export function optimizeUploadOrder(files: File[]): File[] {
+  return [...files].sort((a, b) => {
+    // Prioritize images over videos
+    if (a.type.startsWith('image/') && b.type.startsWith('video/')) return -1
+    if (a.type.startsWith('video/') && b.type.startsWith('image/')) return 1
+
+    // Then sort by size (smaller first)
+    return a.size - b.size
+  })
 }

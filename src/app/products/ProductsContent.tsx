@@ -11,6 +11,7 @@ import ProductDetailModal from '@/components/ProductDetailModal'
 import { FILTER_CATEGORIES, getCategoryLabel } from '@/constants/categories'
 import { useCart } from '@/contexts/CartContext'
 import { ContentWarning } from '@/lib/content-moderation'
+import { getSafeImageUrl } from '@/lib/image-utils'
 import { createClient } from '@/lib/supabase/client'
 
 type ViewMode = 'grid' | 'masonry' | 'list'
@@ -963,19 +964,27 @@ function ProductCard({
       <div className='overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:shadow-lg'>
         <div className='flex flex-col sm:flex-row'>
           {/* Image Section */}
-          <button
+          <div
             onClick={() => onMediaClick(product)}
             className='relative h-48 w-full flex-shrink-0 cursor-pointer transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:h-32 sm:w-64'
+            role='button'
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onMediaClick(product)
+              }
+            }}
           >
             {product.media_type === 'video' ? (
               <>
                 <Image
-                  src={
+                  src={getSafeImageUrl(
                     product.thumbnail_url ||
-                    product.media_url ||
-                    product.image_url ||
+                      product.media_url ||
+                      product.image_url,
                     '/placeholder-video.svg'
-                  }
+                  )}
                   alt={product.name}
                   fill
                   className='object-cover'
@@ -1003,11 +1012,10 @@ function ProductCard({
               </>
             ) : (
               <Image
-                src={
-                  product.media_url ||
-                  product.image_url ||
+                src={getSafeImageUrl(
+                  product.media_url || product.image_url,
                   '/placeholder-image.svg'
-                }
+                )}
                 alt={product.name}
                 fill
                 className='object-cover'
@@ -1081,7 +1089,7 @@ function ProductCard({
                 </span>
               )}
             </div>
-          </button>
+          </div>
 
           {/* Content Section */}
           <div className='flex flex-1 flex-col justify-between p-4'>
@@ -1157,9 +1165,17 @@ function ProductCard({
     >
       <div className='relative'>
         {/* Image */}
-        <button
+        <div
           onClick={() => onMediaClick(product)}
           className={`relative ${viewMode === 'masonry' ? 'aspect-auto' : 'h-64'} w-full cursor-pointer overflow-hidden transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+          role='button'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onMediaClick(product)
+            }
+          }}
         >
           {product.media_type === 'video' ? (
             <>
@@ -1197,11 +1213,10 @@ function ProductCard({
             </>
           ) : (
             <Image
-              src={
-                product.media_url ||
-                product.image_url ||
+              src={getSafeImageUrl(
+                product.media_url || product.image_url,
                 '/placeholder-image.svg'
-              }
+              )}
               alt={product.name}
               fill
               className='object-cover transition-transform duration-300 group-hover:scale-105'
@@ -1305,7 +1320,7 @@ function ProductCard({
               )}
             </div>
           </div>
-        </button>
+        </div>
 
         {/* Content */}
         <div className='p-4'>

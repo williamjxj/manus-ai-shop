@@ -74,7 +74,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             >
               <div className='relative h-full w-full'>
                 <Image
-                  src={product.image_url}
+                  src={getSafeImageUrl(product.image_url)}
                   alt={product.name}
                   fill
                   className='object-cover'
@@ -94,7 +94,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   >
                     <div className='relative h-full w-full'>
                       <Image
-                        src={media.url}
+                        src={getSafeImageUrl(media.url)}
                         alt={`${product.name} ${index + 1}`}
                         fill
                         className='object-cover'
