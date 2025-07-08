@@ -16,28 +16,9 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import { ContentWarningBadges } from '@/components/ContentWarnings'
+import ProductMediaGallery from '@/components/ProductMediaGallery'
 import { getCategoryLabel } from '@/constants/categories'
-import { ContentWarning } from '@/lib/content-moderation'
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  image_url: string
-  media_url?: string
-  media_type?: 'image' | 'video'
-  thumbnail_url?: string
-  duration_seconds?: number
-  price_cents: number
-  points_price: number
-  category: string
-  user_id?: string
-  content_warnings?: ContentWarning[]
-  tags?: string[]
-  is_explicit?: boolean
-  created_at?: string
-  updated_at?: string
-}
+import { Product } from '@/lib/product-management'
 
 interface ProductDetailModalProps {
   product: Product | null
@@ -132,7 +113,12 @@ export default function ProductDetailModal({
   }
 
   const getMediaSrc = () => {
+    // Get primary media or first media item
+    const primaryMedia =
+      product.media?.find((m) => m.is_primary) || product.media?.[0]
+
     return (
+      primaryMedia?.media_url ||
       product.media_url ||
       product.image_url ||
       (product.media_type === 'video'
@@ -142,7 +128,12 @@ export default function ProductDetailModal({
   }
 
   const getThumbnailSrc = () => {
+    // Get primary media thumbnail or first media thumbnail
+    const primaryMedia =
+      product.media?.find((m) => m.is_primary) || product.media?.[0]
+
     return (
+      primaryMedia?.thumbnail_url ||
       product.thumbnail_url ||
       product.media_url ||
       product.image_url ||
@@ -166,57 +157,73 @@ export default function ProductDetailModal({
 
         <div className='flex h-full flex-col lg:flex-row'>
           {/* Media Section - 60% */}
-          <div className='relative flex-1 bg-gray-900 lg:flex-[3]'>
-            {product.media_type === 'video' ? (
-              <div className='relative h-full min-h-[300px] lg:min-h-[500px]'>
-                {!isVideoPlaying ? (
-                  // Video Thumbnail with Play Button
-                  <div className='relative h-full w-full'>
+          <div className='relative flex-1 bg-gray-900 p-4 lg:flex-[3]'>
+            {/* Use ProductMediaGallery if product has media array, otherwise fallback to legacy display */}
+            {product.media && product.media.length > 0 ? (
+              <div className='flex h-full items-center justify-center'>
+                <div className='w-full max-w-2xl'>
+                  <ProductMediaGallery
+                    media={product.media}
+                    productName={product.name}
+                    className='h-full'
+                  />
+                </div>
+              </div>
+            ) : (
+              // Legacy single media display
+              <div className='flex h-full items-center justify-center'>
+                {product.media_type === 'video' ? (
+                  <div className='relative aspect-video w-full max-w-2xl'>
+                    {!isVideoPlaying ? (
+                      // Video Thumbnail with Play Button
+                      <div className='relative h-full w-full'>
+                        <Image
+                          src={getThumbnailSrc()}
+                          alt={product.name}
+                          fill
+                          className='object-contain'
+                        />
+                        <button
+                          onClick={handleVideoPlay}
+                          className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 transition-all hover:bg-opacity-50'
+                        >
+                          <div className='rounded-full bg-white bg-opacity-90 p-4 shadow-lg transition-transform hover:scale-110'>
+                            <Play
+                              className='h-8 w-8 text-gray-900'
+                              fill='currentColor'
+                            />
+                          </div>
+                        </button>
+                        {product.duration_seconds && (
+                          <div className='absolute bottom-4 right-4 rounded bg-black bg-opacity-75 px-2 py-1 text-sm text-white'>
+                            {formatDuration(product.duration_seconds)}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      // Video Player
+                      <video
+                        ref={videoRef}
+                        src={getMediaSrc()}
+                        controls
+                        autoPlay
+                        className='h-full w-full object-contain'
+                        onPause={handleVideoPause}
+                        onEnded={handleVideoPause}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  // Image Display
+                  <div className='relative aspect-square w-full max-w-2xl'>
                     <Image
-                      src={getThumbnailSrc()}
+                      src={getMediaSrc()}
                       alt={product.name}
                       fill
                       className='object-contain'
                     />
-                    <button
-                      onClick={handleVideoPlay}
-                      className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 transition-all hover:bg-opacity-50'
-                    >
-                      <div className='rounded-full bg-white bg-opacity-90 p-4 shadow-lg transition-transform hover:scale-110'>
-                        <Play
-                          className='h-8 w-8 text-gray-900'
-                          fill='currentColor'
-                        />
-                      </div>
-                    </button>
-                    {product.duration_seconds && (
-                      <div className='absolute bottom-4 right-4 rounded bg-black bg-opacity-75 px-2 py-1 text-sm text-white'>
-                        {formatDuration(product.duration_seconds)}
-                      </div>
-                    )}
                   </div>
-                ) : (
-                  // Video Player
-                  <video
-                    ref={videoRef}
-                    src={getMediaSrc()}
-                    controls
-                    autoPlay
-                    className='h-full w-full object-contain'
-                    onPause={handleVideoPause}
-                    onEnded={handleVideoPause}
-                  />
                 )}
-              </div>
-            ) : (
-              // Image Display
-              <div className='relative h-full min-h-[300px] lg:min-h-[500px]'>
-                <Image
-                  src={getMediaSrc()}
-                  alt={product.name}
-                  fill
-                  className='object-contain'
-                />
               </div>
             )}
           </div>

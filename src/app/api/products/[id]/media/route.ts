@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import {
+  uploadImageToStorage,
+  uploadVideoToStorage,
+} from '@/lib/media-upload-utils'
 import { createClient } from '@/lib/supabase/server'
-import { uploadImageToStorage, uploadVideoToStorage } from '@/lib/media-upload-utils'
 
 export async function GET(
   request: NextRequest,
@@ -135,7 +138,8 @@ export async function POST(
         }
 
         // Determine if this should be the primary media
-        const isPrimary = (currentMediaCount || 0) === 0 && uploadedMedia.length === 0
+        const isPrimary =
+          (currentMediaCount || 0) === 0 && uploadedMedia.length === 0
 
         // Insert media record
         const { data: mediaRecord, error: insertError } = await supabase
@@ -168,7 +172,8 @@ export async function POST(
 
     // Update product's primary media URL for backward compatibility
     if (uploadedMedia.length > 0) {
-      const primaryMedia = uploadedMedia.find(m => m.is_primary) || uploadedMedia[0]
+      const primaryMedia =
+        uploadedMedia.find((m) => m.is_primary) || uploadedMedia[0]
       await supabase
         .from('products')
         .update({

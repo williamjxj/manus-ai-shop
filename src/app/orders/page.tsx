@@ -295,7 +295,9 @@ export default function OrdersPage() {
                         className='flex items-center space-x-4'
                       >
                         <Image
-                          src={item.product.image_url}
+                          src={
+                            item.product.image_url || '/placeholder-image.svg'
+                          }
                           alt={item.product.name}
                           width={64}
                           height={64}

@@ -3,8 +3,8 @@
 // =====================================================
 // Comprehensive product management functions for adult marketplace
 
-import { createClient } from '@/lib/supabase/client'
 import { ContentWarning } from '@/lib/content-moderation'
+import { createClient } from '@/lib/supabase/client'
 
 export interface ProductMedia {
   id: string
@@ -64,6 +64,7 @@ export interface Product {
   media_url?: string
   media_type?: 'image' | 'video'
   thumbnail_url?: string
+  duration_seconds?: number
   price_cents: number
   points_price: number
   category: string
@@ -134,17 +135,25 @@ export interface ProductFilters {
 }
 
 export interface ProductSortOptions {
-  field: 'created_at' | 'name' | 'price_cents' | 'average_rating' | 'view_count' | 'purchase_count'
+  field:
+    | 'created_at'
+    | 'name'
+    | 'price_cents'
+    | 'average_rating'
+    | 'view_count'
+    | 'purchase_count'
   direction: 'asc' | 'desc'
 }
 
 /**
  * Create a new product
  */
-export async function createProduct(data: CreateProductData): Promise<{ data: Product | null; error: string | null }> {
+export async function createProduct(
+  data: CreateProductData
+): Promise<{ data: Product | null; error: string | null }> {
   try {
     const supabase = createClient()
-    
+
     const { data: product, error } = await supabase
       .from('products')
       .insert({
@@ -172,12 +181,14 @@ export async function createProduct(data: CreateProductData): Promise<{ data: Pr
 /**
  * Update an existing product
  */
-export async function updateProduct(data: UpdateProductData): Promise<{ data: Product | null; error: string | null }> {
+export async function updateProduct(
+  data: UpdateProductData
+): Promise<{ data: Product | null; error: string | null }> {
   try {
     const supabase = createClient()
-    
+
     const { id, ...updateData } = data
-    
+
     const { data: product, error } = await supabase
       .from('products')
       .update({
@@ -201,10 +212,12 @@ export async function updateProduct(data: UpdateProductData): Promise<{ data: Pr
 /**
  * Delete a product and its associated media
  */
-export async function deleteProduct(productId: string): Promise<{ error: string | null }> {
+export async function deleteProduct(
+  productId: string
+): Promise<{ error: string | null }> {
   try {
     const supabase = createClient()
-    
+
     // First, get all media files to delete from storage
     const { data: mediaFiles } = await supabase
       .from('product_media')
@@ -260,47 +273,50 @@ export async function getProducts(
 ): Promise<{ data: Product[]; error: string | null; count: number }> {
   try {
     const supabase = createClient()
-    
-    let query = supabase
-      .from('products')
-      .select(`
+
+    let query = supabase.from('products').select(
+      `
         *,
         media:product_media(*),
         variants:product_variants(*),
         product_tags:product_tag_items(
           tag:product_tags(*)
         )
-      `, { count: 'exact' })
+      `,
+      { count: 'exact' }
+    )
 
     // Apply filters
     if (filters.search) {
-      query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
+      query = query.or(
+        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
+      )
     }
-    
+
     if (filters.category && filters.category !== 'all') {
       query = query.eq('category', filters.category)
     }
-    
+
     if (filters.price_min !== undefined) {
       query = query.gte('price_cents', filters.price_min)
     }
-    
+
     if (filters.price_max !== undefined) {
       query = query.lte('price_cents', filters.price_max)
     }
-    
+
     if (filters.rating_min !== undefined) {
       query = query.gte('average_rating', filters.rating_min)
     }
-    
+
     if (filters.in_stock_only) {
       query = query.eq('stock_status', 'in_stock')
     }
-    
+
     if (filters.featured_only) {
       query = query.eq('featured', true)
     }
-    
+
     if (filters.user_id) {
       query = query.eq('user_id', filters.user_id)
     }
@@ -330,13 +346,16 @@ export async function getProducts(
 /**
  * Get a single product by ID with all relations
  */
-export async function getProduct(productId: string): Promise<{ data: Product | null; error: string | null }> {
+export async function getProduct(
+  productId: string
+): Promise<{ data: Product | null; error: string | null }> {
   try {
     const supabase = createClient()
-    
+
     const { data, error } = await supabase
       .from('products')
-      .select(`
+      .select(
+        `
         *,
         media:product_media(*),
         variants:product_variants(*),
@@ -344,7 +363,8 @@ export async function getProduct(productId: string): Promise<{ data: Product | n
           tag:product_tags(*)
         ),
         categories(name, slug)
-      `)
+      `
+      )
       .eq('id', productId)
       .single()
 
@@ -363,11 +383,14 @@ export async function getProduct(productId: string): Promise<{ data: Product | n
  */
 export async function addProductMedia(
   productId: string,
-  mediaData: Omit<ProductMedia, 'id' | 'product_id' | 'created_at' | 'updated_at'>
+  mediaData: Omit<
+    ProductMedia,
+    'id' | 'product_id' | 'created_at' | 'updated_at'
+  >
 ): Promise<{ data: ProductMedia | null; error: string | null }> {
   try {
     const supabase = createClient()
-    
+
     const { data, error } = await supabase
       .from('product_media')
       .insert({
@@ -390,10 +413,12 @@ export async function addProductMedia(
 /**
  * Delete product media
  */
-export async function deleteProductMedia(mediaId: string): Promise<{ error: string | null }> {
+export async function deleteProductMedia(
+  mediaId: string
+): Promise<{ error: string | null }> {
   try {
     const supabase = createClient()
-    
+
     // Get media info before deletion for storage cleanup
     const { data: media } = await supabase
       .from('product_media')
@@ -446,15 +471,13 @@ export async function trackProductEvent(
 ): Promise<void> {
   try {
     const supabase = createClient()
-    
-    await supabase
-      .from('product_analytics')
-      .insert({
-        product_id: productId,
-        event_type: eventType,
-        metadata,
-        session_id: getSessionId(),
-      })
+
+    await supabase.from('product_analytics').insert({
+      product_id: productId,
+      event_type: eventType,
+      metadata,
+      session_id: getSessionId(),
+    })
   } catch (error) {
     console.warn('Failed to track product event:', error)
   }
@@ -467,7 +490,7 @@ function extractStoragePath(url: string): string | null {
   try {
     const urlObj = new URL(url)
     const pathParts = urlObj.pathname.split('/')
-    const storageIndex = pathParts.findIndex(part => part === 'storage')
+    const storageIndex = pathParts.findIndex((part) => part === 'storage')
     if (storageIndex !== -1 && pathParts.length > storageIndex + 3) {
       return pathParts.slice(storageIndex + 3).join('/')
     }
@@ -482,7 +505,7 @@ function extractStoragePath(url: string): string | null {
  */
 function getSessionId(): string {
   if (typeof window === 'undefined') return 'server'
-  
+
   let sessionId = sessionStorage.getItem('session_id')
   if (!sessionId) {
     sessionId = crypto.randomUUID()

@@ -10,8 +10,8 @@ import toast from 'react-hot-toast'
 import ProductDetailModal from '@/components/ProductDetailModal'
 import { FILTER_CATEGORIES, getCategoryLabel } from '@/constants/categories'
 import { useCart } from '@/contexts/CartContext'
-import { ContentWarning } from '@/lib/content-moderation'
 import { getSafeImageUrl } from '@/lib/image-utils'
+import { Product } from '@/lib/product-management'
 import { createClient } from '@/lib/supabase/client'
 
 type ViewMode = 'grid' | 'masonry' | 'list'
@@ -22,26 +22,6 @@ type SortOption =
   | 'price-high'
   | 'name-az'
   | 'name-za'
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  image_url: string
-  media_url?: string
-  media_type?: 'image' | 'video'
-  thumbnail_url?: string
-  duration_seconds?: number
-  price_cents: number
-  points_price: number
-  category: string
-  created_at?: string
-  user_id?: string
-  content_warnings?: ContentWarning[]
-  view_count?: number
-  purchase_count?: number
-  moderation_status?: string
-}
 
 interface FilterState {
   search: string
@@ -959,6 +939,19 @@ function ProductCard({
   router,
   onMediaClick,
 }: ProductCardProps) {
+  const [showDropdown, setShowDropdown] = useState(false)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowDropdown(false)
+    }
+
+    if (showDropdown) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showDropdown])
   if (viewMode === 'list') {
     return (
       <div className='overflow-hidden rounded-lg bg-white shadow-md transition-all duration-200 hover:shadow-lg'>
@@ -1300,6 +1293,85 @@ function ProductCard({
                   />
                 </svg>
               </button>
+
+              {/* 3-dots menu for grid view */}
+              {currentUser && currentUser.id === product.user_id && (
+                <div className='relative'>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowDropdown(!showDropdown)
+                    }}
+                    className='rounded-full bg-white bg-opacity-90 p-2 text-gray-600 opacity-0 transition-all duration-200 hover:bg-gray-100 group-hover:opacity-100'
+                  >
+                    <svg
+                      className='h-4 w-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z'
+                      />
+                    </svg>
+                  </button>
+
+                  {/* Dropdown menu for grid view */}
+                  {showDropdown && (
+                    <div className='absolute right-0 top-10 z-10 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5'>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowDropdown(false)
+                          router.push(`/products/${product.id}/edit`)
+                        }}
+                        className='flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                      >
+                        <svg
+                          className='mr-3 h-4 w-4'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                          />
+                        </svg>
+                        Edit Product
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowDropdown(false)
+                          onDelete()
+                        }}
+                        className='flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50'
+                      >
+                        <svg
+                          className='mr-3 h-4 w-4'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+                          />
+                        </svg>
+                        Delete Product
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Bottom Badges */}
@@ -1328,11 +1400,96 @@ function ProductCard({
             <h3 className='mr-2 line-clamp-2 flex-1 text-lg font-semibold text-gray-900'>
               {product.name}
             </h3>
-            <div className='flex items-center gap-1 text-yellow-400'>
-              <svg className='h-4 w-4' fill='currentColor' viewBox='0 0 24 24'>
-                <path d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' />
-              </svg>
-              <span className='text-sm text-gray-600'>4.8</span>
+            <div className='flex items-center gap-2'>
+              <div className='flex items-center gap-1 text-yellow-400'>
+                <svg
+                  className='h-4 w-4'
+                  fill='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z' />
+                </svg>
+                <span className='text-sm text-gray-600'>4.8</span>
+              </div>
+
+              {/* 3-dots menu */}
+              {currentUser && currentUser.id === product.user_id && (
+                <div className='relative'>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowDropdown(!showDropdown)
+                    }}
+                    className='rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600'
+                  >
+                    <svg
+                      className='h-4 w-4'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z'
+                      />
+                    </svg>
+                  </button>
+
+                  {/* Dropdown menu */}
+                  {showDropdown && (
+                    <div className='absolute right-0 top-8 z-10 w-48 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5'>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowDropdown(false)
+                          router.push(`/products/${product.id}/edit`)
+                        }}
+                        className='flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                      >
+                        <svg
+                          className='mr-3 h-4 w-4'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+                          />
+                        </svg>
+                        Edit Product
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowDropdown(false)
+                          onDelete()
+                        }}
+                        className='flex w-full items-center px-4 py-2 text-sm text-red-700 hover:bg-red-50'
+                      >
+                        <svg
+                          className='mr-3 h-4 w-4'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+                          />
+                        </svg>
+                        Delete Product
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

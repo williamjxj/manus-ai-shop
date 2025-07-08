@@ -12,6 +12,7 @@ import {
   getCategoryDescription,
   getCategoryLabel,
 } from '@/constants/categories'
+import { getProductImageUrl } from '@/lib/image-utils'
 import { Product } from '@/lib/product-management'
 import { formatPrice } from '@/lib/utils'
 
@@ -264,7 +265,6 @@ function ProductCard({
             <ContentWarningBadges
               warnings={product.content_warnings}
               className='justify-start'
-              compact
             />
           )}
 

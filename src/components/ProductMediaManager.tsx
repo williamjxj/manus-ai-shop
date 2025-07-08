@@ -153,14 +153,11 @@ export default function ProductMediaManager({
     [onSetPrimary]
   )
 
-  const handleAltTextSave = useCallback(
-    async (mediaId: string) => {
-      // TODO: Implement alt text update API call
-      setEditingAltText(null)
-      toast.success('Alt text updated')
-    },
-    []
-  )
+  const handleAltTextSave = useCallback(async (mediaId: string) => {
+    // TODO: Implement alt text update API call
+    setEditingAltText(null)
+    toast.success('Alt text updated')
+  }, [])
 
   const sortedMedia = [...media].sort((a, b) => a.sort_order - b.sort_order)
 
@@ -203,8 +200,8 @@ export default function ProductMediaManager({
               Drag and drop files here, or click to select
             </p>
             <p className='text-xs text-gray-400'>
-              Supports images and videos • Max {maxFiles} files • {media.length}/
-              {maxFiles} used
+              Supports images and videos • Max {maxFiles} files • {media.length}
+              /{maxFiles} used
             </p>
           </div>
 
@@ -237,13 +234,19 @@ export default function ProductMediaManager({
                   className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'
                 >
                   {sortedMedia.map((item, index) => (
-                    <Draggable key={item.id} draggableId={item.id} index={index}>
+                    <Draggable
+                      key={item.id}
+                      draggableId={item.id}
+                      index={index}
+                    >
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           className={`group relative overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow ${
-                            snapshot.isDragging ? 'shadow-lg' : 'hover:shadow-md'
+                            snapshot.isDragging
+                              ? 'shadow-lg'
+                              : 'hover:shadow-md'
                           } ${item.is_primary ? 'ring-2 ring-blue-500' : ''}`}
                         >
                           {/* Drag Handle */}
@@ -273,20 +276,28 @@ export default function ProductMediaManager({
                             ) : (
                               <div className='relative h-full w-full'>
                                 <Image
-                                  src={item.thumbnail_url || '/placeholder-video.jpg'}
+                                  src={
+                                    item.thumbnail_url ||
+                                    '/placeholder-video.jpg'
+                                  }
                                   alt={item.alt_text || 'Video thumbnail'}
                                   fill
                                   className='object-cover'
                                 />
                                 <div className='absolute inset-0 flex items-center justify-center bg-black bg-opacity-30'>
                                   <div className='rounded-full bg-white bg-opacity-90 p-3'>
-                                    <Play className='h-6 w-6 text-gray-900' fill='currentColor' />
+                                    <Play
+                                      className='h-6 w-6 text-gray-900'
+                                      fill='currentColor'
+                                    />
                                   </div>
                                 </div>
                                 {item.duration_seconds && (
                                   <div className='absolute bottom-2 right-2 rounded bg-black bg-opacity-75 px-2 py-1 text-xs text-white'>
                                     {Math.floor(item.duration_seconds / 60)}:
-                                    {(item.duration_seconds % 60).toString().padStart(2, '0')}
+                                    {(item.duration_seconds % 60)
+                                      .toString()
+                                      .padStart(2, '0')}
                                   </div>
                                 )}
                               </div>
@@ -332,12 +343,16 @@ export default function ProductMediaManager({
                               ) : (
                                 <FileVideo className='h-4 w-4' />
                               )}
-                              <span className='capitalize'>{item.media_type}</span>
+                              <span className='capitalize'>
+                                {item.media_type}
+                              </span>
                               {item.file_size && (
                                 <span>• {formatFileSize(item.file_size)}</span>
                               )}
                               {item.width && item.height && (
-                                <span>• {item.width}×{item.height}</span>
+                                <span>
+                                  • {item.width}×{item.height}
+                                </span>
                               )}
                             </div>
 
@@ -348,7 +363,9 @@ export default function ProductMediaManager({
                                   <input
                                     type='text'
                                     value={altTextValue}
-                                    onChange={(e) => setAltTextValue(e.target.value)}
+                                    onChange={(e) =>
+                                      setAltTextValue(e.target.value)
+                                    }
                                     placeholder='Alt text for accessibility'
                                     className='flex-1 rounded border border-gray-300 px-2 py-1 text-sm'
                                   />

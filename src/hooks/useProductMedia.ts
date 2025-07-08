@@ -82,7 +82,11 @@ export function useProductMedia({
 
         if (data.uploaded && data.uploaded.length > 0) {
           // Add uploaded media to current state
-          setMedia((prev) => [...prev, ...data.uploaded].sort((a, b) => a.sort_order - b.sort_order))
+          setMedia((prev) =>
+            [...prev, ...data.uploaded].sort(
+              (a, b) => a.sort_order - b.sort_order
+            )
+          )
           toast.success(`${data.uploaded.length} file(s) uploaded successfully`)
         }
       } catch (error: any) {
@@ -101,9 +105,12 @@ export function useProductMedia({
       if (!productId || !mediaId) return
 
       try {
-        const response = await fetch(`/api/products/${productId}/media/${mediaId}`, {
-          method: 'DELETE',
-        })
+        const response = await fetch(
+          `/api/products/${productId}/media/${mediaId}`,
+          {
+            method: 'DELETE',
+          }
+        )
 
         if (!response.ok) {
           const errorData = await response.json()
@@ -200,15 +207,18 @@ export function useProductMedia({
       if (!productId || !mediaId) return
 
       try {
-        const response = await fetch(`/api/products/${productId}/media/${mediaId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            alt_text: altText,
-          }),
-        })
+        const response = await fetch(
+          `/api/products/${productId}/media/${mediaId}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              alt_text: altText,
+            }),
+          }
+        )
 
         if (!response.ok) {
           const errorData = await response.json()

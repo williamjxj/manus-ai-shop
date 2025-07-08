@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { createClient } from '@/lib/supabase/server'
 import { ContentWarning } from '@/lib/content-moderation'
+import { createClient } from '@/lib/supabase/server'
 
 interface UpdateProductRequest {
   name?: string
@@ -35,7 +35,8 @@ export async function GET(
 
     const { data: product, error } = await supabase
       .from('products')
-      .select(`
+      .select(
+        `
         *,
         media:product_media(*),
         variants:product_variants(*),
@@ -51,13 +52,17 @@ export async function GET(
           created_at,
           user:profiles(full_name)
         )
-      `)
+      `
+      )
       .eq('id', id)
       .single()
 
     if (error) {
       if (error.code === 'PGRST116') {
-        return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+        return NextResponse.json(
+          { error: 'Product not found' },
+          { status: 404 }
+        )
       }
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
@@ -77,12 +82,15 @@ export async function GET(
 
     // Increment view count (fire and forget)
     if (product.moderation_status === 'approved') {
-      supabase
-        .from('products')
-        .update({ view_count: (product.view_count || 0) + 1 })
-        .eq('id', id)
-        .then(() => {})
-        .catch(() => {})
+      try {
+        await supabase
+          .from('products')
+          .update({ view_count: (product.view_count || 0) + 1 })
+          .eq('id', id)
+      } catch (error) {
+        // Silently ignore view count update errors
+        console.warn('Failed to update view count:', error)
+      }
     }
 
     return NextResponse.json({ product })
@@ -122,7 +130,10 @@ export async function PATCH(
 
     if (productError) {
       if (productError.code === 'PGRST116') {
-        return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+        return NextResponse.json(
+          { error: 'Product not found' },
+          { status: 404 }
+        )
       }
       return NextResponse.json({ error: productError.message }, { status: 500 })
     }
@@ -169,31 +180,47 @@ export async function PATCH(
 
     // Only include fields that are provided
     if (body.name !== undefined) updateData.name = body.name.trim()
-    if (body.description !== undefined) updateData.description = body.description?.trim()
-    if (body.price_cents !== undefined) updateData.price_cents = body.price_cents
-    if (body.points_price !== undefined) updateData.points_price = body.points_price
+    if (body.description !== undefined)
+      updateData.description = body.description?.trim()
+    if (body.price_cents !== undefined)
+      updateData.price_cents = body.price_cents
+    if (body.points_price !== undefined)
+      updateData.points_price = body.points_price
     if (body.category !== undefined) updateData.category = body.category
-    if (body.content_warnings !== undefined) updateData.content_warnings = body.content_warnings
+    if (body.content_warnings !== undefined)
+      updateData.content_warnings = body.content_warnings
     if (body.tags !== undefined) updateData.tags = body.tags
-    if (body.is_explicit !== undefined) updateData.is_explicit = body.is_explicit
-    if (body.stock_quantity !== undefined) updateData.stock_quantity = body.stock_quantity
-    if (body.stock_status !== undefined) updateData.stock_status = body.stock_status
-    if (body.shipping_required !== undefined) updateData.shipping_required = body.shipping_required
-    if (body.license_type !== undefined) updateData.license_type = body.license_type
-    if (body.seo_title !== undefined) updateData.seo_title = body.seo_title?.trim()
-    if (body.seo_description !== undefined) updateData.seo_description = body.seo_description?.trim()
-    if (body.seo_keywords !== undefined) updateData.seo_keywords = body.seo_keywords
-    if (body.weight_grams !== undefined) updateData.weight_grams = body.weight_grams
-    if (body.dimensions_cm !== undefined) updateData.dimensions_cm = body.dimensions_cm
+    if (body.is_explicit !== undefined)
+      updateData.is_explicit = body.is_explicit
+    if (body.stock_quantity !== undefined)
+      updateData.stock_quantity = body.stock_quantity
+    if (body.stock_status !== undefined)
+      updateData.stock_status = body.stock_status
+    if (body.shipping_required !== undefined)
+      updateData.shipping_required = body.shipping_required
+    if (body.license_type !== undefined)
+      updateData.license_type = body.license_type
+    if (body.seo_title !== undefined)
+      updateData.seo_title = body.seo_title?.trim()
+    if (body.seo_description !== undefined)
+      updateData.seo_description = body.seo_description?.trim()
+    if (body.seo_keywords !== undefined)
+      updateData.seo_keywords = body.seo_keywords
+    if (body.weight_grams !== undefined)
+      updateData.weight_grams = body.weight_grams
+    if (body.dimensions_cm !== undefined)
+      updateData.dimensions_cm = body.dimensions_cm
     if (body.featured !== undefined) updateData.featured = body.featured
-    if (body.is_archived !== undefined) updateData.is_archived = body.is_archived
+    if (body.is_archived !== undefined)
+      updateData.is_archived = body.is_archived
 
     // Update product
     const { data: product, error: updateError } = await supabase
       .from('products')
       .update(updateData)
       .eq('id', id)
-      .select(`
+      .select(
+        `
         *,
         media:product_media(*),
         variants:product_variants(*),
@@ -201,7 +228,8 @@ export async function PATCH(
         product_tags:product_tag_items(
           tag:product_tags(*)
         )
-      `)
+      `
+      )
       .single()
 
     if (updateError) {
@@ -246,7 +274,10 @@ export async function DELETE(
 
     if (productError) {
       if (productError.code === 'PGRST116') {
-        return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+        return NextResponse.json(
+          { error: 'Product not found' },
+          { status: 404 }
+        )
       }
       return NextResponse.json({ error: productError.message }, { status: 500 })
     }
@@ -312,7 +343,7 @@ function extractStoragePath(url: string): string | null {
   try {
     const urlObj = new URL(url)
     const pathParts = urlObj.pathname.split('/')
-    const storageIndex = pathParts.findIndex(part => part === 'storage')
+    const storageIndex = pathParts.findIndex((part) => part === 'storage')
     if (storageIndex !== -1 && pathParts.length > storageIndex + 3) {
       return pathParts.slice(storageIndex + 3).join('/')
     }

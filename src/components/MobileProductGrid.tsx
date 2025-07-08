@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 
 import { ContentWarningBadges } from '@/components/ContentWarnings'
+import { getSafeImageUrl } from '@/lib/image-utils'
 
 interface Product {
   id: string

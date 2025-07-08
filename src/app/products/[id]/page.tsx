@@ -7,8 +7,10 @@ import {
   BlurredContent,
   ContentWarningBadges,
 } from '@/components/ContentWarnings'
+import ProductMediaGallery from '@/components/ProductMediaGallery'
 import ProductReviews from '@/components/ProductReviews'
 import { ContentWarning } from '@/lib/content-moderation'
+import { getSafeImageUrl } from '@/lib/image-utils'
 import { createClient } from '@/lib/supabase/server'
 
 interface ProductPageProps {
@@ -65,43 +67,40 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
 
         <div className='mb-12 grid grid-cols-1 gap-8 lg:grid-cols-2'>
-          {/* Product Images */}
+          {/* Product Media Gallery */}
           <div className='space-y-4'>
             <BlurredContent
               warnings={contentWarnings}
               productName={product.name}
-              className='aspect-square overflow-hidden rounded-lg bg-white shadow-sm'
+              className='overflow-hidden rounded-lg bg-white shadow-sm'
             >
-              <div className='relative h-full w-full'>
-                <Image
-                  src={getSafeImageUrl(product.image_url)}
-                  alt={product.name}
-                  fill
-                  className='object-cover'
-                  priority
+              {/* Use ProductMediaGallery if product has media array, otherwise show single image */}
+              {product.media && product.media.length > 0 ? (
+                <ProductMediaGallery
+                  media={product.media}
+                  productName={product.name}
+                  className='aspect-square'
                 />
-              </div>
+              ) : (
+                <div className='relative aspect-square h-full w-full'>
+                  <Image
+                    src={getSafeImageUrl(product.image_url)}
+                    alt={product.name}
+                    fill
+                    className='object-cover'
+                    priority
+                  />
+                </div>
+              )}
             </BlurredContent>
 
-            {/* Additional Images */}
-            {product.media && product.media.length > 0 && (
-              <div className='grid grid-cols-3 gap-2'>
-                {product.media.slice(0, 6).map((media: any, index: number) => (
-                  <BlurredContent
-                    key={index}
-                    warnings={contentWarnings}
-                    className='aspect-square overflow-hidden rounded-lg bg-white shadow-sm'
-                  >
-                    <div className='relative h-full w-full'>
-                      <Image
-                        src={getSafeImageUrl(media.url)}
-                        alt={`${product.name} ${index + 1}`}
-                        fill
-                        className='object-cover'
-                      />
-                    </div>
-                  </BlurredContent>
-                ))}
+            {/* Media Count Info */}
+            {product.media && product.media.length > 1 && (
+              <div className='text-center text-sm text-gray-600'>
+                <span className='inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-blue-800'>
+                  📷 {product.media.length} media file
+                  {product.media.length !== 1 ? 's' : ''}
+                </span>
               </div>
             )}
           </div>

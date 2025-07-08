@@ -3,8 +3,8 @@
 // =====================================================
 // Comprehensive validation for product data and operations
 
-import { ContentWarning, CONTENT_WARNINGS } from '@/lib/content-moderation'
 import { ADULT_CATEGORIES } from '@/constants/categories'
+import { ContentWarning, CONTENT_WARNINGS } from '@/lib/content-moderation'
 
 export interface ValidationResult {
   isValid: boolean
@@ -66,7 +66,9 @@ export function validateProductData(
       errors.push('Product description must be less than 2000 characters')
     }
     if (trimmedDescription.length < 10) {
-      warnings.push('Product description is very short. Consider adding more details.')
+      warnings.push(
+        'Product description is very short. Consider adding more details.'
+      )
     }
   }
 
@@ -76,7 +78,8 @@ export function validateProductData(
       errors.push('Price must be a non-negative integer (in cents)')
     } else if (data.price_cents === 0) {
       warnings.push('Product is set as free. Consider if this is intentional.')
-    } else if (data.price_cents > 100000000) { // $1M limit
+    } else if (data.price_cents > 100000000) {
+      // $1M limit
       errors.push('Price cannot exceed $1,000,000')
     }
   } else if (!isUpdate) {
@@ -111,13 +114,15 @@ export function validateProductData(
       errors.push('Content warnings must be an array')
     } else {
       const invalidWarnings = data.content_warnings.filter(
-        warning => !Object.keys(CONTENT_WARNINGS).includes(warning)
+        (warning) => !Object.keys(CONTENT_WARNINGS).includes(warning)
       )
       if (invalidWarnings.length > 0) {
         errors.push(`Invalid content warnings: ${invalidWarnings.join(', ')}`)
       }
       if (data.content_warnings.length === 0) {
-        warnings.push('No content warnings specified. Consider adding appropriate warnings.')
+        warnings.push(
+          'No content warnings specified. Consider adding appropriate warnings.'
+        )
       }
     }
   }
@@ -130,14 +135,17 @@ export function validateProductData(
       if (data.tags.length > 20) {
         errors.push('Maximum 20 tags allowed')
       }
-      const invalidTags = data.tags.filter(tag => 
-        typeof tag !== 'string' || 
-        tag.trim().length === 0 || 
-        tag.length > 50 ||
-        !/^[a-zA-Z0-9\s\-_]+$/.test(tag)
+      const invalidTags = data.tags.filter(
+        (tag) =>
+          typeof tag !== 'string' ||
+          tag.trim().length === 0 ||
+          tag.length > 50 ||
+          !/^[a-zA-Z0-9\s\-_]+$/.test(tag)
       )
       if (invalidTags.length > 0) {
-        errors.push('Tags must be non-empty strings with valid characters (max 50 chars each)')
+        errors.push(
+          'Tags must be non-empty strings with valid characters (max 50 chars each)'
+        )
       }
     }
   }
@@ -155,7 +163,8 @@ export function validateProductData(
   if (data.weight_grams !== undefined && data.weight_grams !== null) {
     if (!Number.isInteger(data.weight_grams) || data.weight_grams < 0) {
       errors.push('Weight must be a non-negative integer (in grams)')
-    } else if (data.weight_grams > 100000000) { // 100 tons limit
+    } else if (data.weight_grams > 100000000) {
+      // 100 tons limit
       errors.push('Weight cannot exceed 100,000,000 grams (100 tons)')
     }
   }
@@ -167,7 +176,7 @@ export function validateProductData(
     } else {
       const requiredDimensions = ['length', 'width', 'height']
       const providedDimensions = Object.keys(data.dimensions_cm)
-      
+
       for (const dim of requiredDimensions) {
         if (!(dim in data.dimensions_cm)) {
           errors.push(`Missing dimension: ${dim}`)
@@ -175,17 +184,20 @@ export function validateProductData(
           const value = data.dimensions_cm[dim]
           if (typeof value !== 'number' || value < 0) {
             errors.push(`${dim} must be a non-negative number`)
-          } else if (value > 10000) { // 100 meters limit
+          } else if (value > 10000) {
+            // 100 meters limit
             errors.push(`${dim} cannot exceed 10,000 cm (100 meters)`)
           }
         }
       }
 
       const extraDimensions = providedDimensions.filter(
-        dim => !requiredDimensions.includes(dim)
+        (dim) => !requiredDimensions.includes(dim)
       )
       if (extraDimensions.length > 0) {
-        warnings.push(`Extra dimensions will be ignored: ${extraDimensions.join(', ')}`)
+        warnings.push(
+          `Extra dimensions will be ignored: ${extraDimensions.join(', ')}`
+        )
       }
     }
   }
@@ -193,13 +205,17 @@ export function validateProductData(
   // SEO validation
   if (data.seo_title !== undefined && data.seo_title) {
     if (data.seo_title.length > 60) {
-      warnings.push('SEO title is longer than 60 characters. Consider shortening for better SEO.')
+      warnings.push(
+        'SEO title is longer than 60 characters. Consider shortening for better SEO.'
+      )
     }
   }
 
   if (data.seo_description !== undefined && data.seo_description) {
     if (data.seo_description.length > 160) {
-      warnings.push('SEO description is longer than 160 characters. Consider shortening for better SEO.')
+      warnings.push(
+        'SEO description is longer than 160 characters. Consider shortening for better SEO.'
+      )
     }
   }
 
@@ -207,7 +223,9 @@ export function validateProductData(
     if (!Array.isArray(data.seo_keywords)) {
       errors.push('SEO keywords must be an array')
     } else if (data.seo_keywords.length > 10) {
-      warnings.push('More than 10 SEO keywords may not be effective. Consider focusing on the most important ones.')
+      warnings.push(
+        'More than 10 SEO keywords may not be effective. Consider focusing on the most important ones.'
+      )
     }
   }
 
@@ -231,18 +249,27 @@ export function validateProductFile(file: File): ValidationResult {
 
   if (file.type.startsWith('image/')) {
     if (file.size > maxImageSize) {
-      errors.push(`Image file size cannot exceed ${maxImageSize / (1024 * 1024)}MB`)
+      errors.push(
+        `Image file size cannot exceed ${maxImageSize / (1024 * 1024)}MB`
+      )
     }
-    
-    const allowedImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+
+    const allowedImageTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+    ]
     if (!allowedImageTypes.includes(file.type)) {
       errors.push('Only JPEG, PNG, WebP, and GIF images are allowed')
     }
   } else if (file.type.startsWith('video/')) {
     if (file.size > maxVideoSize) {
-      errors.push(`Video file size cannot exceed ${maxVideoSize / (1024 * 1024)}MB`)
+      errors.push(
+        `Video file size cannot exceed ${maxVideoSize / (1024 * 1024)}MB`
+      )
     }
-    
+
     const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime']
     if (!allowedVideoTypes.includes(file.type)) {
       errors.push('Only MP4, WebM, and QuickTime videos are allowed')
@@ -284,13 +311,18 @@ export function validateBulkOperation(
   }
 
   if (productIds.length > 100) {
-    errors.push('Cannot perform bulk operation on more than 100 products at once')
+    errors.push(
+      'Cannot perform bulk operation on more than 100 products at once'
+    )
   }
 
   // Validate product IDs format
-  const invalidIds = productIds.filter(id => 
-    typeof id !== 'string' || 
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  const invalidIds = productIds.filter(
+    (id) =>
+      typeof id !== 'string' ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        id
+      )
   )
   if (invalidIds.length > 0) {
     errors.push('Invalid product ID format detected')
@@ -300,7 +332,9 @@ export function validateBulkOperation(
   switch (operation) {
     case 'delete':
       if (productIds.length > 10) {
-        warnings.push('Deleting many products at once. This action cannot be undone.')
+        warnings.push(
+          'Deleting many products at once. This action cannot be undone.'
+        )
       }
       break
 
@@ -329,7 +363,9 @@ export function validateBulkOperation(
 /**
  * Validate product search/filter parameters
  */
-export function validateSearchParams(params: Record<string, any>): ValidationResult {
+export function validateSearchParams(
+  params: Record<string, any>
+): ValidationResult {
   const errors: string[] = []
   const warnings: string[] = []
 

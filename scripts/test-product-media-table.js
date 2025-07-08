@@ -26,7 +26,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 
 async function testProductMediaTable() {
   console.log('🔍 Testing product_media table...')
-  
+
   try {
     // Test if we can access the table
     const { data, error } = await supabase
@@ -37,8 +37,12 @@ async function testProductMediaTable() {
     if (error) {
       console.log('❌ Product media table not found or not accessible')
       console.log('Error:', error.message)
-      console.log('\n📋 Please create the table manually in Supabase dashboard:')
-      console.log('Go to: https://supabase.com/dashboard/project/vkiaiuaijkawfawhwmtn/editor')
+      console.log(
+        '\n📋 Please create the table manually in Supabase dashboard:'
+      )
+      console.log(
+        'Go to: https://supabase.com/dashboard/project/vkiaiuaijkawfawhwmtn/editor'
+      )
       console.log('\nRun this SQL:')
       console.log(`
 CREATE TABLE IF NOT EXISTS product_media (
@@ -107,7 +111,6 @@ USING (
     console.log('✅ Product media table is accessible!')
     console.log(`📊 Current records: ${data?.length || 0}`)
     return true
-
   } catch (error) {
     console.error('❌ Error testing table:', error)
     return false
@@ -117,7 +120,7 @@ USING (
 async function main() {
   console.log('🧪 Testing product media table setup...\n')
   const tableExists = await testProductMediaTable()
-  
+
   if (tableExists) {
     console.log('\n🎉 Product media table is ready!')
     console.log('✅ You can now test the new upload workflow')

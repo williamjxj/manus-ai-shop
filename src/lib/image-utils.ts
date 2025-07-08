@@ -21,7 +21,7 @@ export function getSafeImageUrl(
 /**
  * Get the primary image URL from a product with fallback
  */
-export function getProductImageUrl(product: Product): string {
+export function getProductImageUrl(product: Partial<Product>): string {
   // Try primary media first
   const primaryMedia = product.media?.find((m) => m.is_primary)
   if (primaryMedia?.media_url) {
@@ -46,7 +46,7 @@ export function getProductImageUrl(product: Product): string {
 /**
  * Get the thumbnail URL from a product with fallback
  */
-export function getProductThumbnailUrl(product: Product): string {
+export function getProductThumbnailUrl(product: Partial<Product>): string {
   // Try primary media thumbnail first
   const primaryMedia = product.media?.find((m) => m.is_primary)
   if (primaryMedia?.thumbnail_url) {
@@ -66,14 +66,14 @@ export function getProductThumbnailUrl(product: Product): string {
 /**
  * Check if a product has video content
  */
-export function hasVideoContent(product: Product): boolean {
+export function hasVideoContent(product: Partial<Product>): boolean {
   return product.media?.some((m) => m.media_type === 'video') || false
 }
 
 /**
  * Get video URL from product
  */
-export function getProductVideoUrl(product: Product): string | null {
+export function getProductVideoUrl(product: Partial<Product>): string | null {
   const videoMedia = product.media?.find((m) => m.media_type === 'video')
   return videoMedia?.media_url || null
 }

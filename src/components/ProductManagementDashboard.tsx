@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { ADULT_CATEGORIES, getCategoryLabel } from '@/constants/categories'
 import { useProductCRUD } from '@/hooks/useProductCRUD'
 import { Product, ProductSortOptions } from '@/lib/product-management'
+
 import ProductGridItem from './ProductGridItem'
 import ProductListItem from './ProductListItem'
 

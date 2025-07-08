@@ -193,7 +193,7 @@ export default function EditProductPage({
         content_warnings: formData.content_warnings,
         tags: formData.tags,
         is_explicit: formData.is_explicit,
-        updated_at: new Date().toISOString(),
+        // Note: updated_at will be handled by database trigger once column is added
       }
 
       const { error } = await supabase

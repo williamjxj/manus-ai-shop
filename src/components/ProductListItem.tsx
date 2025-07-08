@@ -7,6 +7,7 @@ import { useState } from 'react'
 
 import { ContentWarningBadges } from '@/components/ContentWarnings'
 import { getCategoryLabel } from '@/constants/categories'
+import { getProductImageUrl } from '@/lib/image-utils'
 import { Product } from '@/lib/product-management'
 import { formatPrice } from '@/lib/utils'
 
@@ -128,7 +129,6 @@ export default function ProductListItem({
                   <ContentWarningBadges
                     warnings={product.content_warnings}
                     className='justify-start'
-                    compact
                   />
                 </div>
               )}

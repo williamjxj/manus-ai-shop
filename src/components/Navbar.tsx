@@ -117,38 +117,7 @@ export default function Navbar() {
                   <Package className='h-4 w-4' />
                   <span>Products</span>
                 </Link>
-                <Link href='/upload' className={getNavLinkClass('/upload')}>
-                  <svg
-                    className='h-4 w-4'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M12 4v16m8-8H4'
-                    />
-                  </svg>
-                  <span>Create</span>
-                </Link>
-                <Link href='/media' className={getNavLinkClass('/media')}>
-                  <svg
-                    className='h-4 w-4'
-                    fill='none'
-                    stroke='currentColor'
-                    viewBox='0 0 24 24'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
-                    />
-                  </svg>
-                  <span>Media</span>
-                </Link>
+
                 <Link href='/cart' className={getNavLinkClass('/cart')}>
                   <div className='relative'>
                     <ShoppingCart className='h-4 w-4' />
@@ -188,6 +157,26 @@ export default function Navbar() {
                   {showUserDropdown && (
                     <div className='absolute right-0 z-50 mt-2 w-48 rounded-md border border-gray-200 bg-white shadow-lg'>
                       <div className='py-1'>
+                        <Link
+                          href='/upload'
+                          onClick={() => setShowUserDropdown(false)}
+                          className='flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
+                        >
+                          <svg
+                            className='h-4 w-4'
+                            fill='none'
+                            stroke='currentColor'
+                            viewBox='0 0 24 24'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M12 4v16m8-8H4'
+                            />
+                          </svg>
+                          Create Product
+                        </Link>
                         <Link
                           href='/profile'
                           onClick={() => setShowUserDropdown(false)}
@@ -281,46 +270,7 @@ export default function Navbar() {
                     <Package className='mr-2 inline h-4 w-4' />
                     Products
                   </Link>
-                  <Link
-                    href='/upload'
-                    onClick={() => setShowMobileMenu(false)}
-                    className={`${getNavLinkClass('/upload')} block w-full text-left`}
-                  >
-                    <svg
-                      className='mr-2 inline h-4 w-4'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M12 4v16m8-8H4'
-                      />
-                    </svg>
-                    Create
-                  </Link>
-                  <Link
-                    href='/media'
-                    onClick={() => setShowMobileMenu(false)}
-                    className={`${getNavLinkClass('/media')} block w-full text-left`}
-                  >
-                    <svg
-                      className='mr-2 inline h-4 w-4'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z'
-                      />
-                    </svg>
-                    Media
-                  </Link>
+
                   <Link
                     href='/orders'
                     onClick={() => setShowMobileMenu(false)}

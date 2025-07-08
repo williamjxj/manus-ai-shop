@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { createClient } from '@/lib/supabase/server'
 import { ContentWarning } from '@/lib/content-moderation'
+import { createClient } from '@/lib/supabase/server'
 
 interface CreateProductRequest {
   name: string
@@ -43,16 +43,17 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(searchParams.get('offset') || '0')
 
     // Build query
-    let query = supabase
-      .from('products')
-      .select(`
+    let query = supabase.from('products').select(
+      `
         *,
         media:product_media(*),
         categories(name, slug),
         product_tags:product_tag_items(
           tag:product_tags(*)
         )
-      `, { count: 'exact' })
+      `,
+      { count: 'exact' }
+    )
 
     // Apply filters
     if (search) {
@@ -94,7 +95,14 @@ export async function GET(request: NextRequest) {
     query = query.eq('is_archived', false)
 
     // Apply sorting
-    const validSortFields = ['created_at', 'name', 'price_cents', 'average_rating', 'view_count', 'purchase_count']
+    const validSortFields = [
+      'created_at',
+      'name',
+      'price_cents',
+      'average_rating',
+      'view_count',
+      'purchase_count',
+    ]
     const sortField = validSortFields.includes(sortBy) ? sortBy : 'created_at'
     query = query.order(sortField, { ascending: sortOrder === 'asc' })
 
@@ -140,9 +148,17 @@ export async function POST(request: NextRequest) {
     const body: CreateProductRequest = await request.json()
 
     // Validate required fields
-    if (!body.name || !body.price_cents || !body.points_price || !body.category) {
+    if (
+      !body.name ||
+      !body.price_cents ||
+      !body.points_price ||
+      !body.category
+    ) {
       return NextResponse.json(
-        { error: 'Missing required fields: name, price_cents, points_price, category' },
+        {
+          error:
+            'Missing required fields: name, price_cents, points_price, category',
+        },
         { status: 400 }
       )
     }
@@ -204,11 +220,13 @@ export async function POST(request: NextRequest) {
     const { data: product, error: insertError } = await supabase
       .from('products')
       .insert(productData)
-      .select(`
+      .select(
+        `
         *,
         media:product_media(*),
         categories(name, slug)
-      `)
+      `
+      )
       .single()
 
     if (insertError) {

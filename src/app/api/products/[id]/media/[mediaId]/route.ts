@@ -55,7 +55,10 @@ export async function DELETE(
 
     if (mediaCount === 1) {
       return NextResponse.json(
-        { error: 'Cannot delete the last media file. Products must have at least one media file.' },
+        {
+          error:
+            'Cannot delete the last media file. Products must have at least one media file.',
+        },
         { status: 400 }
       )
     }
@@ -203,7 +206,7 @@ function extractStoragePath(url: string): string | null {
   try {
     const urlObj = new URL(url)
     const pathParts = urlObj.pathname.split('/')
-    const storageIndex = pathParts.findIndex(part => part === 'storage')
+    const storageIndex = pathParts.findIndex((part) => part === 'storage')
     if (storageIndex !== -1 && pathParts.length > storageIndex + 3) {
       return pathParts.slice(storageIndex + 3).join('/')
     }

@@ -5,7 +5,11 @@
 
 export interface AgeVerificationResult {
   verified: boolean
-  method: 'self_declaration' | 'document_verification' | 'credit_card' | 'third_party'
+  method:
+    | 'self_declaration'
+    | 'document_verification'
+    | 'credit_card'
+    | 'third_party'
   timestamp: string
   ipAddress?: string
   location?: {
@@ -62,10 +66,10 @@ export async function getUserLocation(): Promise<GeoLocation | null> {
         if (!response.ok) continue
 
         const data = await response.json()
-        
+
         // Normalize response format
         let location: GeoLocation
-        
+
         if (service.includes('ipapi.co')) {
           location = {
             country: data.country_name,
@@ -121,8 +125,10 @@ export function isLocationAllowed(location: GeoLocation | null): boolean {
     return false
   }
 
-  return ALLOWED_COUNTRIES.includes(location.countryCode.toUpperCase()) ||
-         ALLOWED_COUNTRY_NAMES.includes(location.country)
+  return (
+    ALLOWED_COUNTRIES.includes(location.countryCode.toUpperCase()) ||
+    ALLOWED_COUNTRY_NAMES.includes(location.country)
+  )
 }
 
 /**
@@ -145,12 +151,13 @@ export function getStoredAgeVerification(): AgeVerificationResult | null {
     if (!stored) return null
 
     const result = JSON.parse(stored) as AgeVerificationResult
-    
+
     // Check if verification is still valid (24 hours)
     const verificationTime = new Date(result.timestamp)
     const now = new Date()
-    const hoursDiff = (now.getTime() - verificationTime.getTime()) / (1000 * 60 * 60)
-    
+    const hoursDiff =
+      (now.getTime() - verificationTime.getTime()) / (1000 * 60 * 60)
+
     if (hoursDiff > 24) {
       localStorage.removeItem(AGE_VERIFICATION_KEY)
       return null
@@ -200,11 +207,12 @@ export async function performSelfDeclarationVerification(
     const now = new Date()
     const age = now.getFullYear() - birth.getFullYear()
     const monthDiff = now.getMonth() - birth.getMonth()
-    
+
     // Adjust age if birthday hasn't occurred this year
-    const actualAge = monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate()) 
-      ? age - 1 
-      : age
+    const actualAge =
+      monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate())
+        ? age - 1
+        : age
 
     if (actualAge < 18) {
       return {
@@ -217,16 +225,18 @@ export async function performSelfDeclarationVerification(
 
     // Get location for compliance
     const location = await getUserLocation()
-    
+
     const result: AgeVerificationResult = {
       verified: true,
       method: 'self_declaration',
       timestamp: new Date().toISOString(),
-      location: location ? {
-        country: location.country,
-        region: location.region,
-        city: location.city,
-      } : undefined,
+      location: location
+        ? {
+            country: location.country,
+            region: location.region,
+            city: location.city,
+          }
+        : undefined,
     }
 
     storeAgeVerification(result)
@@ -329,11 +339,14 @@ export function getComplianceStatus(): {
 /**
  * Validate birth date format and reasonableness
  */
-export function validateBirthDate(birthDate: string): { valid: boolean; error?: string } {
+export function validateBirthDate(birthDate: string): {
+  valid: boolean
+  error?: string
+} {
   try {
     const birth = new Date(birthDate)
     const now = new Date()
-    
+
     // Check if date is valid
     if (isNaN(birth.getTime())) {
       return { valid: false, error: 'Invalid date format' }
