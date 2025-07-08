@@ -25,6 +25,31 @@ module.exports = {
           900: '#831843',
         },
       },
+      animation: {
+        shimmer: 'shimmer 2s infinite',
+        'shimmer-fast': 'shimmer-fast 1.5s infinite',
+        'shimmer-fade': 'shimmer-fade 2s infinite',
+        'shimmer-pulse': 'shimmer-pulse 2s infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'shimmer-fast': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'shimmer-fade': {
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '50%': { opacity: '1' },
+          '100%': { transform: 'translateX(100%)', opacity: '0' },
+        },
+        'shimmer-pulse': {
+          '0%, 100%': { transform: 'translateX(-100%)', opacity: '0.5' },
+          '50%': { transform: 'translateX(0%)', opacity: '1' },
+        },
+      },
     },
   },
   plugins: [],

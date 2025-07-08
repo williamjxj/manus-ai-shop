@@ -2,14 +2,12 @@
 
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd'
 import {
-  Camera,
   Edit3,
   Eye,
   FileVideo,
   GripVertical,
   Image as ImageIcon,
   Play,
-  Plus,
   Star,
   Trash2,
   Upload,
@@ -30,6 +28,7 @@ interface ProductMediaManagerProps {
   onMediaReorder: (media: ProductMedia[]) => Promise<void>
   onSetPrimary: (mediaId: string) => Promise<void>
   isUploading?: boolean
+  isLoading?: boolean
   maxFiles?: number
   allowedTypes?: string[]
 }
@@ -43,6 +42,7 @@ export default function ProductMediaManager({
   onMediaReorder,
   onSetPrimary,
   isUploading = false,
+  isLoading = false,
   maxFiles = 10,
   allowedTypes = ['image/*', 'video/*'],
 }: ProductMediaManagerProps) {
@@ -163,6 +163,14 @@ export default function ProductMediaManager({
 
   return (
     <div className='space-y-6'>
+      {/* Loading State */}
+      {isLoading && (
+        <div className='flex items-center justify-center p-8'>
+          <div className='h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent' />
+          <span className='ml-3 text-gray-600'>Loading media...</span>
+        </div>
+      )}
+
       {/* Upload Area */}
       <div
         className={`relative rounded-lg border-2 border-dashed p-8 text-center transition-colors ${

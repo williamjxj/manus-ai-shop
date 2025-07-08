@@ -1,33 +1,17 @@
 'use client'
 
 import { DollarSign, FileText, Save, Star, Tag, X } from 'lucide-react'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { ContentWarningBadges } from '@/components/ContentWarnings'
+import ProductMediaManager from '@/components/ProductMediaManager'
 import { ADULT_CATEGORIES, getCategoryLabel } from '@/constants/categories'
+import { useProductMedia } from '@/hooks/useProductMedia'
 import { ContentWarning, getAllContentWarnings } from '@/lib/content-moderation'
+import { Product } from '@/lib/product-management'
 import { createClient } from '@/lib/supabase/client'
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  image_url: string
-  media_url?: string
-  media_type?: 'image' | 'video'
-  thumbnail_url?: string
-  duration_seconds?: number
-  price_cents: number
-  points_price: number
-  category: string
-  user_id?: string
-  content_warnings?: ContentWarning[]
-  tags?: string[]
-  is_explicit?: boolean
-}
 
 interface EditFormData {
   name: string
@@ -55,6 +39,21 @@ export default function EditProductPage({
   )
   const router = useRouter()
   const supabase = createClient()
+
+  // Media management
+  const {
+    media,
+    isLoading: isLoadingMedia,
+    isUploading,
+    uploadMedia,
+    deleteMedia,
+    reorderMedia,
+    setPrimaryMedia,
+    refreshMedia,
+  } = useProductMedia({
+    productId: resolvedParams?.id || '',
+    initialMedia: product?.media || [],
+  })
 
   const [formData, setFormData] = useState<EditFormData>({
     name: '',
@@ -97,7 +96,12 @@ export default function EditProductPage({
 
         const { data: productData, error } = await supabase
           .from('products')
-          .select('*')
+          .select(
+            `
+            *,
+            media:product_media(*)
+          `
+          )
           .eq('id', resolvedParams.id)
           .single()
 
@@ -121,6 +125,9 @@ export default function EditProductPage({
           tags: productData.tags || [],
           is_explicit: productData.is_explicit ?? true,
         })
+
+        // Load media after product is loaded
+        refreshMedia()
       } catch (error: any) {
         console.error('Load error:', error)
         toast.error('Failed to load product: ' + error.message)
@@ -283,31 +290,22 @@ export default function EditProductPage({
         </div>
 
         <div className='grid grid-cols-1 gap-8 lg:grid-cols-2'>
-          {/* Media Preview */}
+          {/* Media Management */}
           <div className='rounded-lg bg-white p-6 shadow'>
-            <h2 className='mb-4 text-xl font-semibold'>Current Media</h2>
-            <div className='aspect-square overflow-hidden rounded-lg bg-gray-100'>
-              {product.media_type === 'video' ? (
-                <video
-                  src={product.media_url || product.image_url}
-                  poster={product.thumbnail_url}
-                  controls
-                  className='h-full w-full object-cover'
-                />
-              ) : (
-                <Image
-                  src={product.media_url || product.image_url}
-                  alt={product.name}
-                  width={400}
-                  height={400}
-                  className='h-full w-full object-cover'
-                />
-              )}
-            </div>
-            <p className='mt-2 text-sm text-gray-600'>
-              Media files cannot be changed. To use different media, create a
-              new product.
-            </p>
+            <h2 className='mb-4 text-xl font-semibold'>Product Media</h2>
+            <ProductMediaManager
+              productId={product.id}
+              media={media}
+              onMediaUpdate={() => refreshMedia()}
+              onMediaUpload={uploadMedia}
+              onMediaDelete={deleteMedia}
+              onMediaReorder={reorderMedia}
+              onSetPrimary={setPrimaryMedia}
+              isUploading={isUploading}
+              isLoading={isLoadingMedia}
+              maxFiles={10}
+              allowedTypes={['image/*', 'video/*']}
+            />
           </div>
 
           {/* Edit Form */}

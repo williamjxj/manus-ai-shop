@@ -46,11 +46,7 @@ export async function GET(request: NextRequest) {
     let query = supabase.from('products').select(
       `
         *,
-        media:product_media(*),
-        categories(name, slug),
-        product_tags:product_tag_items(
-          tag:product_tags(*)
-        )
+        media:product_media(*)
       `,
       { count: 'exact' }
     )
@@ -205,7 +201,8 @@ export async function POST(request: NextRequest) {
       weight_grams: body.weight_grams,
       dimensions_cm: body.dimensions_cm,
       user_id: user.id,
-      moderation_status: 'pending',
+      moderation_status: 'approved',
+      moderated_at: new Date().toISOString(),
       age_restriction: 18,
       featured: false,
       view_count: 0,
@@ -223,8 +220,7 @@ export async function POST(request: NextRequest) {
       .select(
         `
         *,
-        media:product_media(*),
-        categories(name, slug)
+        media:product_media(*)
       `
       )
       .single()

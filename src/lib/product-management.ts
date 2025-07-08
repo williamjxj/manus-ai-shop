@@ -277,11 +277,7 @@ export async function getProducts(
     let query = supabase.from('products').select(
       `
         *,
-        media:product_media(*),
-        variants:product_variants(*),
-        product_tags:product_tag_items(
-          tag:product_tags(*)
-        )
+        media:product_media(*)
       `,
       { count: 'exact' }
     )
@@ -357,12 +353,7 @@ export async function getProduct(
       .select(
         `
         *,
-        media:product_media(*),
-        variants:product_variants(*),
-        product_tags:product_tag_items(
-          tag:product_tags(*)
-        ),
-        categories(name, slug)
+        media:product_media(*)
       `
       )
       .eq('id', productId)

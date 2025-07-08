@@ -38,20 +38,7 @@ export async function GET(
       .select(
         `
         *,
-        media:product_media(*),
-        variants:product_variants(*),
-        categories(name, slug),
-        product_tags:product_tag_items(
-          tag:product_tags(*)
-        ),
-        reviews:product_reviews(
-          id,
-          rating,
-          review_text,
-          is_anonymous,
-          created_at,
-          user:profiles(full_name)
-        )
+        media:product_media(*)
       `
       )
       .eq('id', id)
@@ -222,12 +209,7 @@ export async function PATCH(
       .select(
         `
         *,
-        media:product_media(*),
-        variants:product_variants(*),
-        categories(name, slug),
-        product_tags:product_tag_items(
-          tag:product_tags(*)
-        )
+        media:product_media(*)
       `
       )
       .single()

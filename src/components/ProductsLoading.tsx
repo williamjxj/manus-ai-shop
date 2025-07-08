@@ -4,49 +4,95 @@ export default function ProductsLoading() {
       <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
         {/* Header Skeleton */}
         <div className='mb-8 text-center'>
-          <div className='mx-auto mb-4 h-12 w-96 animate-pulse rounded-lg bg-gray-200'></div>
-          <div className='mx-auto h-6 w-80 animate-pulse rounded-lg bg-gray-200'></div>
-          <div className='mx-auto mt-3 h-4 w-64 animate-pulse rounded-lg bg-gray-200'></div>
+          <div className='relative mx-auto mb-4 h-12 w-96 overflow-hidden rounded-lg bg-gray-200'>
+            <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+          </div>
+          <div className='relative mx-auto h-6 w-80 overflow-hidden rounded-lg bg-gray-200'>
+            <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+          </div>
+          <div className='relative mx-auto mt-3 h-4 w-64 overflow-hidden rounded-lg bg-gray-200'>
+            <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+          </div>
         </div>
 
         {/* Action Bar Skeleton */}
         <div className='mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row'>
           <div className='flex items-center gap-4'>
-            <div className='h-12 w-32 animate-pulse rounded-lg bg-gray-200'></div>
-            <div className='h-8 w-20 animate-pulse rounded-lg bg-gray-200'></div>
-            <div className='h-8 w-16 animate-pulse rounded-lg bg-gray-200'></div>
+            <div className='relative h-12 w-32 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
+            <div className='relative h-8 w-20 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
+            <div className='relative h-8 w-16 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
           </div>
           <div className='flex items-center gap-2 rounded-lg bg-white p-1 shadow-sm'>
-            <div className='h-10 w-10 animate-pulse rounded-md bg-gray-200'></div>
-            <div className='h-10 w-10 animate-pulse rounded-md bg-gray-200'></div>
-            <div className='h-10 w-10 animate-pulse rounded-md bg-gray-200'></div>
+            <div className='relative h-10 w-10 overflow-hidden rounded-md bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
+            <div className='relative h-10 w-10 overflow-hidden rounded-md bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
+            <div className='relative h-10 w-10 overflow-hidden rounded-md bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
           </div>
         </div>
 
         {/* Search Bar Skeleton */}
         <div className='mb-8'>
-          <div className='mb-4 h-12 w-full animate-pulse rounded-lg bg-gray-200'></div>
+          <div className='relative mb-4 h-12 w-full overflow-hidden rounded-lg bg-gray-200'>
+            <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+          </div>
           <div className='flex gap-4'>
-            <div className='h-10 w-24 animate-pulse rounded-lg bg-gray-200'></div>
-            <div className='h-10 w-32 animate-pulse rounded-lg bg-gray-200'></div>
-            <div className='h-10 w-28 animate-pulse rounded-lg bg-gray-200'></div>
-            <div className='h-10 w-36 animate-pulse rounded-lg bg-gray-200'></div>
-            <div className='h-10 w-24 animate-pulse rounded-lg bg-gray-200'></div>
+            <div className='relative h-10 w-24 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
+            <div className='relative h-10 w-32 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
+            <div className='relative h-10 w-28 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
+            <div className='relative h-10 w-36 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
+            <div className='relative h-10 w-24 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
           </div>
         </div>
 
         {/* Products Grid Skeleton */}
         <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
           {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={i}
-              className='animate-pulse rounded-lg bg-white p-4 shadow-md'
-            >
-              <div className='mb-4 h-48 rounded-lg bg-gray-200'></div>
-              <div className='mb-2 h-6 w-3/4 rounded bg-gray-200'></div>
-              <div className='mb-4 h-4 w-full rounded bg-gray-200'></div>
-              <div className='mb-4 h-4 w-1/2 rounded bg-gray-200'></div>
-              <div className='h-10 w-full rounded-lg bg-gray-200'></div>
+            <div key={i} className='rounded-lg bg-white p-4 shadow-md'>
+              {/* Product Image Skeleton */}
+              <div className='relative mb-4 h-48 overflow-hidden rounded-lg bg-gray-200'>
+                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              </div>
+
+              {/* Product Title Skeleton */}
+              <div className='relative mb-2 h-6 w-3/4 overflow-hidden rounded bg-gray-200'>
+                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              </div>
+
+              {/* Product Description Skeleton */}
+              <div className='relative mb-4 h-4 w-full overflow-hidden rounded bg-gray-200'>
+                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              </div>
+
+              {/* Product Price Skeleton */}
+              <div className='relative mb-4 h-4 w-1/2 overflow-hidden rounded bg-gray-200'>
+                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              </div>
+
+              {/* Add to Cart Button Skeleton */}
+              <div className='relative h-10 w-full overflow-hidden rounded-lg bg-gray-200'>
+                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              </div>
             </div>
           ))}
         </div>

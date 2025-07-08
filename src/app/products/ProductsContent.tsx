@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, ShoppingCart } from 'lucide-react'
+import { Eye, Plus, ShoppingCart } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -13,6 +13,8 @@ import { useCart } from '@/contexts/CartContext'
 import { getSafeImageUrl } from '@/lib/image-utils'
 import { Product } from '@/lib/product-management'
 import { createClient } from '@/lib/supabase/client'
+
+import LoadingLink from '@/components/LoadingLink'
 
 type ViewMode = 'grid' | 'masonry' | 'list'
 type SortOption =
@@ -321,32 +323,60 @@ export default function ProductsContent() {
         <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
           {/* Header Skeleton */}
           <div className='mb-8 text-center'>
-            <div className='mx-auto mb-4 h-12 w-96 animate-pulse rounded-lg bg-gray-200'></div>
-            <div className='mx-auto h-6 w-80 animate-pulse rounded-lg bg-gray-200'></div>
+            <div className='relative mx-auto mb-4 h-12 w-96 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
+            <div className='relative mx-auto h-6 w-80 overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
           </div>
 
           {/* Search Bar Skeleton */}
           <div className='mb-8'>
-            <div className='mb-4 h-12 w-full animate-pulse rounded-lg bg-gray-200'></div>
+            <div className='relative mb-4 h-12 w-full overflow-hidden rounded-lg bg-gray-200'>
+              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            </div>
             <div className='flex gap-4'>
-              <div className='h-10 w-24 animate-pulse rounded-lg bg-gray-200'></div>
-              <div className='h-10 w-32 animate-pulse rounded-lg bg-gray-200'></div>
-              <div className='h-10 w-28 animate-pulse rounded-lg bg-gray-200'></div>
+              <div className='relative h-10 w-24 overflow-hidden rounded-lg bg-gray-200'>
+                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              </div>
+              <div className='relative h-10 w-32 overflow-hidden rounded-lg bg-gray-200'>
+                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              </div>
+              <div className='relative h-10 w-28 overflow-hidden rounded-lg bg-gray-200'>
+                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              </div>
             </div>
           </div>
 
           {/* Products Grid Skeleton */}
           <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
             {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className='animate-pulse rounded-lg bg-white p-4 shadow-md'
-              >
-                <div className='mb-4 h-48 rounded-lg bg-gray-200'></div>
-                <div className='mb-2 h-6 w-3/4 rounded bg-gray-200'></div>
-                <div className='mb-4 h-4 w-full rounded bg-gray-200'></div>
-                <div className='mb-4 h-4 w-1/2 rounded bg-gray-200'></div>
-                <div className='h-10 w-full rounded-lg bg-gray-200'></div>
+              <div key={i} className='rounded-lg bg-white p-4 shadow-md'>
+                {/* Product Image Skeleton */}
+                <div className='relative mb-4 h-48 overflow-hidden rounded-lg bg-gray-200'>
+                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                </div>
+
+                {/* Product Title Skeleton */}
+                <div className='relative mb-2 h-6 w-3/4 overflow-hidden rounded bg-gray-200'>
+                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                </div>
+
+                {/* Product Description Skeleton */}
+                <div className='relative mb-4 h-4 w-full overflow-hidden rounded bg-gray-200'>
+                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                </div>
+
+                {/* Product Price Skeleton */}
+                <div className='relative mb-4 h-4 w-1/2 overflow-hidden rounded bg-gray-200'>
+                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                </div>
+
+                {/* Add to Cart Button Skeleton */}
+                <div className='relative h-10 w-full overflow-hidden rounded-lg bg-gray-200'>
+                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                </div>
               </div>
             ))}
           </div>
@@ -1088,9 +1118,34 @@ function ProductCard({
           <div className='flex flex-1 flex-col justify-between p-4'>
             <div>
               <div className='mb-2 flex items-start justify-between'>
-                <h3 className='line-clamp-1 text-lg font-semibold text-gray-900'>
-                  {product.name}
-                </h3>
+                <Link
+                  href={`/products/${product.id}`}
+                  className='flex-1 transition-colors hover:text-indigo-600'
+                >
+                  <h3 className='line-clamp-1 text-lg font-semibold text-gray-900 hover:text-indigo-600'>
+                    {product.name}
+                  </h3>
+                </Link>
+
+                {/* Moderation Status Badge for Product Owners */}
+                {currentUser &&
+                  currentUser.id === product.user_id &&
+                  product.moderation_status !== 'approved' && (
+                    <div
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${
+                        product.moderation_status === 'pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : product.moderation_status === 'rejected'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-orange-100 text-orange-800'
+                      }`}
+                    >
+                      {product.moderation_status === 'pending' && 'Pending'}
+                      {product.moderation_status === 'rejected' && 'Rejected'}
+                      {product.moderation_status === 'flagged' && 'Flagged'}
+                    </div>
+                  )}
+
                 <button
                   onClick={onToggleFavorite}
                   className={`rounded-full p-1 transition-colors ${
@@ -1128,20 +1183,30 @@ function ProductCard({
                   or {product.points_price} points
                 </span>
               </div>
-              <button
-                onClick={onAddToCart}
-                disabled={addingToCart === product.id}
-                className='flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-              >
-                {addingToCart === product.id ? (
-                  <div className='h-4 w-4 animate-spin rounded-full border-b-2 border-white'></div>
-                ) : (
-                  <>
-                    <ShoppingCart className='mr-2 h-4 w-4' />
-                    Add to Cart
-                  </>
-                )}
-              </button>
+              <div className='flex gap-2'>
+                <LoadingLink
+                  href={`/products/${product.id}`}
+                  className='flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                  loadingText='Loading...'
+                >
+                  <Eye className='mr-1 h-4 w-4' />
+                  Details
+                </LoadingLink>
+                <button
+                  onClick={onAddToCart}
+                  disabled={addingToCart === product.id}
+                  className='flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                >
+                  {addingToCart === product.id ? (
+                    <div className='h-4 w-4 animate-spin rounded-full border-b-2 border-white'></div>
+                  ) : (
+                    <>
+                      <ShoppingCart className='mr-2 h-4 w-4' />
+                      Add to Cart
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1271,6 +1336,25 @@ function ProductCard({
 
             {/* Top Right Badges */}
             <div className='absolute right-3 top-3 flex flex-col gap-1'>
+              {/* Moderation Status Badge for Product Owners */}
+              {currentUser &&
+                currentUser.id === product.user_id &&
+                product.moderation_status !== 'approved' && (
+                  <div
+                    className={`rounded-full px-2 py-1 text-xs font-medium ${
+                      product.moderation_status === 'pending'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : product.moderation_status === 'rejected'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-orange-100 text-orange-800'
+                    }`}
+                  >
+                    {product.moderation_status === 'pending' && 'Pending'}
+                    {product.moderation_status === 'rejected' && 'Rejected'}
+                    {product.moderation_status === 'flagged' && 'Flagged'}
+                  </div>
+                )}
+
               <button
                 onClick={onToggleFavorite}
                 className={`rounded-full p-2 transition-all duration-200 ${
@@ -1397,9 +1481,14 @@ function ProductCard({
         {/* Content */}
         <div className='p-4'>
           <div className='mb-2 flex items-start justify-between'>
-            <h3 className='mr-2 line-clamp-2 flex-1 text-lg font-semibold text-gray-900'>
-              {product.name}
-            </h3>
+            <Link
+              href={`/products/${product.id}`}
+              className='mr-2 flex-1 transition-colors hover:text-indigo-600'
+            >
+              <h3 className='line-clamp-2 text-lg font-semibold text-gray-900 hover:text-indigo-600'>
+                {product.name}
+              </h3>
+            </Link>
             <div className='flex items-center gap-2'>
               <div className='flex items-center gap-1 text-yellow-400'>
                 <svg
@@ -1530,20 +1619,30 @@ function ProductCard({
             </div>
           </div>
 
-          <button
-            onClick={onAddToCart}
-            disabled={addingToCart === product.id}
-            className='flex w-full items-center justify-center rounded-lg border border-transparent bg-gradient-to-r from-rose-600 to-pink-600 px-4 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-rose-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-          >
-            {addingToCart === product.id ? (
-              <div className='h-4 w-4 animate-spin rounded-full border-b-2 border-white'></div>
-            ) : (
-              <>
-                <ShoppingCart className='mr-2 h-4 w-4' />
-                Add to Cart
-              </>
-            )}
-          </button>
+          <div className='flex gap-2'>
+            <LoadingLink
+              href={`/products/${product.id}`}
+              className='flex flex-1 items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+              loadingText='Loading...'
+            >
+              <Eye className='mr-1 h-4 w-4' />
+              Details
+            </LoadingLink>
+            <button
+              onClick={onAddToCart}
+              disabled={addingToCart === product.id}
+              className='flex flex-1 items-center justify-center rounded-lg border border-transparent bg-gradient-to-r from-rose-600 to-pink-600 px-4 py-3 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-rose-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+            >
+              {addingToCart === product.id ? (
+                <div className='h-4 w-4 animate-spin rounded-full border-b-2 border-white'></div>
+              ) : (
+                <>
+                  <ShoppingCart className='mr-2 h-4 w-4' />
+                  Add to Cart
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

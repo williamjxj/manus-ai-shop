@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { ProductMedia } from '@/lib/product-management'
@@ -50,6 +50,13 @@ export function useProductMedia({
       setIsLoading(false)
     }
   }, [productId])
+
+  // Auto-load media when productId changes
+  useEffect(() => {
+    if (productId) {
+      refreshMedia()
+    }
+  }, [productId, refreshMedia])
 
   const uploadMedia = useCallback(
     async (files: File[]) => {

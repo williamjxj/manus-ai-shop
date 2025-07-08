@@ -1,0 +1,22 @@
+/* Custom scrollbar styles for carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Touch-friendly carousel styles */
+.touch-pan-x {
+  touch-action: pan-x;
+}
+
+/* Smooth scrolling for mobile */
+@media (max-width: 768px) {
+  .scrollbar-hide {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+}

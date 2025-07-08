@@ -142,10 +142,10 @@ export default function ProductDetailModal({
   }
 
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-4'>
+    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 p-2 sm:p-4'>
       <div
         ref={modalRef}
-        className='relative max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-lg bg-white shadow-2xl'
+        className='relative h-[95vh] w-[95vw] max-w-5xl overflow-hidden rounded-lg bg-white shadow-2xl sm:h-[90vh] sm:w-full'
       >
         {/* Close Button */}
         <button
