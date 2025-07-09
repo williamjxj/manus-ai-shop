@@ -1,5 +1,7 @@
 # AI Shop - Next.js E-commerce Platform
 
+URL: [https://manus-ai-shop.vercel.app](https://manus-ai-shop.vercel.app)
+
 A modern e-commerce application for purchasing AI-generated images with dual payment options (Stripe & Points system).
 
 ## ✨ Key Features
@@ -98,47 +100,6 @@ npm install
 npm run dev
 open http://localhost:3000
 ```
-
-## 📁 Project Structure
-
-```
-src/
-├── app/                 # Next.js App Router pages
-│   ├── api/            # API routes (checkout, webhooks)
-│   ├── auth/           # Authentication pages
-│   ├── products/       # Product gallery
-│   ├── cart/           # Shopping cart
-│   ├── points/         # Points management
-│   └── upload/         # Image upload feature
-├── components/         # Reusable UI components
-├── contexts/          # React contexts (CartContext)
-└── lib/               # Utilities (Supabase, Stripe)
-
-docs/                   # Documentation
-├── DEPLOYMENT.md       # Deployment guide
-├── FEATURES.md         # Feature documentation
-├── debug-checklist.md  # Troubleshooting guide
-└── *.md               # Other documentation
-
-supabase/              # Database & SQL files
-├── migrations/        # Database migrations
-├── *.sql             # SQL scripts and utilities
-└── config.toml       # Supabase configuration
-
-scripts/              # Utility scripts
-├── *.sh             # Shell scripts
-└── *.js             # Node.js scripts
-```
-
-## 🗄 Database Schema
-
-**Core Tables:**
-
-- `profiles` - User accounts & points balance
-- `products` - AI-generated images for sale
-- `cart_items` - Shopping cart contents
-- `orders` - Purchase records
-- `points_transactions` - Points purchase/spend history
 
 ## 🚀 Deployment
 

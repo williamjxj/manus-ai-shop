@@ -41,7 +41,7 @@ export default function Home() {
     <div className='min-h-screen overflow-hidden bg-white'>
       {/* Animated Background */}
       <div className='absolute inset-0 overflow-hidden'>
-        {/* Subtle Background Video */}
+        {/* Subtle Background Video - Optimized */}
         <div className='absolute inset-0 opacity-5'>
           <video
             className='h-full w-full object-cover'
@@ -49,6 +49,8 @@ export default function Home() {
             muted
             loop
             playsInline
+            preload='none'
+            poster='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NjdlZWEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg=='
           >
             <source src='/media/kling.mp4' type='video/mp4' />
           </video>
@@ -154,77 +156,24 @@ export default function Home() {
           </div>
 
           {/* Masonry-style Video Grid */}
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+          <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3'>
             {[
-              {
-                src: '/media/kling.mp4',
-                border: 'border-purple-500/30',
-                bg: 'from-purple-500/10 to-pink-600/10',
-                shadow: 'hover:shadow-purple-500/25',
-              },
-              {
-                src: '/media/hailuo.mp4',
-                border: 'border-blue-500/30',
-                bg: 'from-blue-500/10 to-cyan-600/10',
-                shadow: 'hover:shadow-blue-500/25',
-              },
-              {
-                src: '/media/shakker.mp4',
-                border: 'border-green-500/30',
-                bg: 'from-green-500/10 to-emerald-600/10',
-                shadow: 'hover:shadow-green-500/25',
-              },
-              {
-                src: '/media/tang-girl.mp4',
-                border: 'border-pink-500/30',
-                bg: 'from-pink-500/10 to-rose-600/10',
-                shadow: 'hover:shadow-pink-500/25',
-              },
-              {
-                src: '/media/twin.mp4',
-                border: 'border-indigo-500/30',
-                bg: 'from-indigo-500/10 to-purple-600/10',
-                shadow: 'hover:shadow-indigo-500/25',
-              },
-              {
-                src: '/media/young_idol.mp4',
-                border: 'border-yellow-500/30',
-                bg: 'from-yellow-500/10 to-orange-600/10',
-                shadow: 'hover:shadow-yellow-500/25',
-              },
-            ].map((video, index) => (
-              <div
+              '/media/kling.mp4',
+              '/media/hailuo.mp4',
+              '/media/shakker.mp4',
+              '/media/tang-girl.mp4',
+              '/media/twin.mp4',
+              '/media/young_idol.mp4',
+            ].map((src, index) => (
+              <video
                 key={index}
-                className={`group relative overflow-hidden rounded-xl border ${video.border} bg-gradient-to-br ${video.bg} shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${video.shadow}`}
-              >
-                <div className='relative overflow-hidden'>
-                  <video
-                    className='h-auto min-h-[200px] w-full transition-transform duration-300 group-hover:scale-105'
-                    muted
-                    loop
-                    playsInline
-                    preload='metadata'
-                    onMouseEnter={(e) => e.currentTarget.play()}
-                    onMouseLeave={(e) => e.currentTarget.pause()}
-                    onLoadedMetadata={(e) => {
-                      const video = e.currentTarget
-                      if (video.videoWidth && video.videoHeight) {
-                        video.style.aspectRatio = `${video.videoWidth}/${video.videoHeight}`
-                      }
-                    }}
-                  >
-                    <source src={video.src} type='video/mp4' />
-                    Your browser does not support the video tag.
-                  </video>
-                  <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100'></div>
-                  <div className='absolute bottom-3 left-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100'>
-                    <div className='flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-white backdrop-blur-sm'>
-                      <Play className='h-3 w-3' />
-                      <span className='text-xs font-medium'>Play</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                src={src}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className='h-auto w-full rounded-lg transition-transform duration-300 hover:scale-[1.02]'
+              />
             ))}
           </div>
 
@@ -313,7 +262,7 @@ export default function Home() {
         {/* Compact CTA */}
         <div className='mt-8 text-center'>
           <div className='relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 p-6 shadow-sm'>
-            {/* Background Video Effect */}
+            {/* Background Video Effect - Optimized */}
             <div className='absolute inset-0 opacity-10'>
               <video
                 className='h-full w-full object-cover'
@@ -321,6 +270,8 @@ export default function Home() {
                 muted
                 loop
                 playsInline
+                preload='none'
+                poster='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNlYzQ4OTkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNhODU1ZjciLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg=='
               >
                 <source src='/media/hailuo.mp4' type='video/mp4' />
               </video>
