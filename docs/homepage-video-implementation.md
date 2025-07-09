@@ -13,16 +13,11 @@ The homepage video grid uses native HTML5 video elements with autoplay functiona
 ```jsx
 <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3'>
   {[
-    '/media/kling.mp4',
-    '/media/hailuo.mp4',
-    '/media/shakker.mp4',
-    '/media/tang-girl.mp4',
-    '/media/twin.mp4',
-    '/media/young_idol.mp4',
-  ].map((src, index) => (
+    'kling.mp4', ...
+  ].map((filename, index) => (
     <video
       key={index}
-      src={src}
+      src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/cdnmedia/${filename}`}
       autoPlay
       muted
       loop
@@ -51,26 +46,6 @@ The homepage video grid uses native HTML5 video elements with autoplay functiona
 - **Clean Layout**: Minimal spacing between videos without decorative wrapper boxes
 - **Original Aspect Ratios**: Videos maintain their natural dimensions
 - **Instant Engagement**: Autoplay creates immediate visual impact
-
-## File Structure
-
-```
-src/app/page.tsx                 # Homepage with video grid
-public/media/                    # Video files
-├── kling.mp4
-├── hailuo.mp4
-├── shakker.mp4
-├── tang-girl.mp4
-├── twin.mp4
-└── young_idol.mp4
-public/media/thumbnails/         # Static thumbnails (used by other components)
-├── kling.jpg
-├── hailuo.jpg
-├── shakker.jpg
-├── tang-girl.jpg
-├── twin.jpg
-└── young_idol.jpg
-```
 
 ## Removed Components
 
@@ -161,9 +136,18 @@ h-auto w-full rounded-lg transition-transform duration-300 hover:scale-[1.02]
 
 ### Adding New Videos
 
-1. Place MP4 file in `public/media/`
-2. Add filename to array in `src/app/page.tsx`
+1. Upload MP4 file to Supabase storage `cdnmedia` bucket
+2. Add filename to array in `src/app/page.tsx` (environment variable handles URL construction)
 3. Generate thumbnail using `scripts/generate-thumbnails.sh` (optional)
+
+**Migration Script**: Use `scripts/migrate-media-to-supabase.js` to upload local videos to CDN
+
+### Environment Variables
+
+The homepage uses `NEXT_PUBLIC_SUPABASE_URL` from `.env.local` to construct CDN URLs:
+
+- **Format**: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/cdnmedia/{filename}`
+- **Benefits**: Environment-agnostic, easier maintenance, no hardcoded URLs
 
 ### Video Requirements
 

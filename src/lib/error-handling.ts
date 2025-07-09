@@ -179,10 +179,13 @@ export function logError(
     metadata,
   }
 
-  console.error(
-    `[ERROR ${timestamp}] ${context}:`,
-    JSON.stringify(errorData, null, 2)
-  )
+  // Only log in development
+  if (process.env.NODE_ENV === 'development') {
+    console.error(
+      `[ERROR ${timestamp}] ${context}:`,
+      JSON.stringify(errorData, null, 2)
+    )
+  }
 }
 
 // Log successful operations
@@ -192,10 +195,13 @@ export function logSuccess(
   metadata?: Record<string, any>
 ) {
   const timestamp = new Date().toISOString()
-  console.warn(
-    `[SUCCESS ${timestamp}] ${context}: ${message}`,
-    metadata ? JSON.stringify(metadata, null, 2) : ''
-  )
+  // Only log in development
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(
+      `[SUCCESS ${timestamp}] ${context}: ${message}`,
+      metadata ? JSON.stringify(metadata, null, 2) : ''
+    )
+  }
 }
 
 // Log warnings
@@ -205,10 +211,13 @@ export function logWarning(
   metadata?: Record<string, any>
 ) {
   const timestamp = new Date().toISOString()
-  console.warn(
-    `[WARNING ${timestamp}] ${context}: ${message}`,
-    metadata ? JSON.stringify(metadata, null, 2) : ''
-  )
+  // Only log in development
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(
+      `[WARNING ${timestamp}] ${context}: ${message}`,
+      metadata ? JSON.stringify(metadata, null, 2) : ''
+    )
+  }
 }
 
 // Validate cart items structure

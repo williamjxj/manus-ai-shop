@@ -102,7 +102,9 @@ export default function ProfilePage() {
             .single()
 
           if (createError) {
-            console.error('Error creating profile:', createError)
+            if (process.env.NODE_ENV === 'development') {
+              console.error('Error creating profile:', createError)
+            }
             throw createError
           }
 
@@ -130,7 +132,9 @@ export default function ProfilePage() {
         })
       }
     } catch (error: any) {
-      console.error('Error fetching profile:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching profile:', error)
+      }
       toast.error('Failed to load profile')
     } finally {
       setLoading(false)

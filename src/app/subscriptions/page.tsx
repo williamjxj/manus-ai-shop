@@ -46,7 +46,9 @@ export default function SubscriptionsPage() {
       const recommendation = await getRecommendedPlan(user.id)
       setRecommendedPlan(recommendation.recommendedPlan)
     } catch (error: any) {
-      console.error('Error fetching user data:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching user data:', error)
+      }
       toast.error('Failed to load subscription data')
     } finally {
       setLoading(false)

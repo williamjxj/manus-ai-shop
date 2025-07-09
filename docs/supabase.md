@@ -86,3 +86,8 @@ NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321  # Local
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
+
+## static CDN & Assets
+
+- update products: https://your-domain.supabase.co/storage/v1/object/public/images/products/1752066844087_otxk3qizdcl.jpg
+- homepage video: https://your-domain.supabase.co/storage/v1/object/public/cdnmedia/

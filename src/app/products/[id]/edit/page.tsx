@@ -129,7 +129,9 @@ export default function EditProductPage({
         // Load media after product is loaded
         refreshMedia()
       } catch (error: any) {
-        console.error('Load error:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Load error:', error)
+        }
         toast.error('Failed to load product: ' + error.message)
         router.push('/products')
       } finally {
@@ -159,7 +161,9 @@ export default function EditProductPage({
       if (error) throw error
       setNameExists(data.length > 0)
     } catch (error) {
-      console.error('Name check error:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Name check error:', error)
+      }
     } finally {
       setCheckingName(false)
     }
@@ -213,7 +217,9 @@ export default function EditProductPage({
       toast.success('Product updated successfully!')
       router.push(`/products/${resolvedParams?.id}`)
     } catch (error: any) {
-      console.error('Save error:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Save error:', error)
+      }
       toast.error('Failed to update product: ' + error.message)
     } finally {
       setSaving(false)

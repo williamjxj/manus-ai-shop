@@ -145,9 +145,9 @@ export async function POST(request: NextRequest) {
       }),
     })
 
-    // Log the discrete checkout attempt (without sensitive details)
+    // Log discrete checkout in development only
     if (process.env.NODE_ENV === 'development') {
-      console.warn('Discrete checkout session created:', {
+      console.log('Discrete checkout session created:', {
         sessionId: session.id,
         userId,
         itemCount: items.length,

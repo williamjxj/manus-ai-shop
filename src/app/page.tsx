@@ -52,7 +52,10 @@ export default function Home() {
             preload='none'
             poster='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NjdlZWEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM3NjRiYTIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg=='
           >
-            <source src='/media/kling.mp4' type='video/mp4' />
+            <source
+              src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/cdnmedia/kling.mp4`}
+              type='video/mp4'
+            />
           </video>
           <div className='absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-slate-900/80'></div>
         </div>
@@ -158,16 +161,16 @@ export default function Home() {
           {/* Masonry-style Video Grid */}
           <div className='grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3'>
             {[
-              '/media/kling.mp4',
-              '/media/hailuo.mp4',
-              '/media/shakker.mp4',
-              '/media/tang-girl.mp4',
-              '/media/twin.mp4',
-              '/media/young_idol.mp4',
-            ].map((src, index) => (
+              'kling.mp4',
+              'hailuo.mp4',
+              'shakker.mp4',
+              'tang-girl.mp4',
+              'twin.mp4',
+              'young_idol.mp4',
+            ].map((filename, index) => (
               <video
                 key={index}
-                src={src}
+                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/cdnmedia/${filename}`}
                 autoPlay
                 muted
                 loop
@@ -273,7 +276,10 @@ export default function Home() {
                 preload='none'
                 poster='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNlYzQ4OTkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNhODU1ZjciLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0idXJsKCNnKSIvPjwvc3ZnPg=='
               >
-                <source src='/media/hailuo.mp4' type='video/mp4' />
+                <source
+                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/cdnmedia/hailuo.mp4`}
+                  type='video/mp4'
+                />
               </video>
               <div className='absolute inset-0 bg-gradient-to-r from-pink-500/30 via-purple-500/30 to-blue-500/30'></div>
             </div>

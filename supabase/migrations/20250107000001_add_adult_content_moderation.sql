@@ -4,8 +4,8 @@
 -- Adds content moderation fields and adult content specific metadata
 
 -- Add content moderation and adult content fields to products table
-ALTER TABLE products 
-  ADD COLUMN IF NOT EXISTS moderation_status TEXT DEFAULT 'pending' CHECK (moderation_status IN ('pending', 'approved', 'rejected', 'flagged')),
+ALTER TABLE products
+  ADD COLUMN IF NOT EXISTS moderation_status TEXT DEFAULT 'approved' CHECK (moderation_status IN ('pending', 'approved', 'rejected', 'flagged')),
   ADD COLUMN IF NOT EXISTS content_warnings TEXT[], -- Array of content warning tags
   ADD COLUMN IF NOT EXISTS age_restriction INTEGER DEFAULT 18 CHECK (age_restriction >= 18),
   ADD COLUMN IF NOT EXISTS is_explicit BOOLEAN DEFAULT true,
@@ -139,19 +139,19 @@ CREATE OR REPLACE FUNCTION update_review_helpful_count()
 RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'INSERT' THEN
-    UPDATE product_reviews 
+    UPDATE product_reviews
     SET helpful_count = helpful_count + CASE WHEN NEW.is_helpful THEN 1 ELSE 0 END
     WHERE id = NEW.review_id;
     RETURN NEW;
   ELSIF TG_OP = 'UPDATE' THEN
-    UPDATE product_reviews 
-    SET helpful_count = helpful_count + 
+    UPDATE product_reviews
+    SET helpful_count = helpful_count +
       CASE WHEN NEW.is_helpful THEN 1 ELSE 0 END -
       CASE WHEN OLD.is_helpful THEN 1 ELSE 0 END
     WHERE id = NEW.review_id;
     RETURN NEW;
   ELSIF TG_OP = 'DELETE' THEN
-    UPDATE product_reviews 
+    UPDATE product_reviews
     SET helpful_count = helpful_count - CASE WHEN OLD.is_helpful THEN 1 ELSE 0 END
     WHERE id = OLD.review_id;
     RETURN OLD;
@@ -171,7 +171,7 @@ CREATE OR REPLACE FUNCTION update_product_stats()
 RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'INSERT' AND TG_TABLE_NAME = 'order_items' THEN
-    UPDATE products 
+    UPDATE products
     SET purchase_count = purchase_count + NEW.quantity
     WHERE id = NEW.product_id;
     RETURN NEW;
@@ -187,8 +187,8 @@ CREATE TRIGGER trigger_update_product_purchase_count
   FOR EACH ROW EXECUTE FUNCTION update_product_stats();
 
 -- Update existing products to have approved status for backward compatibility
-UPDATE products 
-SET moderation_status = 'approved', 
+UPDATE products
+SET moderation_status = 'approved',
     moderated_at = NOW(),
     is_explicit = true,
     age_restriction = 18

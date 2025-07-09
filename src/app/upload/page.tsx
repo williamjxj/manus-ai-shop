@@ -185,6 +185,9 @@ export default function CreateProductPage() {
       tags: formData.tags,
       is_explicit: formData.is_explicit,
       user_id: userId,
+      moderation_status: 'approved',
+      moderated_at: new Date().toISOString(),
+      age_restriction: 18,
       // Legacy fields for backward compatibility - use primary media
       media_url: '', // Will be updated after upload
       media_type: primaryMedia.mediaType,

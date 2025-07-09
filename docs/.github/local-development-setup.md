@@ -82,7 +82,7 @@ Your app will now connect to the local Supabase instance!
 # NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # === CLOUD SUPABASE (for production) ===
-NEXT_PUBLIC_SUPABASE_URL=https://iilqncqvslmlzuzkaehw.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://your-domain.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 

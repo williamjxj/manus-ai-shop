@@ -73,7 +73,9 @@ export default function ModerationDashboard() {
       if (error) throw error
       setProducts(data || [])
     } catch (error: any) {
-      console.error('Error fetching products:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching products:', error)
+      }
       toast.error('Failed to load products')
     } finally {
       setLoading(false)

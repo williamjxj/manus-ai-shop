@@ -193,13 +193,12 @@ export function logGeoBlockingEvent(
     blockReason: location.blockReason,
   }
 
-  // In production, you might want to send this to a logging service
+  // Only log in development
   if (process.env.NODE_ENV === 'development') {
     console.warn('Geo-blocking event:', logData)
   }
 
-  // TODO: Integrate with your preferred logging service
-  // Examples: Vercel Analytics, Datadog, LogRocket, etc.
+  // In production, integrate with logging service (Vercel Analytics, Datadog, etc.)
 }
 
 /**
