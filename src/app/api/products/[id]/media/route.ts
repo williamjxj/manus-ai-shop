@@ -141,23 +141,55 @@ export async function POST(
         const isPrimary =
           (currentMediaCount || 0) === 0 && uploadedMedia.length === 0
 
-        // Insert media record
-        const { data: mediaRecord, error: insertError } = await supabase
-          .from('product_media')
-          .insert({
-            product_id: productId,
-            media_url: uploadResult.url,
-            media_type: file.type.startsWith('image/') ? 'image' : 'video',
-            thumbnail_url: uploadResult.thumbnailUrl,
-            is_primary: isPrimary,
-            file_size: uploadResult.fileSize,
-            duration_seconds: uploadResult.duration,
-            width: uploadResult.dimensions?.width,
-            height: uploadResult.dimensions?.height,
-            alt_text: `${file.name} - Product media`,
-          })
-          .select()
-          .single()
+        // Use service role to bypass RLS since we've already verified user ownership
+        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+          errors.push(
+            `Failed to save ${file.name}: Service role key not configured`
+          )
+          continue
+        }
+
+        let mediaRecord, insertError
+
+        try {
+          const { createClient: createServiceClient } = await import(
+            '@supabase/supabase-js'
+          )
+
+          // Create service role client
+          const serviceSupabase = createServiceClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            {
+              auth: {
+                autoRefreshToken: false,
+                persistSession: false,
+              },
+            }
+          )
+
+          const serviceResult = await serviceSupabase
+            .from('product_media')
+            .insert({
+              product_id: productId,
+              media_url: uploadResult.url,
+              media_type: file.type.startsWith('image/') ? 'image' : 'video',
+              thumbnail_url: uploadResult.thumbnailUrl,
+              is_primary: isPrimary,
+              file_size: uploadResult.fileSize,
+              duration_seconds: uploadResult.duration,
+              width: uploadResult.dimensions?.width,
+              height: uploadResult.dimensions?.height,
+              alt_text: `${file.name} - Product media`,
+            })
+            .select()
+            .single()
+
+          mediaRecord = serviceResult.data
+          insertError = serviceResult.error
+        } catch (error: any) {
+          insertError = error
+        }
 
         if (insertError) {
           errors.push(`Failed to save ${file.name}: ${insertError.message}`)

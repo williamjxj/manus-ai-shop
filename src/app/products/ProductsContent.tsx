@@ -996,7 +996,10 @@ function ProductCard({
               {currentUser && product.user_id === currentUser.id && (
                 <>
                   <button
-                    onClick={() => router.push(`/products/${product.id}/edit`)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      router.push(`/products/${product.id}/edit`)
+                    }}
                     className='rounded-full bg-blue-500 p-1.5 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                     title='Edit product'
                   >
@@ -1234,7 +1237,10 @@ function ProductCard({
               {currentUser && product.user_id === currentUser.id && (
                 <>
                   <button
-                    onClick={() => router.push(`/products/${product.id}/edit`)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      router.push(`/products/${product.id}/edit`)
+                    }}
                     className='rounded-full bg-blue-500 p-2 text-white opacity-0 transition-opacity duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 group-hover:opacity-100'
                     title='Edit product'
                   >

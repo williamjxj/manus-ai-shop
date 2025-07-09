@@ -41,6 +41,15 @@ export default function MediaUploadSection({
           reader.onerror = () => resolve(undefined)
           reader.readAsDataURL(file)
         } else if (file.type.startsWith('video/')) {
+          // Check if we're in a browser environment
+          if (
+            typeof window === 'undefined' ||
+            typeof document === 'undefined'
+          ) {
+            resolve(undefined)
+            return
+          }
+
           const video = document.createElement('video')
           video.preload = 'metadata'
           video.onloadedmetadata = () => {

@@ -250,7 +250,78 @@ export default function EditProductPage({
     return (
       <div className='min-h-screen bg-gray-50 p-8'>
         <div className='mx-auto max-w-4xl'>
-          <div className='text-center'>Loading product...</div>
+          {/* Header Skeleton */}
+          <div className='mb-8 flex items-center justify-between'>
+            <div className='h-9 w-48 animate-pulse rounded bg-gray-200'></div>
+            <div className='flex gap-4'>
+              <div className='h-10 w-20 animate-pulse rounded bg-gray-200'></div>
+              <div className='h-10 w-32 animate-pulse rounded bg-gray-200'></div>
+            </div>
+          </div>
+
+          {/* Loading Content */}
+          <div className='space-y-6'>
+            {/* Media Section Skeleton */}
+            <div className='rounded-lg bg-white p-6 shadow'>
+              <div className='mb-4 h-6 w-32 animate-pulse rounded bg-gray-200'></div>
+              <div className='grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4'>
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={i}
+                    className='aspect-square animate-pulse rounded-lg bg-gray-200'
+                  ></div>
+                ))}
+              </div>
+            </div>
+
+            {/* Form Fields Skeleton */}
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className='rounded-lg bg-white p-6 shadow'>
+                <div className='mb-2 h-5 w-24 animate-pulse rounded bg-gray-200'></div>
+                <div className='h-10 w-full animate-pulse rounded bg-gray-200'></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Loading Overlay */}
+          <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm'>
+            <div className='rounded-2xl border border-white/20 bg-white/95 p-8 shadow-2xl backdrop-blur-md'>
+              <div className='flex flex-col items-center space-y-4'>
+                {/* Animated Loading Icon */}
+                <div className='relative'>
+                  <div className='h-16 w-16 animate-spin rounded-full border-4 border-gray-200'></div>
+                  <div className='absolute left-0 top-0 h-16 w-16 animate-spin rounded-full border-4 border-transparent border-r-blue-500 border-t-blue-600'></div>
+                  <div className='absolute left-2 top-2 h-12 w-12 animate-pulse rounded-full bg-gradient-to-br from-blue-100 to-blue-200'></div>
+
+                  {/* Center icon */}
+                  <div className='absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2'>
+                    <FileText className='h-5 w-5 animate-pulse text-blue-600' />
+                  </div>
+                </div>
+
+                {/* Loading Text */}
+                <div className='text-center'>
+                  <h3 className='text-lg font-semibold text-gray-900'>
+                    Loading Product
+                  </h3>
+                  <p className='text-sm text-gray-600'>
+                    Preparing edit interface...
+                  </p>
+                </div>
+
+                {/* Progress Dots */}
+                <div className='flex space-x-2'>
+                  {[0, 150, 300].map((delay, i) => (
+                    <div
+                      key={i}
+                      className='h-2 w-2 animate-bounce rounded-full bg-blue-500'
+                      style={{ animationDelay: `${delay}ms` }}
+                    ></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )

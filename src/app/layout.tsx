@@ -8,6 +8,7 @@ import Footer from '@/components/Footer'
 import Navbar from '@/components/Navbar'
 import { CartProvider } from '@/contexts/CartContext'
 
+import '../styles/home-animations.css'
 import './globals.css'
 
 // Configure Inter font for professional e-commerce appearance

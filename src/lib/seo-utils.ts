@@ -332,7 +332,7 @@ export const performanceUtils = {
    * Preload critical resources
    */
   preloadCriticalResources: () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       // Preload critical fonts
       const fontLink = document.createElement('link')
       fontLink.rel = 'preload'
@@ -355,7 +355,11 @@ export const performanceUtils = {
    * Lazy load images with intersection observer
    */
   setupLazyLoading: () => {
-    if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+    if (
+      typeof window !== 'undefined' &&
+      typeof document !== 'undefined' &&
+      'IntersectionObserver' in window
+    ) {
       const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -379,7 +383,7 @@ export const performanceUtils = {
    * Optimize Core Web Vitals
    */
   optimizeWebVitals: () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
       // Reduce layout shift by setting image dimensions
       document.querySelectorAll('img').forEach((img) => {
         if (!img.width || !img.height) {

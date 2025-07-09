@@ -1,150 +1,357 @@
+'use client'
+
+import { Heart, Play, Star, Zap } from 'lucide-react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    setIsVisible(true)
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % 3)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const heroSlides = [
+    {
+      title: 'Premium AI Adult Content',
+      subtitle: 'Discover exclusive AI-generated adult art',
+      gradient: 'from-purple-600 via-pink-600 to-red-500',
+      emoji: '🔥',
+    },
+    {
+      title: 'Unlimited Access',
+      subtitle: 'Join thousands of satisfied members',
+      gradient: 'from-blue-600 via-purple-600 to-pink-500',
+      emoji: '💎',
+    },
+    {
+      title: 'New Content Daily',
+      subtitle: 'Fresh AI creations added every day',
+      gradient: 'from-green-500 via-teal-500 to-blue-500',
+      emoji: '⚡',
+    },
+  ]
+
   return (
-    <div className='min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50'>
-      <div className='mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8'>
-        <div className='text-center'>
-          <h1 className='text-4xl font-bold text-gray-900 sm:text-5xl md:text-6xl'>
-            Welcome to{' '}
-            <span className='bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent'>
+    <div className='min-h-screen overflow-hidden bg-white'>
+      {/* Animated Background */}
+      <div className='absolute inset-0 overflow-hidden'>
+        {/* Subtle Background Video */}
+        <div className='absolute inset-0 opacity-5'>
+          <video
+            className='h-full w-full object-cover'
+            autoPlay
+            muted
+            loop
+            playsInline
+          >
+            <source src='/media/kling.mp4' type='video/mp4' />
+          </video>
+          <div className='absolute inset-0 bg-gradient-to-br from-slate-900/80 via-purple-900/80 to-slate-900/80'></div>
+        </div>
+
+        <div className='absolute -inset-10 opacity-50'>
+          <div className='animate-float absolute left-1/4 top-1/4 h-72 w-72 animate-pulse rounded-full bg-gradient-to-r from-pink-400 to-purple-600 opacity-20 blur-xl'></div>
+          <div className='absolute right-1/4 top-3/4 h-96 w-96 animate-pulse rounded-full bg-gradient-to-r from-blue-400 to-cyan-600 opacity-20 blur-xl delay-1000'></div>
+          <div className='delay-2000 animate-float absolute left-1/2 top-1/2 h-80 w-80 animate-pulse rounded-full bg-gradient-to-r from-red-400 to-pink-600 opacity-20 blur-xl'></div>
+          <div className='delay-3000 absolute left-3/4 top-1/4 h-64 w-64 animate-pulse rounded-full bg-gradient-to-r from-yellow-400 to-orange-600 opacity-15 blur-xl'></div>
+          <div className='left-1/6 delay-4000 animate-float absolute top-2/3 h-48 w-48 animate-pulse rounded-full bg-gradient-to-r from-green-400 to-teal-600 opacity-15 blur-xl'></div>
+        </div>
+
+        {/* Floating Particles */}
+        <div className='particles'>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <div
+              key={i}
+              className='particle'
+              style={{
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 8}s`,
+                animationDuration: `${8 + Math.random() * 4}s`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Hero Section */}
+      <div className='relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8'>
+        <div
+          className={`text-center transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+        >
+          {/* Dynamic Hero Content */}
+          <div className='mb-8 animate-bounce text-6xl'>
+            {heroSlides[currentSlide].emoji}
+          </div>
+
+          <h1 className='text-3xl font-bold text-gray-900 sm:text-4xl md:text-5xl lg:text-6xl'>
+            <span
+              className={`bg-gradient-to-r ${heroSlides[currentSlide].gradient} hover-lift animate-pulse cursor-default bg-clip-text text-transparent`}
+            >
               Adult AI Gallery
             </span>
           </h1>
-          <p className='mx-auto mt-3 max-w-md text-base text-gray-500 sm:text-lg md:mt-5 md:max-w-3xl md:text-xl'>
-            Premium marketplace for AI-generated adult content. Discover and
-            purchase high-quality adult images and videos for mature audiences.
-          </p>
-          <div className='mt-4 flex items-center justify-center gap-2 text-sm font-medium text-red-600'>
-            <svg
-              className='h-4 w-4'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
+
+          <div className='mt-3 h-12'>
+            <h2
+              className={`text-lg font-semibold text-gray-800 transition-all duration-500 sm:text-xl md:text-2xl`}
             >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z'
-              />
-            </svg>
-            <span>
-              18+ ADULT CONTENT - You must be 18 or older to access this site
-            </span>
+              {heroSlides[currentSlide].title}
+            </h2>
+            <p className='mt-1 text-sm text-gray-600 sm:text-base'>
+              {heroSlides[currentSlide].subtitle}
+            </p>
           </div>
-          <div className='mx-auto mt-5 max-w-md sm:flex sm:justify-center md:mt-8'>
-            <div className='rounded-md shadow'>
-              <Link
-                href='/products'
-                className='flex w-full items-center justify-center rounded-md border border-transparent bg-gradient-to-r from-rose-600 to-pink-600 px-8 py-3 text-base font-medium text-white transition-all duration-200 hover:from-rose-700 hover:to-pink-700 md:px-10 md:py-4 md:text-lg'
+
+          {/* Age Warning with Style */}
+          <div className='mt-4 flex items-center justify-center gap-2 rounded-full border border-red-500 bg-red-50 px-4 py-2 text-red-600'>
+            <Zap className='h-4 w-4 animate-pulse' />
+            <span className='text-sm font-semibold'>18+ ADULTS ONLY</span>
+            <Zap className='h-4 w-4 animate-pulse' />
+          </div>
+
+          {/* CTA Buttons */}
+          <div className='mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center'>
+            <Link
+              href='/products'
+              className='btn-glow animate-glow group relative overflow-hidden rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 px-5 py-2.5 text-sm font-bold text-white shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-pink-500/25'
+            >
+              <span className='relative z-10 flex items-center gap-2'>
+                <Play className='h-3 w-3 animate-pulse' />
+                Explore Gallery
+                <Heart className='h-3 w-3 animate-pulse text-yellow-300' />
+              </span>
+              <div className='absolute inset-0 bg-gradient-to-r from-yellow-500 via-red-500 to-pink-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100'></div>
+            </Link>
+
+            <Link
+              href='/signup'
+              className='animate-pulse-glow group rounded-full border-2 border-gray-300 bg-gray-100 px-5 py-2.5 text-sm font-bold text-gray-700 transition-all duration-300 hover:scale-105 hover:bg-gray-200'
+            >
+              <span className='flex items-center gap-2'>
+                <Star className='h-3 w-3 animate-pulse text-yellow-500' />
+                Join Premium
+              </span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Video Gallery - Krea.ai Inspired */}
+        <div className='mt-8'>
+          <div className='mb-4 text-center'>
+            <h2 className='mb-1 text-xl font-bold text-gray-900 sm:text-2xl'>
+              🎬 Featured{' '}
+              <span className='bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent'>
+                AI Videos
+              </span>
+            </h2>
+            <p className='text-sm text-gray-600'>Premium AI creations</p>
+          </div>
+
+          {/* Masonry-style Video Grid */}
+          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+            {[
+              {
+                src: '/media/kling.mp4',
+                border: 'border-purple-500/30',
+                bg: 'from-purple-500/10 to-pink-600/10',
+                shadow: 'hover:shadow-purple-500/25',
+              },
+              {
+                src: '/media/hailuo.mp4',
+                border: 'border-blue-500/30',
+                bg: 'from-blue-500/10 to-cyan-600/10',
+                shadow: 'hover:shadow-blue-500/25',
+              },
+              {
+                src: '/media/shakker.mp4',
+                border: 'border-green-500/30',
+                bg: 'from-green-500/10 to-emerald-600/10',
+                shadow: 'hover:shadow-green-500/25',
+              },
+              {
+                src: '/media/tang-girl.mp4',
+                border: 'border-pink-500/30',
+                bg: 'from-pink-500/10 to-rose-600/10',
+                shadow: 'hover:shadow-pink-500/25',
+              },
+              {
+                src: '/media/twin.mp4',
+                border: 'border-indigo-500/30',
+                bg: 'from-indigo-500/10 to-purple-600/10',
+                shadow: 'hover:shadow-indigo-500/25',
+              },
+              {
+                src: '/media/young_idol.mp4',
+                border: 'border-yellow-500/30',
+                bg: 'from-yellow-500/10 to-orange-600/10',
+                shadow: 'hover:shadow-yellow-500/25',
+              },
+            ].map((video, index) => (
+              <div
+                key={index}
+                className={`group relative overflow-hidden rounded-xl border ${video.border} bg-gradient-to-br ${video.bg} shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${video.shadow}`}
               >
-                Browse Adult Gallery
-              </Link>
+                <div className='relative overflow-hidden'>
+                  <video
+                    className='h-auto min-h-[200px] w-full transition-transform duration-300 group-hover:scale-105'
+                    muted
+                    loop
+                    playsInline
+                    preload='metadata'
+                    onMouseEnter={(e) => e.currentTarget.play()}
+                    onMouseLeave={(e) => e.currentTarget.pause()}
+                    onLoadedMetadata={(e) => {
+                      const video = e.currentTarget
+                      if (video.videoWidth && video.videoHeight) {
+                        video.style.aspectRatio = `${video.videoWidth}/${video.videoHeight}`
+                      }
+                    }}
+                  >
+                    <source src={video.src} type='video/mp4' />
+                    Your browser does not support the video tag.
+                  </video>
+                  <div className='absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100'></div>
+                  <div className='absolute bottom-3 left-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100'>
+                    <div className='flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-white backdrop-blur-sm'>
+                      <Play className='h-3 w-3' />
+                      <span className='text-xs font-medium'>Play</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats Row */}
+          <div className='mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4'>
+            <div className='group cursor-pointer rounded-xl border border-pink-500/30 bg-gradient-to-br from-pink-500/20 to-purple-600/20 p-4 text-center shadow-sm transition-transform duration-300 hover:scale-105'>
+              <div className='text-xl font-bold text-pink-500'>10K+</div>
+              <div className='text-xs text-gray-600'>Premium Videos</div>
             </div>
-            <div className='mt-3 rounded-md shadow sm:ml-3 sm:mt-0'>
-              <Link
-                href='/signup'
-                className='flex w-full items-center justify-center rounded-md border border-transparent bg-white px-8 py-3 text-base font-medium text-indigo-600 hover:bg-gray-50 md:px-10 md:py-4 md:text-lg'
-              >
-                Get Started
-              </Link>
+            <div className='group cursor-pointer rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 p-4 text-center shadow-sm transition-transform duration-300 hover:scale-105'>
+              <div className='text-xl font-bold text-blue-500'>5K+</div>
+              <div className='text-xs text-gray-600'>Happy Members</div>
+            </div>
+            <div className='group cursor-pointer rounded-xl border border-green-500/30 bg-gradient-to-br from-green-500/20 to-emerald-600/20 p-4 text-center shadow-sm transition-transform duration-300 hover:scale-105'>
+              <div className='text-xl font-bold text-green-500'>4K</div>
+              <div className='text-xs text-gray-600'>Ultra HD</div>
+            </div>
+            <div className='group cursor-pointer rounded-xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/20 to-orange-600/20 p-4 text-center shadow-sm transition-transform duration-300 hover:scale-105'>
+              <div className='text-xl font-bold text-yellow-500'>24/7</div>
+              <div className='text-xs text-gray-600'>New Content</div>
             </div>
           </div>
         </div>
 
-        <div className='mt-20'>
-          <div className='grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3'>
-            <div className='pt-6'>
-              <div className='flow-root rounded-lg bg-white px-6 pb-8'>
-                <div className='-mt-6'>
-                  <div>
-                    <span className='inline-flex items-center justify-center rounded-md bg-indigo-500 p-3 shadow-lg'>
-                      <svg
-                        className='h-6 w-6 text-white'
-                        fill='none'
-                        viewBox='0 0 24 24'
-                        stroke='currentColor'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-                        />
-                      </svg>
-                    </span>
-                  </div>
-                  <h3 className='mt-8 text-lg font-medium tracking-tight text-gray-900'>
-                    AI Generated Art
+        {/* Compact Features */}
+        <div className='mt-8'>
+          <div className='mb-4 text-center'>
+            <h2 className='mb-1 text-lg font-bold text-gray-900 sm:text-xl'>
+              Why Choose{' '}
+              <span className='bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent'>
+                Our Platform?
+              </span>
+            </h2>
+          </div>
+
+          <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+            {/* Feature 1 */}
+            <div className='group relative overflow-hidden rounded-xl border border-pink-500/30 bg-gradient-to-br from-pink-500/20 to-purple-600/20 p-4 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/25'>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 text-lg'>
+                  🎨
+                </div>
+                <div>
+                  <h3 className='text-sm font-bold text-gray-900'>
+                    Premium AI Art
                   </h3>
-                  <p className='mt-5 text-base text-gray-500'>
-                    High-quality images created by advanced AI models, perfect
-                    for your creative projects.
+                  <p className='text-xs text-gray-600'>
+                    Cutting-edge technology
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className='pt-6'>
-              <div className='flow-root rounded-lg bg-white px-6 pb-8'>
-                <div className='-mt-6'>
-                  <div>
-                    <span className='inline-flex items-center justify-center rounded-md bg-indigo-500 p-3 shadow-lg'>
-                      <svg
-                        className='h-6 w-6 text-white'
-                        fill='none'
-                        viewBox='0 0 24 24'
-                        stroke='currentColor'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1'
-                        />
-                      </svg>
-                    </span>
-                  </div>
-                  <h3 className='mt-8 text-lg font-medium tracking-tight text-gray-900'>
+            {/* Feature 2 */}
+            <div className='group relative overflow-hidden rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-500/20 to-cyan-600/20 p-4 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25'>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 text-lg'>
+                  💳
+                </div>
+                <div>
+                  <h3 className='text-sm font-bold text-gray-900'>
                     Flexible Payment
                   </h3>
-                  <p className='mt-5 text-base text-gray-500'>
-                    Pay with Stripe or use our points system for convenient and
-                    secure transactions.
-                  </p>
+                  <p className='text-xs text-gray-600'>Secure & anonymous</p>
                 </div>
               </div>
             </div>
 
-            <div className='pt-6'>
-              <div className='flow-root rounded-lg bg-white px-6 pb-8'>
-                <div className='-mt-6'>
-                  <div>
-                    <span className='inline-flex items-center justify-center rounded-md bg-indigo-500 p-3 shadow-lg'>
-                      <svg
-                        className='h-6 w-6 text-white'
-                        fill='none'
-                        viewBox='0 0 24 24'
-                        stroke='currentColor'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M13 10V3L4 14h7v7l9-11h-7z'
-                        />
-                      </svg>
-                    </span>
-                  </div>
-                  <h3 className='mt-8 text-lg font-medium tracking-tight text-gray-900'>
+            {/* Feature 3 */}
+            <div className='group relative overflow-hidden rounded-xl border border-green-500/30 bg-gradient-to-br from-green-500/20 to-emerald-600/20 p-4 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-green-500/25'>
+              <div className='flex items-center gap-3'>
+                <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 text-lg'>
+                  ⚡
+                </div>
+                <div>
+                  <h3 className='text-sm font-bold text-gray-900'>
                     Instant Access
                   </h3>
-                  <p className='mt-5 text-base text-gray-500'>
-                    Download your purchased images immediately after payment
-                    confirmation.
-                  </p>
+                  <p className='text-xs text-gray-600'>Immediate download</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Compact CTA */}
+        <div className='mt-8 text-center'>
+          <div className='relative overflow-hidden rounded-xl border border-gray-200 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 p-6 shadow-sm'>
+            {/* Background Video Effect */}
+            <div className='absolute inset-0 opacity-10'>
+              <video
+                className='h-full w-full object-cover'
+                autoPlay
+                muted
+                loop
+                playsInline
+              >
+                <source src='/media/hailuo.mp4' type='video/mp4' />
+              </video>
+              <div className='absolute inset-0 bg-gradient-to-r from-pink-500/30 via-purple-500/30 to-blue-500/30'></div>
+            </div>
+
+            <div className='relative z-10'>
+              <h2 className='mb-3 text-lg font-bold text-gray-900 sm:text-xl'>
+                🎬 Experience AI Magic! 🚀
+              </h2>
+              <p className='mx-auto mb-4 max-w-md text-sm text-gray-700'>
+                Join thousands exploring the future of adult entertainment.
+              </p>
+
+              <div className='flex flex-col justify-center gap-2 sm:flex-row'>
+                <Link
+                  href='/products'
+                  className='group relative overflow-hidden rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 px-6 py-3 text-sm font-bold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-pink-500/50'
+                >
+                  <span className='relative z-10 flex items-center gap-2'>
+                    🔥 Watch Videos Now
+                  </span>
+                  <div className='absolute inset-0 bg-gradient-to-r from-yellow-500 via-red-500 to-pink-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100'></div>
+                </Link>
+
+                <Link
+                  href='/signup'
+                  className='rounded-full border-2 border-gray-300 bg-gray-100 px-6 py-3 text-sm font-bold text-gray-700 transition-all duration-300 hover:scale-105 hover:bg-gray-200'
+                >
+                  💎 Join Premium
+                </Link>
               </div>
             </div>
           </div>

@@ -20,37 +20,24 @@ export default function LoginPage() {
     setError('')
 
     try {
-      console.log('Attempting login with email:', email)
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      console.log('Login response:', { data, error })
-
       if (error) {
-        console.error('Login error:', error)
         setError(error.message)
         setLoading(false)
         return
       }
 
-      // Check if user is authenticated
       if (data.user) {
-        console.log('User authenticated successfully:', data.user.id)
-
-        // Wait a moment for session to be set
-        await new Promise((resolve) => setTimeout(resolve, 100))
-
-        // Force a page refresh to ensure auth state is properly set
-        window.location.href = '/products'
+        router.push('/products')
       } else {
-        console.error('No user data returned')
         setError('Authentication failed. Please try again.')
         setLoading(false)
       }
     } catch (err: any) {
-      console.error('Login exception:', err)
       setError('An unexpected error occurred. Please try again.')
       setLoading(false)
     }
@@ -67,31 +54,6 @@ export default function LoginPage() {
     if (error) {
       setError(error.message)
     }
-  }
-
-  // Alternative login method using OTP flow for better production compatibility
-  const handleEmailLoginWithOTP = async () => {
-    setLoading(true)
-    setError('')
-
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/products`,
-        },
-      })
-
-      if (error) {
-        setError(error.message)
-      } else {
-        setError('Check your email for the login link!')
-      }
-    } catch (err: any) {
-      setError('An unexpected error occurred. Please try again.')
-    }
-
-    setLoading(false)
   }
 
   return (

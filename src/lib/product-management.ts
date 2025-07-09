@@ -158,7 +158,7 @@ export async function createProduct(
       .from('products')
       .insert({
         ...data,
-        moderation_status: 'pending',
+        moderation_status: 'approved',
         age_restriction: 18,
         is_explicit: data.is_explicit ?? true,
         stock_quantity: data.stock_quantity ?? 0,

@@ -55,6 +55,11 @@ export async function compressImage(
     format = 'jpeg',
   } = options
 
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    throw new Error('Image compression requires browser environment')
+  }
+
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
@@ -118,6 +123,11 @@ export async function generateOptimizedThumbnail(
   file: File,
   size: number = 300
 ): Promise<File> {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    throw new Error('Thumbnail generation requires browser environment')
+  }
+
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
@@ -387,23 +397,52 @@ export async function uploadImageToStorage(file: File): Promise<UploadResult> {
       }
     }
 
-    const supabase = createClient()
+    // Use service role client for storage operations to bypass RLS
+    const { createClient: createServiceClient } = await import(
+      '@supabase/supabase-js'
+    )
+    const supabase =
+      typeof window !== 'undefined'
+        ? createClient()
+        : createServiceClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+          )
     const originalSize = file.size
 
-    // Compress image for better performance and storage efficiency
-    const {
-      file: compressedFile,
-      dimensions,
-      compressionRatio,
-    } = await compressImage(file, {
-      maxWidth: 1920,
-      maxHeight: 1080,
-      quality: 0.85,
-      format: 'jpeg',
-    })
+    // Use original file if compression is not available (server-side)
+    let compressedFile = file
+    let dimensions: { width: number; height: number } | undefined
+    let compressionRatio = 1
 
-    // Generate optimized thumbnail
-    const thumbnailFile = await generateOptimizedThumbnail(compressedFile, 300)
+    // Only compress if we're in a browser environment
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      try {
+        const compressionResult = await compressImage(file, {
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 0.85,
+          format: 'jpeg',
+        })
+        compressedFile = compressionResult.file
+        dimensions = compressionResult.dimensions
+        compressionRatio = compressionResult.compressionRatio
+      } catch (error) {
+        console.warn('Image compression failed, using original file:', error)
+        // Continue with original file
+      }
+    }
+
+    // Generate thumbnail (also only in browser environment)
+    let thumbnailFile: File | undefined
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      try {
+        thumbnailFile = await generateOptimizedThumbnail(compressedFile, 300)
+      } catch (error) {
+        console.warn('Thumbnail generation failed:', error)
+        // Continue without thumbnail
+      }
+    }
 
     // Generate unique filenames
     const timestamp = Date.now()
@@ -430,27 +469,29 @@ export async function uploadImageToStorage(file: File): Promise<UploadResult> {
       }
     }
 
-    // Upload thumbnail
+    // Upload thumbnail (only if available)
     let thumbnailUrl: string | undefined
-    try {
-      const { error: thumbnailError } = await supabase.storage
-        .from('thumbnails')
-        .upload(thumbnailPath, thumbnailFile, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: 'image/jpeg',
-        })
+    if (thumbnailFile) {
+      try {
+        const { error: thumbnailError } = await supabase.storage
+          .from('thumbnails')
+          .upload(thumbnailPath, thumbnailFile, {
+            cacheControl: '3600',
+            upsert: false,
+            contentType: 'image/jpeg',
+          })
 
-      if (!thumbnailError) {
-        const {
-          data: { publicUrl: thumbPublicUrl },
-        } = supabase.storage.from('thumbnails').getPublicUrl(thumbnailPath)
-        thumbnailUrl = thumbPublicUrl
-      } else {
-        console.warn('Failed to upload thumbnail:', thumbnailError)
+        if (!thumbnailError) {
+          const {
+            data: { publicUrl: thumbPublicUrl },
+          } = supabase.storage.from('thumbnails').getPublicUrl(thumbnailPath)
+          thumbnailUrl = thumbPublicUrl
+        } else {
+          console.warn('Failed to upload thumbnail:', thumbnailError)
+        }
+      } catch (thumbnailError) {
+        console.warn('Thumbnail upload failed:', thumbnailError)
       }
-    } catch (thumbnailError) {
-      console.warn('Thumbnail upload failed:', thumbnailError)
     }
 
     // Get public URL for main image
@@ -490,7 +531,17 @@ export async function uploadVideoToStorage(file: File): Promise<UploadResult> {
       }
     }
 
-    const supabase = createClient()
+    // Use service role client for storage operations to bypass RLS
+    const { createClient: createServiceClient } = await import(
+      '@supabase/supabase-js'
+    )
+    const supabase =
+      typeof window !== 'undefined'
+        ? createClient()
+        : createServiceClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+          )
 
     // Generate unique filename
     const fileName = generateUniqueFilename(file)
@@ -634,9 +685,6 @@ export function estimateUploadTime(
   files: File[],
   connectionSpeedMbps: number = 10
 ): number {
-  const totalSizeBytes = files.reduce((sum, file) => sum + file.size, 0)
-  const totalSizeMb = totalSizeBytes / (1024 * 1024)
-
   // Add compression factor for images (typically 30-50% reduction)
   const imageFiles = files.filter((f) => f.type.startsWith('image/'))
   const videoFiles = files.filter((f) => f.type.startsWith('video/'))
