@@ -1,34 +1,48 @@
-# 🚀 Supabase Sync Scripts
+# 🛠️ Production Scripts
 
-This folder contains scripts to sync your local Docker Supabase database to your remote Supabase cloud instance for Vercel deployment.
+Essential scripts for deployment and maintenance of the Adult Products Gallery.
 
 ## 📁 Scripts Overview
 
-| Script                  | Platform    | Purpose                  |
-| ----------------------- | ----------- | ------------------------ |
-| `sync-to-remote.sh`     | macOS/Linux | Main sync script (Bash)  |
-| `verify-remote-sync.sh` | macOS/Linux | Verification script      |
-| `setup-env-template.sh` | macOS/Linux | Environment setup helper |
+| Script                    | Platform    | Purpose                          |
+| ------------------------- | ----------- | -------------------------------- |
+| `test-build.js`           | Node.js     | Production build testing         |
+| `approve-product.js`      | Node.js     | Approve products for public view |
+| `create-admin-account.js` | Node.js     | Create admin user accounts       |
+| `create-test-user.js`     | Node.js     | Create test user for development |
+| `sync-to-remote.sh`       | macOS/Linux | Sync local DB to remote Supabase |
+| `verify-remote-sync.sh`   | macOS/Linux | Verify remote sync status        |
+| `setup-env-template.sh`   | macOS/Linux | Environment setup helper         |
 
-## 🎯 What These Scripts Do
+## 🎯 Script Functions
 
-### **Sync Process:**
+### **Production Build Testing (`test-build.js`):**
 
-1. ✅ Extract current local Docker Supabase schema
-2. ✅ Connect to your remote Supabase cloud instance
-3. ✅ Create backup of remote database (optional)
-4. ✅ Apply complete database schema to remote
-5. ✅ Set up storage bucket for image uploads
-6. ✅ Verify all components are properly synced
+- TypeScript type checking
+- ESLint validation
+- Next.js build compilation
+- Automated deployment verification
 
-### **Components Synced:**
+### **Product Management:**
 
-- 📊 **Database Tables**: profiles, products, cart_items, orders, etc.
-- ⚙️ **Database Functions**: payment processing, points management
-- 🔒 **Row Level Security**: user data protection policies
-- 🗂️ **Storage Bucket**: product image storage with public access
-- 📈 **Indexes**: performance optimization
-- 🔧 **Triggers**: automatic user profile creation
+- **`approve-product.js`**: Approve products for public viewing
+- **`create-admin-account.js`**: Set up admin user accounts
+- **`create-test-user.js`**: Create development test users
+
+### **Database Sync (`sync-to-remote.sh`):**
+
+- Extract local Supabase schema
+- Connect to remote Supabase instance
+- Apply complete database schema
+- Set up storage buckets
+- Verify sync completion
+
+### **Components Managed:**
+
+- 📊 **Database Schema**: Core tables and relationships
+- 🔒 **Security Policies**: Row Level Security (RLS)
+- 🗂️ **Storage Buckets**: Media file storage
+- 📈 **Performance**: Indexes and optimization
 
 ## 🛠️ Prerequisites
 

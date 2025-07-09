@@ -41,7 +41,8 @@ export default function AddToCartButton({
   }
 
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white',
+    primary:
+      'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white',
     secondary: 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700',
   }
 
@@ -49,15 +50,7 @@ export default function AddToCartButton({
     <button
       onClick={handleAddToCart}
       disabled={isLoading}
-      className={`
-        group w-full rounded-xl font-semibold shadow-lg transition-all 
-        hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 
-        focus:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed 
-        disabled:opacity-75
-        ${sizeClasses[size]}
-        ${variantClasses[variant]}
-        ${className}
-      `}
+      className={`group w-full rounded-xl font-semibold shadow-lg transition-all hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-75 ${sizeClasses[size]} ${variantClasses[variant]} ${className} `}
     >
       <span className='flex items-center justify-center gap-2'>
         {isLoading ? (

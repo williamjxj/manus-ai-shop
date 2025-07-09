@@ -47,7 +47,8 @@
 
 /* Pulse shimmer combination */
 @keyframes shimmer-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateX(-100%);
     opacity: 0.5;
   }

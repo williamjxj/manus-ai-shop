@@ -1,7 +1,7 @@
 'use client'
 
 import { Flag, Star, ThumbsUp, User } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { ProductReview } from '@/lib/content-moderation'
@@ -39,7 +39,6 @@ export default function ProductReviews({
   useEffect(() => {
     fetchReviews()
     fetchCurrentUser()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId])
 
   const fetchCurrentUser = async () => {

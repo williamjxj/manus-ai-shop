@@ -5,13 +5,13 @@ export default function ProductsLoading() {
         {/* Header Skeleton */}
         <div className='mb-8 text-center'>
           <div className='relative mx-auto mb-4 h-12 w-96 overflow-hidden rounded-lg bg-gray-200'>
-            <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
           </div>
           <div className='relative mx-auto h-6 w-80 overflow-hidden rounded-lg bg-gray-200'>
-            <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
           </div>
           <div className='relative mx-auto mt-3 h-4 w-64 overflow-hidden rounded-lg bg-gray-200'>
-            <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
           </div>
         </div>
 
@@ -19,24 +19,24 @@ export default function ProductsLoading() {
         <div className='mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row'>
           <div className='flex items-center gap-4'>
             <div className='relative h-12 w-32 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
             <div className='relative h-8 w-20 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
             <div className='relative h-8 w-16 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
           </div>
           <div className='flex items-center gap-2 rounded-lg bg-white p-1 shadow-sm'>
             <div className='relative h-10 w-10 overflow-hidden rounded-md bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
             <div className='relative h-10 w-10 overflow-hidden rounded-md bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
             <div className='relative h-10 w-10 overflow-hidden rounded-md bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
           </div>
         </div>
@@ -44,23 +44,23 @@ export default function ProductsLoading() {
         {/* Search Bar Skeleton */}
         <div className='mb-8'>
           <div className='relative mb-4 h-12 w-full overflow-hidden rounded-lg bg-gray-200'>
-            <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+            <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
           </div>
           <div className='flex gap-4'>
             <div className='relative h-10 w-24 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
             <div className='relative h-10 w-32 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
             <div className='relative h-10 w-28 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
             <div className='relative h-10 w-36 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
             <div className='relative h-10 w-24 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+              <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
             </div>
           </div>
         </div>
@@ -71,27 +71,27 @@ export default function ProductsLoading() {
             <div key={i} className='rounded-lg bg-white p-4 shadow-md'>
               {/* Product Image Skeleton */}
               <div className='relative mb-4 h-48 overflow-hidden rounded-lg bg-gray-200'>
-                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
               </div>
 
               {/* Product Title Skeleton */}
               <div className='relative mb-2 h-6 w-3/4 overflow-hidden rounded bg-gray-200'>
-                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
               </div>
 
               {/* Product Description Skeleton */}
               <div className='relative mb-4 h-4 w-full overflow-hidden rounded bg-gray-200'>
-                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
               </div>
 
               {/* Product Price Skeleton */}
               <div className='relative mb-4 h-4 w-1/2 overflow-hidden rounded bg-gray-200'>
-                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
               </div>
 
               {/* Add to Cart Button Skeleton */}
               <div className='relative h-10 w-full overflow-hidden rounded-lg bg-gray-200'>
-                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
+                <div className='absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white to-transparent'></div>
               </div>
             </div>
           ))}

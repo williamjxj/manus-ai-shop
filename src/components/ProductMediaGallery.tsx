@@ -1,4 +1,5 @@
 import { ProductMedia } from '@/lib/product-management'
+
 import MediaCarousel from './MediaCarousel'
 
 interface ProductMediaGalleryProps {

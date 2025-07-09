@@ -8,29 +8,31 @@
 const { createClient } = require('@supabase/supabase-js')
 
 // Supabase configuration (adjust for your local setup)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321'
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'your-service-role-key'
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321'
+const supabaseServiceKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'your-service-role-key'
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 async function approveProduct(productId) {
   try {
     console.log(`Approving product: ${productId}`)
-    
+
     const { data, error } = await supabase
       .from('products')
       .update({
         moderation_status: 'approved',
-        moderated_at: new Date().toISOString()
+        moderated_at: new Date().toISOString(),
       })
       .eq('id', productId)
       .select()
-    
+
     if (error) {
       console.error('Error approving product:', error)
       return false
     }
-    
+
     if (data && data.length > 0) {
       console.log('✅ Product approved successfully!')
       console.log('Product:', data[0].name)

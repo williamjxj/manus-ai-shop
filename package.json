@@ -1,6 +1,6 @@
 {
   "name": "ai-shop",
-  "version": "0.6.9",
+  "version": "0.7.9",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,6 +13,7 @@
     "type-check": "tsc --noEmit",
     "prepare": "test -d .git && husky install 2>/dev/null || true",
     "check-all": "npm run type-check && npm run lint:check && npm run format:check",
+    "test-build": "node scripts/test-build.js",
     "create-test-user": "node scripts/create-test-user.js"
   },
   "dependencies": {

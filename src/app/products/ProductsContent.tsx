@@ -7,14 +7,13 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 
+import LoadingLink from '@/components/LoadingLink'
 import ProductDetailModal from '@/components/ProductDetailModal'
 import { FILTER_CATEGORIES, getCategoryLabel } from '@/constants/categories'
 import { useCart } from '@/contexts/CartContext'
 import { getSafeImageUrl } from '@/lib/image-utils'
 import { Product } from '@/lib/product-management'
 import { createClient } from '@/lib/supabase/client'
-
-import LoadingLink from '@/components/LoadingLink'
 
 type ViewMode = 'grid' | 'masonry' | 'list'
 type SortOption =
@@ -53,7 +52,6 @@ export default function ProductsContent() {
   const [deletingProduct, setDeletingProduct] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
 
-  // New state for enhanced functionality
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [showFilters, setShowFilters] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
@@ -61,22 +59,19 @@ export default function ProductsContent() {
     search: '',
     category: 'all',
     mediaType: 'all',
-    priceRange: [0, 10000], // in cents
+    priceRange: [0, 10000],
     sortBy: 'newest',
   })
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
 
-  // Modal state
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const supabase = createClient()
   const { addToCart: addToCartContext } = useCart()
 
-  // Filtered and sorted products
   const filteredProducts = useMemo(() => {
     const filtered = products.filter((product) => {
-      // Search filter
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase()
         if (
@@ -87,12 +82,10 @@ export default function ProductsContent() {
         }
       }
 
-      // Category filter
       if (filters.category !== 'all' && product.category !== filters.category) {
         return false
       }
 
-      // Media type filter
       if (filters.mediaType !== 'all') {
         if (filters.mediaType === 'image' && product.media_type !== 'image') {
           return false
@@ -102,7 +95,6 @@ export default function ProductsContent() {
         }
       }
 
-      // Price range filter
       if (
         product.price_cents < filters.priceRange[0] ||
         product.price_cents > filters.priceRange[1]
@@ -112,8 +104,6 @@ export default function ProductsContent() {
 
       return true
     })
-
-    // Sort products
     filtered.sort((a, b) => {
       switch (filters.sortBy) {
         case 'newest':
@@ -142,24 +132,16 @@ export default function ProductsContent() {
     return filtered
   }, [products, filters])
 
-  useEffect(() => {
-    fetchCurrentUser()
-    fetchProducts()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  const fetchCurrentUser = async () => {
+  const fetchCurrentUser = useCallback(async () => {
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser()
       setCurrentUser(user)
-    } catch (err: any) {
-      console.error('Error fetching user:', err)
-    }
-  }
+    } catch (err: any) {}
+  }, [supabase])
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('products')
@@ -173,114 +155,112 @@ export default function ProductsContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const addToCart = async (productId: string) => {
-    setAddingToCart(productId)
-    try {
-      await addToCartContext(productId)
-      toast.success('Added to cart!')
-    } catch (err: any) {
-      toast.error('Error adding to cart: ' + err.message)
-    } finally {
-      setAddingToCart(null)
-    }
-  }
+  useEffect(() => {
+    fetchCurrentUser()
+    fetchProducts()
+  }, [fetchCurrentUser, fetchProducts])
 
-  const deleteProduct = async (productId: string, productName: string) => {
-    // Confirm deletion
-    if (
-      !window.confirm(
-        `Are you sure you want to delete "${productName}"? This action cannot be undone.`
-      )
-    ) {
-      return
-    }
-
-    setDeletingProduct(productId)
-    try {
-      // Check if user is authenticated
-      if (!currentUser) {
-        toast.error('Please login to delete products')
-        return
-      }
-
-      // Get product details to check ownership and get file paths
-      const { data: product, error: fetchError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', productId)
-        .single()
-
-      if (fetchError) throw fetchError
-
-      // Check if user owns this product (if user_id exists in products table)
-      if (product.user_id && product.user_id !== currentUser.id) {
-        toast.error('You can only delete your own products')
-        return
-      }
-
-      // Delete from database first
-      const { error: deleteError } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId)
-
-      if (deleteError) throw deleteError
-
-      // Try to delete files from storage (optional - don't fail if this doesn't work)
+  const addToCart = useCallback(
+    async (productId: string) => {
+      setAddingToCart(productId)
       try {
-        if (product.media_url) {
-          const mediaPath = extractStoragePath(product.media_url)
-          if (mediaPath) {
-            const bucket = product.media_type === 'video' ? 'videos' : 'images'
-            await supabase.storage.from(bucket).remove([mediaPath])
-          }
-        }
-
-        if (product.thumbnail_url) {
-          const thumbnailPath = extractStoragePath(product.thumbnail_url)
-          if (thumbnailPath) {
-            await supabase.storage.from('thumbnails').remove([thumbnailPath])
-          }
-        }
-      } catch (storageError) {
-        console.warn('Failed to delete storage files:', storageError)
-        // Don't throw error for storage cleanup failures
+        await addToCartContext(productId)
+        toast.success('Added to cart!')
+      } catch (err: any) {
+        toast.error('Error adding to cart: ' + err.message)
+      } finally {
+        setAddingToCart(null)
       }
+    },
+    [addToCartContext]
+  )
 
-      // Remove from local state
-      setProducts((prev) => prev.filter((p) => p.id !== productId))
-      toast.success('Product deleted successfully!')
-    } catch (err: any) {
-      console.error('Delete error:', err)
-      toast.error('Failed to delete product: ' + err.message)
-    } finally {
-      setDeletingProduct(null)
-    }
-  }
-
-  // Helper function to extract storage path from URL
-  const extractStoragePath = (url: string): string | null => {
+  const extractStoragePath = useCallback((url: string): string | null => {
     try {
       const urlParts = url.split('/storage/v1/object/public/')
       if (urlParts.length > 1) {
         const pathParts = urlParts[1].split('/')
         if (pathParts.length > 1) {
-          return pathParts.slice(1).join('/') // Remove bucket name, keep path
+          return pathParts.slice(1).join('/')
         }
       }
       return null
     } catch {
       return null
     }
-  }
+  }, [])
+
+  const deleteProduct = useCallback(
+    async (productId: string, productName: string) => {
+      if (
+        !window.confirm(
+          `Are you sure you want to delete "${productName}"? This action cannot be undone.`
+        )
+      ) {
+        return
+      }
+
+      setDeletingProduct(productId)
+      try {
+        if (!currentUser) {
+          toast.error('Please login to delete products')
+          return
+        }
+
+        const { data: product, error: fetchError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', productId)
+          .single()
+
+        if (fetchError) throw fetchError
+
+        if (product.user_id && product.user_id !== currentUser.id) {
+          toast.error('You can only delete your own products')
+          return
+        }
+
+        const { error: deleteError } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', productId)
+
+        if (deleteError) throw deleteError
+        try {
+          if (product.media_url) {
+            const mediaPath = extractStoragePath(product.media_url)
+            if (mediaPath) {
+              const bucket =
+                product.media_type === 'video' ? 'videos' : 'images'
+              await supabase.storage.from(bucket).remove([mediaPath])
+            }
+          }
+
+          if (product.thumbnail_url) {
+            const thumbnailPath = extractStoragePath(product.thumbnail_url)
+            if (thumbnailPath) {
+              await supabase.storage.from('thumbnails').remove([thumbnailPath])
+            }
+          }
+        } catch (storageError) {}
+
+        setProducts((prev) => prev.filter((p) => p.id !== productId))
+        toast.success('Product deleted successfully!')
+      } catch (err: any) {
+        toast.error('Failed to delete product: ' + err.message)
+      } finally {
+        setDeletingProduct(null)
+      }
+    },
+    [currentUser, supabase, extractStoragePath]
+  )
 
   const formatPrice = (cents: number) => {
     return `$${(cents / 100).toFixed(2)}`
   }
 
-  // Modal handlers
   const openProductModal = (product: Product) => {
     setSelectedProduct(product)
     setIsModalOpen(true)
@@ -321,62 +301,28 @@ export default function ProductsContent() {
     return (
       <div className='min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50'>
         <div className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
-          {/* Header Skeleton */}
           <div className='mb-8 text-center'>
-            <div className='relative mx-auto mb-4 h-12 w-96 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-            </div>
-            <div className='relative mx-auto h-6 w-80 overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-            </div>
+            <div className='mx-auto mb-4 h-12 w-96 animate-pulse rounded-lg bg-gray-200'></div>
+            <div className='mx-auto h-6 w-80 animate-pulse rounded-lg bg-gray-200'></div>
           </div>
 
-          {/* Search Bar Skeleton */}
           <div className='mb-8'>
-            <div className='relative mb-4 h-12 w-full overflow-hidden rounded-lg bg-gray-200'>
-              <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-            </div>
+            <div className='mb-4 h-12 w-full animate-pulse rounded-lg bg-gray-200'></div>
             <div className='flex gap-4'>
-              <div className='relative h-10 w-24 overflow-hidden rounded-lg bg-gray-200'>
-                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-              </div>
-              <div className='relative h-10 w-32 overflow-hidden rounded-lg bg-gray-200'>
-                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-              </div>
-              <div className='relative h-10 w-28 overflow-hidden rounded-lg bg-gray-200'>
-                <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-              </div>
+              <div className='h-10 w-24 animate-pulse rounded-lg bg-gray-200'></div>
+              <div className='h-10 w-32 animate-pulse rounded-lg bg-gray-200'></div>
+              <div className='h-10 w-28 animate-pulse rounded-lg bg-gray-200'></div>
             </div>
           </div>
 
-          {/* Products Grid Skeleton */}
           <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className='rounded-lg bg-white p-4 shadow-md'>
-                {/* Product Image Skeleton */}
-                <div className='relative mb-4 h-48 overflow-hidden rounded-lg bg-gray-200'>
-                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-                </div>
-
-                {/* Product Title Skeleton */}
-                <div className='relative mb-2 h-6 w-3/4 overflow-hidden rounded bg-gray-200'>
-                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-                </div>
-
-                {/* Product Description Skeleton */}
-                <div className='relative mb-4 h-4 w-full overflow-hidden rounded bg-gray-200'>
-                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-                </div>
-
-                {/* Product Price Skeleton */}
-                <div className='relative mb-4 h-4 w-1/2 overflow-hidden rounded bg-gray-200'>
-                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-                </div>
-
-                {/* Add to Cart Button Skeleton */}
-                <div className='relative h-10 w-full overflow-hidden rounded-lg bg-gray-200'>
-                  <div className='animate-shimmer absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white to-transparent'></div>
-                </div>
+                <div className='mb-4 h-48 animate-pulse rounded-lg bg-gray-200'></div>
+                <div className='mb-2 h-6 w-3/4 animate-pulse rounded bg-gray-200'></div>
+                <div className='mb-4 h-4 w-full animate-pulse rounded bg-gray-200'></div>
+                <div className='mb-4 h-4 w-1/2 animate-pulse rounded bg-gray-200'></div>
+                <div className='h-10 w-full animate-pulse rounded-lg bg-gray-200'></div>
               </div>
             ))}
           </div>

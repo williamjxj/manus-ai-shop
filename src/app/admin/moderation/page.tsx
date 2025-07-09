@@ -48,7 +48,6 @@ export default function ModerationDashboard() {
 
   useEffect(() => {
     fetchProducts()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter])
 
   const fetchProducts = async () => {

@@ -14,7 +14,7 @@ export default function ShimmerSkeleton({
   shimmerColor = 'gray',
 }: ShimmerSkeletonProps) {
   const baseClasses = 'relative overflow-hidden'
-  
+
   const variantClasses = {
     default: 'rounded',
     rounded: 'rounded-lg',
@@ -35,21 +35,13 @@ export default function ShimmerSkeleton({
 
   return (
     <div
-      className={`
-        ${baseClasses}
-        ${variantClasses[variant]}
-        ${shimmerColorClasses[shimmerColor]}
-        ${className}
-      `}
+      className={` ${baseClasses} ${variantClasses[variant]} ${shimmerColorClasses[shimmerColor]} ${className} `}
     >
       {children}
-      
+
       {/* Shimmer overlay */}
       <div
-        className={`
-          absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r
-          ${shimmerGradientClasses[shimmerColor]}
-        `}
+        className={`absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r ${shimmerGradientClasses[shimmerColor]} `}
         style={{
           animation: 'shimmer 2s infinite',
         }}
@@ -91,7 +83,7 @@ export function SkeletonImage({
   return (
     <ShimmerSkeleton
       className={`aspect-square w-full ${className}`}
-      variant="rounded"
+      variant='rounded'
       shimmerColor={shimmerColor}
     />
   )
@@ -107,7 +99,7 @@ export function SkeletonButton({
   return (
     <ShimmerSkeleton
       className={`h-10 w-full ${className}`}
-      variant="rounded"
+      variant='rounded'
       shimmerColor={shimmerColor}
     />
   )
@@ -122,10 +114,14 @@ export function SkeletonCard({
 }) {
   return (
     <div className={`rounded-lg bg-white p-4 shadow-md ${className}`}>
-      <SkeletonImage className="mb-4" shimmerColor={shimmerColor} />
-      <SkeletonText lines={1} className="mb-2" shimmerColor={shimmerColor} />
-      <SkeletonText lines={2} className="mb-4" shimmerColor={shimmerColor} />
-      <SkeletonText lines={1} className="mb-4 w-1/2" shimmerColor={shimmerColor} />
+      <SkeletonImage className='mb-4' shimmerColor={shimmerColor} />
+      <SkeletonText lines={1} className='mb-2' shimmerColor={shimmerColor} />
+      <SkeletonText lines={2} className='mb-4' shimmerColor={shimmerColor} />
+      <SkeletonText
+        lines={1}
+        className='mb-4 w-1/2'
+        shimmerColor={shimmerColor}
+      />
       <SkeletonButton shimmerColor={shimmerColor} />
     </div>
   )

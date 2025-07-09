@@ -3,14 +3,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import AddToCartButton from '@/components/AddToCartButton'
 import ProductActionButtons from '@/components/ProductActionButtons'
 import ProductMediaGallery from '@/components/ProductMediaGallery'
 import ProductReviews from '@/components/ProductReviews'
-
 import { getSafeImageUrl } from '@/lib/image-utils'
 import { createClient } from '@/lib/supabase/server'
-
-import AddToCartButton from '@/components/AddToCartButton'
 
 interface ProductPageProps {
   params: Promise<{
@@ -22,12 +20,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  // Get current user to check ownership
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  // Fetch product details
   const { data: product, error } = await supabase
     .from('products')
     .select(
@@ -40,33 +35,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .single()
 
   if (error || !product) {
-    console.error('Product not found:', { error, productId: id })
     notFound()
   }
 
-  // Check if user can view this product
-  // Allow if: product is approved OR user is the owner
   const canView =
     product.moderation_status === 'approved' ||
     (user && product.user_id === user.id)
 
-  console.log('Product access check:', {
-    productId: id,
-    productStatus: product.moderation_status,
-    productOwnerId: product.user_id,
-    currentUserId: user?.id,
-    canView,
-  })
-
   if (!canView) {
-    console.error('Access denied to product:', {
-      productId: id,
-      reason: 'Not approved and not owner',
-    })
     notFound()
   }
 
-  // Increment view count (fire and forget)
   supabase
     .from('products')
     .update({ view_count: (product.view_count || 0) + 1 })
@@ -76,7 +55,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-50 to-gray-100'>
       <div className='mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8'>
-        {/* Header with Back Button and Status */}
         <div className='mb-6 flex items-center justify-between'>
           <Link
             href='/products'
@@ -320,6 +298,6 @@ export async function generateMetadata({ params }: ProductPageProps) {
     description:
       product.description ||
       `Premium AI-generated adult content: ${product.name}`,
-    robots: 'noindex, nofollow', // Don't index adult content
+    robots: 'noindex, nofollow',
   }
 }

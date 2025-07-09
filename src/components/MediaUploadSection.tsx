@@ -2,7 +2,7 @@
 
 import { ImageIcon, Plus, Star, Video, X } from 'lucide-react'
 import Image from 'next/image'
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { validateImageFile, validateVideoFile } from '@/lib/media-upload-utils'

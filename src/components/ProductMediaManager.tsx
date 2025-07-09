@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react'
 import Image from 'next/image'
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { ProductMedia } from '@/lib/product-management'
