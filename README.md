@@ -1,144 +1,43 @@
-# AI Shop - Next.js E-commerce Platform
+# AI Shop - Your Gateway to Unique AI-Generated Art
 
-URL: [https://manus-ai-shop.vercel.app](https://manus-ai-shop.vercel.app)
+**Live Application:** [https://manus-ai-shop.vercel.app](https://manus-ai-shop.vercel.app)
 
-A modern e-commerce application for purchasing AI-generated images with dual payment options (Stripe & Points system).
+Welcome to AI-Shop, the premier online marketplace for stunning, one-of-a-kind images and artwork created by cutting-edge artificial intelligence. Discover, collect, and purchase unique digital creations, or even upload your own to share with the world.
 
-## ✨ Key Features
+## ✨ Highlights
 
-- 🔐 **Authentication**: Email/password + social logins (Google, GitHub)
-- 🛒 **Shopping Cart**: Real-time cart management with persistent storage
-- 💳 **Dual Payments**: Stripe checkout + Points-based transactions
-- 🪙 **Points System**: Buy points packages, spend on products
-- 🎨 **AI Art Gallery**: Browse and purchase AI-generated images
-- 📤 **Upload Feature**: Authenticated users can upload and sell images
-- 📱 **Responsive Design**: Mobile-first with Tailwind CSS
-- 🔒 **Secure**: Row-level security (RLS) with Supabase
+*   **Instant Purchases:** Buy your favorite AI art securely and instantly with Stripe.
+*   **Earn & Spend Points:** Participate in our community, earn points, and use them to acquire new artwork.
+*   **AI Face-Swap:** Have fun with our integrated 3rd party AI face-swap feature.
+*   **Seamless Shopping:** Enjoy a smooth and intuitive shopping experience, from browsing to checkout.
 
-## 🛠 Tech Stack
+## 🛍️ Features
 
-- **Framework**: Next.js 15 (App Router)
-- **Database**: Supabase (PostgreSQL + Auth + Storage)
-- **Payments**: Stripe (webhooks + checkout)
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
-- **Deployment**: Vercel-ready
+*   **Secure User Accounts:** Easily sign up and log in with your email or social media accounts (Google, GitHub) powered by Supabase Authentication.
+*   **Effortless Payments:** We offer a secure and reliable payment system using Stripe, a global leader in online payments.
+*   **Flexible Shopping Cart:** Add and manage items in your cart with ease.
+*   **Points & Rewards:** Our unique points system allows you to earn rewards and purchase items.
+*   **Order History:** Keep track of all your purchases in your personal order history.
+*   **AI-Powered Art:** Explore a vast collection of AI-generated images.
+*   **Contribute Your Creations:** Upload and sell your own AI-generated images.
 
-## 🚀 Quick Start
+## 🖼️ Application Screenshots
 
-### Local Development (Recommended)
+### Home Page
+![Home Page](public/screenshots/home.png)
 
-```bash
-# 1. Install Supabase CLI
-brew install supabase/tap/supabase
+### Products Page
+![Products Page](public/screenshots/products.png)
 
-# 2. Clone and setup
-git clone <repository-url>
-cd manus-ai-shop
-npm install
+### Cart
+![Cart](public/screenshots/cart.png)
 
-# 3. Start local Supabase
-supabase start
+### Orders
+![Orders](public/screenshots/orders.png)
 
-# 4. Run development server
-npm run dev
-```
+### Points
+![Points](public/screenshots/points.png)
 
-**Local Services:**
+---
 
-- App: http://localhost:3000
-- Supabase Studio: http://127.0.0.1:54323
-
-### Environment Switching
-
-```bash
-# Switch between local/cloud environments
-./scripts/switch-env.sh local   # Local development
-./scripts/switch-env.sh cloud   # Production/cloud
-./scripts/switch-env.sh status  # Check current
-```
-
-### 1. Environment Variables (Manual Setup)
-
-Create a `.env.local` file in the root directory:
-
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-
-# Stripe
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
-STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=whsec_your_stripe_webhook_secret
-
-# App URL
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-### 2. Supabase Setup
-
-1. Create a new Supabase project at [supabase.com](https://supabase.com)
-2. Run the SQL schema from `supabase-schema.sql` in your Supabase SQL editor
-3. Enable authentication providers in Supabase Dashboard:
-   - Go to Authentication > Providers
-   - Enable Google and GitHub OAuth
-4. Copy your project URL and anon key to `.env.local`
-
-### 3. Stripe Setup
-
-1. Create a Stripe account at [stripe.com](https://stripe.com)
-2. Get your test API keys from the Stripe Dashboard
-3. Set up a webhook endpoint pointing to `/api/webhooks/stripe`
-4. Copy the webhook secret to `.env.local`
-
-### 4. Installation
-
-```bash
-npm install
-npm run dev
-open http://localhost:3000
-```
-
-## 🚀 Deployment
-
-**Vercel (Recommended):**
-
-1. Connect GitHub repository
-2. Set environment variables
-3. Deploy automatically
-
-**Environment Variables:**
-
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-
-## 📚 Documentation
-
-All documentation is organized in the `docs/` folder:
-
-- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Complete deployment guide
-- **[FEATURES.md](docs/FEATURES.md)** - Feature documentation
-- **[debug-checklist.md](docs/debug-checklist.md)** - Troubleshooting guide
-- **[stripe.md](docs/stripe.md)** - Stripe integration details
-- **[supabase.md](docs/supabase.md)** - Supabase setup and usage
-
-## 🗄️ Database & SQL Files
-
-All SQL files are organized in the `supabase/` folder:
-
-- **`migrations/`** - Database schema migrations
-- **`*.sql`** - Utility scripts and setup files
-- **`config.toml`** - Supabase configuration
-
-## 🔒 Security
-
-- Row Level Security (RLS) policies
-- Protected API routes
-- Secure webhook verification
-- Environment variable protection
+For developers, please see `DEVELOPERS.md`.
